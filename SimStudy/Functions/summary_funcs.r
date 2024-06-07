@@ -116,7 +116,8 @@ make_plot_measure <- function(data_frame, cluster, plot_title, sub_title, x_titl
 
 make_plot_line_phi <- function(data_frame, cluster, plot_title, sub_title, x_title, y_title, filename, measures){
     data_frame[["Measure"]] <- factor(data_frame[["Measure"]],
-     labels=c("F score", "Relevance", "Recovery", "CSR", "BiS", "Restrictions"))
+     labels=measures)
+    
     if(min(data_frame$Mean)<0){
         y_min <- min(data_frame$Mean)
         y_lims <- c(y_min,1)
@@ -147,12 +148,67 @@ make_plot_line_phi <- function(data_frame, cluster, plot_title, sub_title, x_tit
      x = TeX("$\\phi$"),
      y = "Measure"
    )
-    p <- p +
-        theme_minimal()+
-        theme(text = element_text(size = 11), legend.position = "right", 
+    # p <- p +
+    #     theme_minimal()+
+    #     theme(text = element_text(size = 11), legend.position = "right", 
+    #             axis.text.x = element_text(angle = -45, hjust=0.1),
+    #             axis.ticks = element_line(size = 0.3),
+    #             axis.line = element_line(size = 0.3))
+    suppressMessages(ggsave(filename, plot = p, compress = FALSE, device="pdf"))
+    return(p)
+}
+make_phi_agg <- function(data_frame, cluster, plot_title, 
+            sub_title, x_title, y_title, filename, measures, broken=TRUE, x_even= TRUE){
+    data_frame[["Measure"]] <- factor(data_frame[["Measure"]],
+     labels=measures)
+    
+    if(broken){
+        y_lims <- c(0.6,1)
+        y_breaks <- seq(0.6, 1, length = 5)
+    }else{
+        y_lims <- c(0,1)
+        y_breaks <- seq(0, 1, length = 6)
+    }
+    if(x_even){
+        x_breaks <- unique(data_frame$Factor)
+        data_frame$Factor <- factor(data_frame$Factor, labels = x_breaks)  
+    }else{
+        x_breaks <- seq(0,2000,200)
+    }
+    p <- ggplot(subset(data_frame, Choice==cluster),
+         aes(x=Factor, y=Mean, group=Measure, color=Measure)) + 
+        geom_line(stat="identity")+
+    # geom_point(show.legend=FALSE) +
+    # geom_errorbar(aes(ymin=Mean-S.d., ymax=Mean+S.d.), width=.2,
+    #             position=position_dodge(0.01),show.legend=FALSE, linetype=1)+
+        expand_limits(y=y_lims)+
+        scale_color_viridis_d()+
+        scale_y_continuous(breaks = y_breaks)
+    if(x_even){
+        p <- p + scale_x_discrete(breaks = x_breaks)
+    }else{
+        p <- p + scale_x_continuous(breaks = x_breaks)
+    }
+     p <- p+ 
+            labs(
+            title = plot_title,
+            x = TeX("$\\phi$"),
+            y = "Measure")+
+            theme_minimal()
+    if(x_even){
+        p <- p + theme(text = element_text(size = 11), legend.position = "bottom", 
+                legend.title = element_blank(),
                 axis.text.x = element_text(angle = -45, hjust=0.1),
                 axis.ticks = element_line(size = 0.3),
                 axis.line = element_line(size = 0.3))
+    }else{
+        p <- p + theme(text = element_text(size = 11),legend.position = "bottom",
+                legend.title = element_blank(),
+                axis.ticks = element_line(size = 0.3),
+                axis.line = element_line(size = 0.3))
+    }
+    
+        
     suppressMessages(ggsave(filename, plot = p, compress = FALSE, device="pdf"))
     return(p)
 }

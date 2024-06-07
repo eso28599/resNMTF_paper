@@ -1,14 +1,15 @@
-source("sim_common_files/resNMTF_files/resNMTF_funcs.r")
-source("sim_common_files/resNMTF_files/data_generation.r")
-source("sim_common_files/resNMTF_files/extra_funcs.r")
+source("ResNMTF/ResNMTF/main.r")
+source("ResNMTF/ResNMTF/SimStudy/Functions/data_generation.r")
+source("ResNMTF/ResNMTF/SimStudy/Functions/extra_funcs.r")
 library(ggplot2)
 phi <- matrix(0, nrow = 2, ncol = 2)
 phi[1, c(2)] <- 200
+set.seed(15)
 save_data(rep(200,2), c(100, 250),
                  4,
-                "results/dist_investigate", 3,  TRUE, FALSE)
+                "ResNMTF/ResNMTF/Investigation", 3,  TRUE, FALSE)
 
-data4 <- import_matrix("results/dist_investigate/data.xlsx")
+data4 <- import_matrix("ResNMTF/ResNMTF/Investigation/data.xlsx")
 nmtf_results4 <- restMultiNMTF_run(Xinput = data4, phi = phi)
 
 #shuffle data
@@ -49,25 +50,25 @@ for(i in 1:1){
                 theme_minimal()+
                 theme(axis.title.x=element_blank(), #remove x axis labels
         axis.title.y=element_blank(), axis.text.x=element_blank(),
-            axis.ticks.x=element_blank(),axis.ticks.y = element_line(size = 0.3),
+            axis.ticks.x=element_blank(),axis.ticks.y = element_line(linewidth = 0.3),
                 axis.line = element_line(size = 0.3))
         plots_shuff[[n]] <- ggplot(df2, aes(x=Entry,y=Density)) + 
                 geom_line()  + xlim(xlims[1], xlims[2]) +
                 ylim(ylims[1], ylims[2]) + theme_minimal() + theme(axis.title.x=element_blank(), #remove x axis labels
         axis.title.y=element_blank(), axis.text.x=element_blank(),
-            axis.ticks.x=element_blank(),axis.ticks.y = element_line(size = 0.3),
+            axis.ticks.x=element_blank(),axis.ticks.y = element_line(linewidth = 0.3),
                 axis.line = element_line(size = 0.3))
         }else{
             plots_true[[n]] <- ggplot(df1, aes(x=Entry,y=Density)) + 
                 geom_line()+ xlim(xlims[1], xlims[2]) +
                 ylim(ylims[1], ylims[2]) + theme_minimal()+
                 theme(axis.title.x=element_blank(), #remove x axis labels
-        axis.title.y=element_blank(),axis.ticks.y = element_line(size = 0.3),
-                axis.line = element_line(size = 0.3))
+        axis.title.y=element_blank(),axis.ticks.y = element_line(linewidth = 0.3),
+                axis.line = element_line(linewidth = 0.3))
             plots_shuff[[n]] <- ggplot(df2, aes(x=Entry,y=Density)) + 
                 geom_line()  + xlim(xlims[1], xlims[2]) +
                 ylim(ylims[1], ylims[2]) + theme_minimal()+theme(axis.title.x=element_blank(), #remove x axis labels
-        axis.title.y=element_blank(),axis.ticks.y = element_line(size = 0.3),
+        axis.title.y=element_blank(),axis.ticks.y = element_line(linewdith = 0.3),
                 axis.line = element_line(size = 0.3))
         }
         
@@ -97,5 +98,5 @@ figure_shuff <- ggarrange(plotlist=plots_shuff[1:4], # remove axis labels from p
 
 figure_shuff <- annotate_figure(figure_shuff, left = textGrob("Density", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                     bottom = textGrob("F entry", gp = gpar(cex = 1.3)))
-suppressMessages(ggsave("results/f_data_dists.pdf", plot = figure, compress = FALSE, device="pdf",width=18,height=22, units="cm"))
-suppressMessages(ggsave("results/shuffled_data_dists.pdf", plot = figure_shuff, compress = FALSE, device="pdf",width=18,height=22, units="cm"))
+suppressMessages(ggsave("ResNMTF/ResNMTF/Investigation/f_data_dists.pdf", plot = figure, compress = FALSE, device="pdf",width=18,height=22, units="cm"))
+suppressMessages(ggsave("ResNMTF/ResNMTF/Investigation/shuffled_data_dists.pdf", plot = figure_shuff, compress = FALSE, device="pdf",width=18,height=22, units="cm"))

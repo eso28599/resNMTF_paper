@@ -337,6 +337,7 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
     #clustering as well matching clusters correctly.
     n_views <- length(Xinput)
     n_clusts <- dim(row_clustering[[1]])[2]
+    n_clusts_row <- n_clusts
     relations <- matrix(0, nrow = n_views, n_clusts)
     sil_score <- matrix(0, nrow = n_views, n_clusts)
     clust_one <- col_clustering
@@ -345,13 +346,20 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
         s_mat <- matrix(0, nrow = n_clusts, n_clusts)
         a_mat <- matrix(0, nrow = n_clusts, n_clusts)
         b_mat <- matrix(0, nrow = n_clusts, n_clusts)
-        for (k in 1:n_clusts){
+        rep_check <- any(sum(rowSums(clust_two[[i]][,colSums(clust_two[[i]])!=0])>=(n_clusts - 1))==colSums(clust_two[[i]]))
+        if(rep_check){
+          clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
+          n_clusts_row <- n_clusts_row + 1
+        }
+        for (k in 1:n_clusts_row){
           #select data from specific column clustering
           if (sum(clust_one[[i]][, k] == 1) == 0){
             s_mat[k, ] <- 0
           }else{
             new_data <- Xinput[[i]][, (clust_one[[i]][, k] == 1)]
-            spear_dists <- as.matrix(dist(new_data, method=distance))/ (dim(new_data)[2])
+            # spear_dists <- as.matrix(dist(new_data, method=distance))/ (dim(new_data)[2])
+            spear_dists <- as.matrix(dist(new_data, method=distance))
+
             for (j in 1:n_clusts){
               indices <- clust_two[[i]][, j] == 1
               if (sum(indices) == 0) {
@@ -397,10 +405,10 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
           relations[i, ] <- apply(s_mat, 1, which.min)
           sil_score[i, ] <- diag(s_mat)
         }else{
-          relations[i, ] <- apply(s_mat, 1, which.max)
-          sil_score[i, ] <- apply(s_mat, 1, max)
-          #rels <- apply(Soutput[[i]], 2, which.max)
-          #sil_score[i, ] <- diag(s_mat[rels,])
+          # relations[i, ] <- apply(s_mat, 1, which.max)
+          # sil_score[i, ] <- apply(s_mat, 1, max)
+          relations[i, ]  <- apply(Soutput[[i]], 2, which.max)
+          sil_score[i, ] <- diag(s_mat[relations[i, ] ,])
         }
     }
   overall_score <- apply(sil_score, 1, function(x) ifelse(sum(x) == 0,
@@ -871,6 +879,7 @@ restMultiNMTF_run <- function(Xinput, Finput=NULL, Sinput=NULL,
     test <- KK[which.max(err_list)]
   }
   }
+  print(err_list)
   k <- which.max(err_list)
   results <- res_list[[k]]
   k_vec <- rep(KK[k], length = n_v)

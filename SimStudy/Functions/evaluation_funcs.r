@@ -94,15 +94,23 @@ sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"
       Xinput <- single_alt_l1_normalisation(Xinput)$newMatrix
     }
     n_clusts <- ncol(row_clustering)
+    n_clusts_row <- n_clusts
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
+    rep_check <- any(sum(rowSums(clust_two[,colSums(clust_two)!=0])>=(n_clusts - 1))==colSums(clust_two))
+    if(rep_check){
+      clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
+      n_clusts_row <- n_clusts_row + 1
+    }
     s_vals <- vector("list", length=n_clusts)
     for (k in 1:n_clusts){
       #select data from specific column clustering
       new_data <- Xinput[, (clust_one[, k] == 1)]
-      norm_val <- ifelse(is.null((dim(new_data)[2])), 1, (dim(new_data)[2]))
-      spear_dists <- as.matrix(dist(new_data, method))/ norm_val
+      # norm_val <- ifelse(is.null((dim(new_data)[2])), 1, (dim(new_data)[2]))
+      # spear_dists <- as.matrix(dist(new_data, method))/ sqrt(norm_val)
+      spear_dists <- as.matrix(dist(new_data, method))
+
       indices <- clust_two[, k] == 1
       b_vec <- c()
       if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
@@ -122,8 +130,8 @@ sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"
           }
           b_vec <- c(b_vec, mean(b_vals))
         }else{
-          other <- (1:n_clusts)[-k]
-          b_vals <- vector("list", length = (n_clusts - 1))
+          other <- (1:n_clusts_row)[-k]
+          b_vals <- vector("list", length = (n_clusts_row - 1))
           t <- 1
           for(l in other){
               oth_ind <- clust_two[, l] == 1
@@ -328,4 +336,25 @@ all_jaccs <- function(rows, res){
     recs <- c(recs, jaccs[[i]]$rec[1])
   }
   return(c(fs, mean(fs), rels, mean(rels), recs, mean(recs)))
+}
+
+
+dis_results <- function(data, rows, res, phi ,rep, path, row_same=FALSE){
+        #save data
+        openxlsx::write.xlsx(res$row_clusters,
+                file = paste0(path, "/data/row_clusts", phi, "_", rep, ".xlsx"))
+        openxlsx::write.xlsx(res$col_clusters,
+                file = paste0(path, "/data/col_clusts", phi, "_", rep, ".xlsx"))
+        sils <- calc_all_sils(data, res)
+        #jaccard
+        if(row_same){
+          jaccs <- all_jaccs(rows, res$row_clusters)
+        }else{
+          jaccs <- all_jaccs(rows, res$col_clusters)
+        }
+        
+        #no clusts
+        no_clusts <- max(sapply(res$row_clusters,
+                                 function(x) sum(colSums(x) != 0)))
+        return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts))
 }

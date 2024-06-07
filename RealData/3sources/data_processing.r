@@ -48,3 +48,15 @@ for(i in 1:6){
 }
 
 write.csv(true_labs, "3sources/true_labels.csv")
+source("ResNMTF/ResNMTF/SimStudy/Functions/extra_funcs.r")
+sources <- import_matrix("ResNMTF/ResNMTF/RealData/3sources/3sources_all_diff.xlsx")
+s1 <- sum(sources[[1]]==0)/(dim(sources[[1]])[1]*dim(sources[[1]])[2])
+s2 <- sum(sources[[2]]==0)/(dim(sources[[2]])[1]*dim(sources[[2]])[2])
+s3 <- sum(sources[[3]]==0)/(dim(sources[[3]])[1]*dim(sources[[3]])[2])
+bbc <- import_matrix("ResNMTF/ResNMTF/RealData/bbcsport/bbc_data_processed.xlsx")
+b1 <- sum(bbc[[1]]==0)/(dim(bbc[[1]])[1]*dim(bbc[[1]])[2])
+b2 <- sum(bbc[[2]]==0)/(dim(bbc[[2]])[1]*dim(bbc[[2]])[2])
+a549 <- import_matrix("ResNMTF/ResNMTF/RealData/single_cell/data_processed.xlsx")
+a1 <- sum(a549[[1]]==0)/(dim(a549[[1]])[1]*dim(a549[[1]])[2])
+a2 <- sum(a549[[2]]==0)/(dim(a549[[2]])[1]*dim(a549[[2]])[2])
+
