@@ -330,6 +330,19 @@ check_biclusters <- function(Xinput, Foutput, repeats){
           "max_threshold" = thresholds$max_score))
 }
 
+check <- function(matrix){
+       n_clusts <- ncol(matrix)
+       equal <- diag(n_clusts)
+       for(i in 1:(n_clusts-1)){
+              for(j in (i+1):n_clusts){
+                     check <- all(matrix[,i]==matrix[,j])
+                     equal[i,j] <- check
+                     equal[j,i] <- check
+              }
+       }
+       return(nrow(unique(equal))==2)
+}
+
 ##Functions to return clustering with spurious biclusters removed
 
 bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distance, final=FALSE){
@@ -346,9 +359,10 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
         s_mat <- matrix(0, nrow = n_clusts, n_clusts)
         a_mat <- matrix(0, nrow = n_clusts, n_clusts)
         b_mat <- matrix(0, nrow = n_clusts, n_clusts)
-        rep_check <- any(sum(rowSums(clust_two[[i]][,colSums(clust_two[[i]])!=0])>=(n_clusts - 1))==colSums(clust_two[[i]]))
-        if(rep_check){
-          clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
+        n_clusts_row <- n_clusts
+        # rep_check <- any(sum(rowSums(clust_two[[i]][,colSums(clust_two[[i]])!=0])>=(n_clusts - 1))==colSums(clust_two[[i]]))
+        if(check(clust_two[[i]])){
+          clust_two[[i]] <- cbind(clust_two[[i]], rbinom(nrow(row_clustering[[i]]), 1, 0.1))
           n_clusts_row <- n_clusts_row + 1
         }
         for (k in 1:n_clusts_row){
@@ -367,9 +381,9 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
               }else{
                 a_vals <- apply(spear_dists[indices, indices], 1, function(x) sum(x)/(length(x)-1))
                 #other clusts
-                other <- (1:n_clusts)[-j]
+                other <- (1:n_clusts_row)[-j]
                 b_vec <- c()
-                b_vals <- vector("list", length = (n_clusts - 1))
+                b_vals <- vector("list", length = (n_clusts_row - 1))
                 t <- 1
                 for(l in other){
                     oth_ind <- clust_two[[i]][, l] == 1
@@ -407,6 +421,9 @@ bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distan
         }else{
           # relations[i, ] <- apply(s_mat, 1, which.max)
           # sil_score[i, ] <- apply(s_mat, 1, max)
+          if(apply(s_mat, 1, which.max)!=apply(Soutput[[i]], 2, which.max)){
+            print("diff matching")
+          }
           relations[i, ]  <- apply(Soutput[[i]], 2, which.max)
           sil_score[i, ] <- diag(s_mat[relations[i, ] ,])
         }

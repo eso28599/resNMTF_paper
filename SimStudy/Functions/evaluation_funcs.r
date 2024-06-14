@@ -84,7 +84,18 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE){
   return(list("rec" = rep(rev, 2), "rel" = rep(rel, 2), "f_score" = rep(f, 2), "relations" = relations))
 }
 
-
+check <- function(matrix){
+       n_clusts <- ncol(matrix)
+       equal <- diag(n_clusts)
+       for(i in 1:(n_clusts-1)){
+              for(j in (i+1):n_clusts){
+                     check <- all(matrix[,i]==matrix[,j])
+                     equal[i,j] <- check
+                     equal[j,i] <- check
+              }
+       }
+       return(nrow(unique(equal))==2)
+}
 
 # calculate sil score for one view
 sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
@@ -98,8 +109,8 @@ sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
-    rep_check <- any(sum(rowSums(clust_two[,colSums(clust_two)!=0])>=(n_clusts - 1))==colSums(clust_two))
-    if(rep_check){
+    # rep_check <- any(sum(rowSums(clust_two[,colSums(clust_two)!=0])>=(n_clusts - 1))==colSums(clust_two))
+    if(check(clust_two)){
       clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
       n_clusts_row <- n_clusts_row + 1
     }

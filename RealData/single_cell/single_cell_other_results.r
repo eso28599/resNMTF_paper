@@ -90,7 +90,7 @@ n_views <- 2
 # #combine results
 filepath <- "single_cell"
 filepath <- "investigate_applications/single_cell"
-resnmtf_res <- read.csv(paste0(filepath, "/final_res_resnmtf.csv"))
+resnmtf_res <- read.csv(paste0(filepath, "/final_res_resnmtf.csv"), row.names=1)
 conc_res <- read.csv(paste0(filepath, "/conc_method_results.csv"))[1:5,]
 gfa_res <- read.csv(paste0(filepath, "/other_method_results.csv"))[1:5,]
 issvd_res <- read.csv(paste0(filepath, "/python_method_results.csv"))
