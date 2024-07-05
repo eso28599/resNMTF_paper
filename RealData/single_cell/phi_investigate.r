@@ -32,12 +32,26 @@ colnames(results) <- c("rep", "phi",
                  paste0("BiS-C (V", 1:n_views, ")"), "BiS-C","k")
 k<-1
 
-for(t in 1:n_reps){
-    res <- restMultiNMTF_run(Xinput = cell_data, k_min = 3, 
-                                            k_max = 6, phi = phi_val*phi_mat, 
-                                            distance = dis, stability=FALSE)
-    results[k, ] <- c(t, phi_val,
-                                dis_results(cell_data, labs, res, phi_val, t, paste0("single_cell/",dis),row_same=TRUE)) 
-    k <- k+1
-    write.csv(results, paste0("single_cell/data/sc_phi_",dis,phi_val,".csv"))
+# for(t in 1:n_reps){
+#     res <- restMultiNMTF_run(Xinput = cell_data, k_min = 3, 
+#                                             k_max = 6, phi = phi_val*phi_mat, 
+#                                             distance = dis, stability=FALSE)
+#     results[k, ] <- c(t, phi_val,
+#                                 dis_results(cell_data, labs, res, phi_val, t, paste0("single_cell/",dis),row_same=TRUE)) 
+#     k <- k+1
+#     write.csv(results, paste0("single_cell/data/sc_phi_",dis,phi_val,".csv"))
+# }
+
+
+k <- 1
+for(j in 1:5){
+     rows <- import_matrix(paste0("single_cell/",dis, "/data/row_clusts", phi_val, "_", j, ".xlsx"))
+     cols_og <- import_matrix(paste0("single_cell/",dis, "/data/col_clusts", phi_val, "_", j, ".xlsx"))
+     cols <- list(matrix(1, nrow=ncol(cols_og[[1]]), ncol=ncol(cols_og[[1]])),
+                matrix(1, nrow=ncol(cols_og[[2]]), ncol=ncol(cols_og[[2]])))
+     res_euc <- list("row_clusters" =rows, "col_clusters" =cols)
+     results[k,] <- c(j, phi_val,
+                                dis_results(cell_data, labs, res_euc, phi_val, j, "single_cell/sil", row_same=TRUE)) 
+     write.csv(results, paste0("single_cell/data/sil_psi_",dis,phi_val,".csv"))
+     k <- k + 1
 }

@@ -1,5 +1,5 @@
 #source("data_generation.r")
-#source("sim_common_files/resNMTF_files/evaluation_funcs.r")
+source("evaluation_funcs.r")
 #source("toy_data_gen.r")
 #source("sim_common_files/resNMTF_files/data_generation.r")
 #source("sim_common_files/resNMTF_files/evaluation_funcs.r")
@@ -54,8 +54,6 @@ bisil_plot <- function(data, rows, cols, filename=NULL){
     break_vals <- break_func(df$y)
     breaks_x <- x_breaks(df)
     bis_val <- scores$sil
-    print(bis_val)
-    print(break_vals)
     p <- ggplot(df)+
         geom_col(aes(x = x, y = y, group=clust, color=clust, fill=clust), width=1, position=position_dodge())+
         scale_y_continuous(breaks=break_vals,limits=c(min(break_vals), max(break_vals)))+

@@ -1,6 +1,10 @@
 args = commandArgs(trailingOnly = TRUE)
 dataset = as.character(args[1])
 n_views = as.numeric(args[2])
+source("visualisation.r")
+source("extra_funcs.r")
+library(latex2exp)
+library(ggplot2)
 if(dataset=="3sources"){
     file_path <- paste0(dataset, "/data/three_s_psi_")
     phi_vec <- c(seq(0, 1800, 50), 1900, 1950)
@@ -64,3 +68,43 @@ dis_study <- rbind(c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.
              c(sub_res[[1]]$psi, sub_res[[2]]$psi, sub_res[[3]]$psi))
 write.csv(dis_study,
     paste0(dataset, "/distance_study.csv"))
+
+#produce plot of f score vs bis 
+euc_sc <- read.csv(paste0(dataset, "/data/euc_results.csv"), row.names=1)
+colnames(euc_sc) <- old_names
+sc <- as.data.frame(euc_sc)
+
+p <- ggplot(sc, aes(x = psi)) +
+  geom_point(aes(y = F.score, color="F.score"),alpha=0.55) +
+  geom_point(aes(y = BiS.E*5,color="BiS.E"),alpha=0.55) + 
+  scale_y_continuous(
+    name = "F score",
+    sec.axis = sec_axis(~ . / 5, name = "BiS") 
+  ) +
+  labs(x = TeX("$\\phi$")) +
+  scale_colour_manual(
+    name = "",
+    values = c("F.score" = "black", "BiS.E" = "green"),
+    labels = c("F.score" = "F score", "BiS.E" = "BiS")
+  ) +
+  theme_minimal()
+
+suppressMessages(ggsave(paste0(dataset, "_f_score_bis_psi.pdf"), plot = p, compress = FALSE, device="pdf"))
+
+
+#bisil plot
+if(dataset=="single_cell"){
+    max_f <- which.max(results_euc[, "F.score"])
+    rep_max <- results_euc[max_f,"rep"]
+    psi_max <- results_euc[max_f,"psi"]
+    filepath_row <- paste0(dataset,"/euclidean/data/row_clusts",
+                    psi_max, "_", rep_max, ".xlsx")
+    filepath_col <- paste0(dataset,"/euclidean/data/col_clusts",
+                    psi_max, "_", rep_max, ".xlsx")
+    row_clusts <- import_matrix(filepath_row)
+    col_clusts <- import_matrix(filepath_col)
+    single_cell <- import_matrix("single_cell/data_processed.xlsx")
+    path_to_save <- paste0(dataset,"/sc_bisil_plot.pdf")
+    bisil_plot(single_cell[[1]], row_clusts[[1]], col_clusts[[1]], path_to_save)
+}
+
