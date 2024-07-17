@@ -43,15 +43,15 @@ k<-1
 # }
 
 
-k <- 1
-for(j in 1:5){
-     rows <- import_matrix(paste0("single_cell/",dis, "/data/row_clusts", phi_val, "_", j, ".xlsx"))
-     cols_og <- import_matrix(paste0("single_cell/",dis, "/data/col_clusts", phi_val, "_", j, ".xlsx"))
-     cols <- list(matrix(1, nrow=ncol(cols_og[[1]]), ncol=ncol(cols_og[[1]])),
-                matrix(1, nrow=ncol(cols_og[[2]]), ncol=ncol(cols_og[[2]])))
-     res_euc <- list("row_clusters" =rows, "col_clusters" =cols)
-     results[k,] <- c(j, phi_val,
-                                dis_results(cell_data, labs, res_euc, phi_val, j, "single_cell/sil", row_same=TRUE)) 
-     write.csv(results, paste0("single_cell/data/sil_psi_",dis,phi_val,".csv"))
-     k <- k + 1
-}
+# k <- 1
+# for(j in 1:5){
+#      rows <- import_matrix(paste0("single_cell/",dis, "/data/row_clusts", phi_val, "_", j, ".xlsx"))
+#      cols_og <- import_matrix(paste0("single_cell/",dis, "/data/col_clusts", phi_val, "_", j, ".xlsx"))
+#      cols <- list(matrix(1, nrow=ncol(cols_og[[1]]), ncol=ncol(cols_og[[1]])),
+#                 matrix(1, nrow=ncol(cols_og[[2]]), ncol=ncol(cols_og[[2]])))
+#      res_euc <- list("row_clusters" =rows, "col_clusters" =cols)
+#      results[k,] <- c(j, phi_val,
+#                                 dis_results(cell_data, labs, res_euc, phi_val, j, "single_cell/sil", row_same=TRUE)) 
+#      write.csv(results, paste0("single_cell/data/sil_psi_",dis,phi_val,".csv"))
+#      k <- k + 1
+# }

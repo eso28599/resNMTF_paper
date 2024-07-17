@@ -15,6 +15,7 @@ if(dataset=="3sources"){
     file_path <- paste0(dataset, "/data/", dataset, "_psi_")
     phi_vec <- seq(0, 2000, 50)
 }
+
 n_col <- 3 + 6 * (n_views + 1)
 
 results_euc <- matrix(0, nrow=5*length(phi_vec), ncol=n_col)
@@ -49,7 +50,9 @@ colnames(results_cos) <- old_names
 colnames(results_euc) <- old_names
 colnames(results_mann) <- old_names
 method <- paste0("ResNMTF - ", c("BiS (E)", "BiS (C)", "BiS (M)", "F score"))
-res_list <- list(results_euc, results_cos, results_mann)
+res_list <- list(results_euc[results_euc[,"rep"]!=0, ], 
+            results_cos[results_cos[,"rep"]!=0, ],
+            results_mann[results_mann[,"rep"]!=0, ])
 dis <- c("E", "C", "M")
 sub_res <- vector("list", length=3)
 dis_res <- matrix()
@@ -65,7 +68,8 @@ for(i in 1:3){
             paste0(dataset, "/data/", dis[i], "_results.csv"))
 }
 dis_study <- rbind(c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.score), 
-             c(sub_res[[1]]$psi, sub_res[[2]]$psi, sub_res[[3]]$psi))
+             c(sub_res[[1]]$psi, sub_res[[2]]$psi, sub_res[[3]]$psi),
+             c(sub_res[[1]]$k, sub_res[[2]]$k, sub_res[[3]]$k))
 write.csv(dis_study,
     paste0(dataset, "/distance_study.csv"))
 
@@ -87,7 +91,8 @@ p <- ggplot(sc, aes(x = psi)) +
     values = c("F.score" = "black", "BiS.E" = "green"),
     labels = c("F.score" = "F score", "BiS.E" = "BiS")
   ) +
-  theme_minimal()
+  theme_minimal()+
+  theme(legend.position="none")
 
 suppressMessages(ggsave(paste0(dataset, "_f_score_bis_psi.pdf"), plot = p, compress = FALSE, device="pdf"))
 

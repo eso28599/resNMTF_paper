@@ -331,6 +331,9 @@ check_biclusters <- function(Xinput, Foutput, repeats){
 }
 
 check <- function(matrix){
+       if(sum(colSums(matrix)!=0)>1){
+        matrix <- matrix[, colSums(matrix)!=0]
+       }
        n_clusts <- ncol(matrix)
        equal <- diag(n_clusts)
        for(i in 1:(n_clusts-1)){
@@ -343,142 +346,98 @@ check <- function(matrix){
        return(nrow(unique(equal))==2)
 }
 
-# ##Functions to return clustering with spurious biclusters removed
-# bisil_score <- function(Xinput, Soutput, row_clustering, col_clustering,  distance, final=FALSE){
-#     #simultaneously calculates bisilhouette score for 
+
+# sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
+#     #simultaneously calculates silhouette score for a 
 #     #clustering as well matching clusters correctly.
-#     n_views <- length(Xinput)
-#     n_clusts <- dim(row_clustering[[1]])[2]
+#     if(any(colSums(Xinput)!=1)){
+#       Xinput <- single_alt_l1_normalisation(Xinput)$newMatrix
+#     }
+#     n_clusts <- ncol(row_clustering)
 #     n_clusts_row <- n_clusts
-#     relations <- matrix(0, nrow = n_views, n_clusts)
-#     sil_score <- matrix(0, nrow = n_views, n_clusts)
+#     sil_score <- rep(0, length = n_clusts)
 #     clust_one <- col_clustering
 #     clust_two <- row_clustering
-#     for (i in 1:n_views){
-#         s_mat <- matrix(0, nrow = n_clusts, n_clusts)
-#         n_clusts_row <- n_clusts
-#         # rep_check <- any(sum(rowSums(clust_two[[i]][,colSums(clust_two[[i]])!=0])>=(n_clusts - 1))==colSums(clust_two[[i]]))
-#         if(check(clust_two[[i]])){
-#           clust_two[[i]] <- cbind(clust_two[[i]], rbinom(nrow(row_clustering[[i]]), 1, 0.1))
-#           n_clusts_row <- n_clusts_row + 1
-#         }
-#         for (k in 1:n_clusts_row){
+#     while(check(clust_two)){
+#       clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
+#       n_clusts_row <- ncol(clust_two)
+#       print(n_clusts_row)
+#     }
+#     # define whether repeat needs to happen
+#     rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
+#     s_vals <- vector("list", length=n_clusts)
+#     for (k in 1:n_clusts){
+#        indices <- clust_two[, k] == 1
+#        # if row or col cluster empty, set to 0
+#       if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
+#         sil_score[k] <- 0
+#       }else {
 #           #select data from specific column clustering
-#           if (sum(clust_one[[i]][, k] == 1) == 0){
-#             s_mat[k, ] <- 0
-#           }else{
-#             new_data <- Xinput[[i]][, (clust_one[[i]][, k] == 1)]
-#             # spear_dists <- as.matrix(dist(new_data, method=distance))/ (dim(new_data)[2])
-#             spear_dists <- as.matrix(dist(new_data, method=distance))
-
-#             for (j in 1:n_clusts){
-#               indices <- clust_two[[i]][, j] == 1
-#               if (sum(indices) == 0) {
-#                 s_mat[k, j] <- 0
-#               }else{
-#                 a_vals <- apply(spear_dists[indices, indices], 1, function(x) sum(x)/(length(x)-1))
-#                 #other clusts
-#                 other <- (1:n_clusts_row)[-j]
-#                 b_vec <- c()
-#                 b_vals <- vector("list", length = (n_clusts_row - 1))
-#                 t <- 1
-#                 for(l in other){
-#                     oth_ind <- clust_two[[i]][, l] == 1
-#                     if(sum(oth_ind)==0){
-#                       b_val <- rep(Inf, sum(indices))
-#                     }else if (all(oth_ind==indices)) {
-#                        b_val <- rep(Inf, sum(indices))
-#                     }else{
-#                       if((sum(oth_ind)==1)|(sum(indices)==1)){
-#                         b_val <- mean(spear_dists[indices, oth_ind])
-#                       }else{
-#                         b_val <- rowMeans(spear_dists[indices, oth_ind])
-#                       }
-#                     }
-#                     b_vec <- c(b_vec, mean(b_val))
-#                     b_vals[[t]] <- b_val
-#                     t <- t + 1
-#                 }
-#                 closest <- which.min(b_vec)
-#                 b_vals <- b_vals[[closest]]
-#                 if(all(b_vals==Inf)){
-#                   s_mat[k, j] <- 0
-#                 }else{
-#                   s_con <- (b_vals - a_vals) / apply(rbind(b_vals, a_vals), 2, max)
-#                   s_mat[k, j] <- mean(s_con)
-#                 }
-#                }
-#             }
-#           }
-#         }
-#         if(final){
-#           #if final clustering, don't want to change order
-#           relations[i, ] <- apply(s_mat, 1, which.min)
-#           sil_score[i, ] <- diag(s_mat)
+#         new_data <- Xinput[, (clust_one[, k] == 1)]
+#         spear_dists <- as.matrix(dist(new_data, method))
+#         b_vec <- c()
+#         if(sum(indices)==1){
+#           a_vals <- 0
 #         }else{
-#           # relations[i, ] <- apply(s_mat, 1, which.max)
-#           # sil_score[i, ] <- apply(s_mat, 1, max)
-#           if(all(apply(s_mat, 2, which.max)==apply(Soutput[[i]], 1, which.max))){
-#             print("same matching")
+#           a_vals <- apply(spear_dists[indices, indices], 1, function(x) sum(x)/(length(x)-1))
+#         }
+#         #no other clusts
+#         if(sum(colSums(row_clustering) != 0)==1){
+#           if(sum(indices==1)){
+#             b_vals <- mean(spear_dists[indices, clust_two[, k] != 1])
 #           }else{
-#             print("diff")
+#             b_vals <- rowMeans(spear_dists[indices, clust_two[, k] != 1])
 #           }
-#           # relations[i, ]  <- apply(Soutput[[i]], 2, which.max)
-#           relations[i, ] <- apply(s_mat, 1, which.max)
-#           sil_score[i, ] <- diag(s_mat[relations[i, ] ,])
+#           b_vec <- c(b_vec, mean(b_vals))
+#         }else{
+#           other <- (1:n_clusts_row)[-k]
+#           b_vals <- vector("list", length = (n_clusts_row - 1))
+#           t <- 1
+#           for(l in other){
+#               oth_ind <- clust_two[, l] == 1
+#               if(sum(oth_ind)==0){
+#                 b_val <- rep(Inf, sum(indices))
+#               }else if(all(oth_ind==indices)){
+#                 b_val <- rep(Inf, sum(indices))
+#               }else if((sum(oth_ind)==1)|(sum(indices)==1)){
+#                 b_val <- mean(spear_dists[indices, oth_ind])
+#               }else{
+#                 b_val <- rowMeans(spear_dists[indices, oth_ind])
+#               }
+#               b_vec <- c(b_vec, mean(b_val))
+#               b_vals[[t]] <- b_val
+#               t <- t + 1
+#               }  
+#           }
+#           closest <- which.min(b_vec)
+#           b_vals <- b_vals[[closest]]
+#         if(all(b_vals==Inf)){
+#           s_vals[[k]] <- 0
+#           sil_score[k] <- 0
+#         }else if(all(b_vals==0)&all(a_vals==0)){
+#           sil_score[k] <- 0
+#         }else{
+#           s_con <- (b_vals - a_vals) / apply(rbind(b_vals, a_vals), 2, max)
+#           s_vals[[k]] <- s_con
+#           sil_score[k] <- mean(s_con)
+#           if(is.na(sil_score[k])){
+#             print((a_vals))
+#             print((b_vals))
+#           }
 #         }
 #     }
-#   overall_score <- apply(sil_score, 1, function(x) ifelse(sum(x) == 0,
-#                0, ifelse(sum(x!=0) == 1, mean(x[x!= 0]),
-#                  mean(x[x != 0]) - 2 * sd(x[x != 0]))))
-#   overall_score <- apply(sil_score, 1, function(x) ifelse(sum(x) == 0,
-#                0,mean(x[x!= 0])))
-#   overall_score <- ifelse(sum(overall_score)==0,
-#            0, mean(overall_score[overall_score!=0]))
+#     }
+#   if (sum(sil_score) == 0){
+#     sil <- 0
+#   }else{
+#     sil <- ifelse(sum(sil_score != 0) == 1, sum(sil_score),
+#                  sum(sil_score) / (sum(sil_score != 0)) -
+#                  2 * sd(sil_score[sil_score != 0]))
+#     sil <- ifelse(sum(sil_score != 0) == 1, sum(sil_score),
+#                  sum(sil_score) / (sum(sil_score != 0)))
+#   }
 #   #return relationships and mean of sil_score across views
-#   return(list("scores" = sil_score, "relations" = relations, "overall" = overall_score))
-# }
-
-# clustering_res_NMTF <- function(Xinput, Foutput,
-#                Goutput, Soutput, repeats, distance){
-#   #takes F,S,G returns clustering and removes 
-#   #spurious bicluster
-#   n_views <- length(Foutput)
-#   row_clustering <- vector("list", length = n_views)
-#   col_clustering <- vector("list", length = n_views)
-#   #check clustering and remove if necessary
-#   biclusts <- check_biclusters(Xinput, Foutput, repeats)
-#   for (i in 1:n_views) {
-#     row_clustering[[i]] <- apply(Foutput[[i]],
-#            2, function(x) as.numeric(x > (1 / dim(Foutput[[i]])[1])))
-
-#     col_clustering[[i]] <- apply(Goutput[[i]],
-#            2, function(x) as.numeric(x > (1 / dim(Goutput[[i]])[1])))
-#   }
-#   sil_score <- bisil_score(Xinput,Soutput,
-#        row_clustering, col_clustering, distance)
-#   s_score <- sil_score$scores
-#   #update realtions and
-#   #set biclusters that aren't strong enough to 0
-#   #and if bicluster is empty set row and cols to 0
-#   for (i in 1:n_views){
-#      indices <- (((biclusts$score[i, ]) < biclusts$max_threshold[i])
-#                    | ((biclusts$score[i, ]) == 0))
-
-#     #  relations <- sil_score$relations[i, ]
-#      relations <- apply(Soutput[[i]], 1, which.max)
-#      new_indices <- indices[relations] # i==0, col cluster i isn't a bicluster
-#      s_score[i, new_indices] <- 0
-#      row_clustering[[i]] <- row_clustering[[i]][, relations]
-#      row_clustering[[i]][, new_indices] <- 0
-#      col_clustering[[i]][, new_indices] <- 0
-#   }
-#   #caluclate bisil for each view
-#   sil <- apply(s_score, 1, function(x) ifelse(sum(x) == 0, 0,  mean(x[x!= 0])))
-#   #calculate overall bisil
-#   sil <- ifelse(sum(sil)==0, 0, mean(sil[sil!=0]))
-#   return(list("row_clustering" = row_clustering,
-#       "col_clustering" = col_clustering, "sil" = sil))
+#   return(list("sil" = sil, "vals" = s_vals, "repeat" = rep))
 # }
 
 sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
@@ -492,71 +451,63 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
-    if(check(clust_two)){
-      clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
+    while(check(clust_two)){
+      clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
       n_clusts_row <- ncol(clust_two)
     }
     # define whether repeat needs to happen
     rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
     s_vals <- vector("list", length=n_clusts)
     for (k in 1:n_clusts){
-      #select data from specific column clustering
-      new_data <- Xinput[, (clust_one[, k] == 1)]
-      spear_dists <- as.matrix(dist(new_data, method))
-
-      indices <- clust_two[, k] == 1
-      b_vec <- c()
-      if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
-        sil_score[k] <- 0
-      }else {
+        indices <- clust_two[, k] == 1
+       # if row or col cluster empty, set to 0
+        if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
+          sil_score[k] <- 0
+        }else {
+          #select data from specific column clustering
+        new_data <- Xinput[, (clust_one[, k] == 1)]
+        spear_dists <- as.matrix(dist(new_data, method))
+        b_vec <- c()
+        #if only one element in row clust
         if(sum(indices)==1){
           a_vals <- 0
         }else{
-          a_vals <- apply(spear_dists[indices, indices], 1, function(x) sum(x)/(length(x)-1))
+          a_vals <- apply(spear_dists[indices, indices], 
+                         1, function(x) sum(x)/(length(x)-1))
         }
-        #no other clusts
-        if(sum(colSums(row_clustering) != 0)==1){
-          if(sum(indices==1)){
-            b_vals <- mean(spear_dists[indices, clust_two[, k] != 1])
-          }else{
-            b_vals <- rowMeans(spear_dists[indices, clust_two[, k] != 1])
-          }
-          b_vec <- c(b_vec, mean(b_vals))
-        }else{
-          other <- (1:n_clusts_row)[-k]
-          b_vals <- vector("list", length = (n_clusts_row - 1))
-          t <- 1
-          for(l in other){
-              oth_ind <- clust_two[, l] == 1
-              if(sum(oth_ind)==0){
-                b_val <- rep(Inf, sum(indices))
-              }else if(all(oth_ind==indices)){
-                b_val <- rep(Inf, sum(indices))
-              }else if((sum(oth_ind)==1)|(sum(indices)==1)){
-                b_val <- mean(spear_dists[indices, oth_ind])
-              }else{
-                b_val <- rowMeans(spear_dists[indices, oth_ind])
-              }
-              b_vec <- c(b_vec, mean(b_val))
-              b_vals[[t]] <- b_val
-              t <- t + 1
-              }  
-          }
+        # calculate b values
+        other <- (1:n_clusts_row)[-k]
+        b_vals <- vector("list", length = (n_clusts_row - 1))
+        t <- 1
+        for(l in other){
+            oth_ind <- clust_two[, l] == 1
+            if(sum(oth_ind)==0){
+              #if other is empty
+              b_val <- rep(Inf, sum(indices))
+            }else if(all(oth_ind == indices)){
+              #if other is equal
+              b_val <- rep(Inf, sum(indices))
+            }else if((sum(oth_ind) == 1) | (sum(indices) == 1)){
+              #if either has only one element
+              b_val <- mean(spear_dists[indices, oth_ind])
+            }else{
+              b_val <- rowMeans(spear_dists[indices, oth_ind])
+            }
+            b_vec <- c(b_vec, mean(b_val))
+            b_vals[[t]] <- b_val
+            t <- t + 1
+            }
           closest <- which.min(b_vec)
           b_vals <- b_vals[[closest]]
-        if(all(b_vals==Inf)){
+        if(all(b_vals == Inf)){
           s_vals[[k]] <- 0
           sil_score[k] <- 0
-        }else if(all(b_vals==0)&all(a_vals==0)){
+        }else if(all(b_vals == 0) & all(a_vals == 0)){
           sil_score[k] <- 0
         }else{
           s_con <- (b_vals - a_vals) / apply(rbind(b_vals, a_vals), 2, max)
           s_vals[[k]] <- s_con
           sil_score[k] <- mean(s_con)
-          if(is.na(sil_score[k])){
-            print((a_vals))
-            print((b_vals))
-          }
         }
     }
     }
@@ -937,27 +888,27 @@ stability_check <- function(Xinput, Sinput, results,
         #jacc_rand[i, ] <- jacc_rand[i, ] + jaccard_results(apply(new_results$row_clusters[[i]], 2, sample),
          #        apply(new_results$col_clusters[[i]], 2, sample),
           #    results$row_clusters[[i]][row_samples[[i]], ],
-           #    results$col_clusters[[i]][col_samples[[i]],], TRUE)
-        jacc_rand[i, ] <- jacc_rand[i, ] + jaccard_results(new_results$row_clusters[[i]],
-                 apply(new_results$col_clusters[[i]], 2, sample),
-              results$row_clusters[[i]][row_samples[[i]], ],
-               results$col_clusters[[i]][col_samples[[i]],], TRUE)
+        #    #    results$col_clusters[[i]][col_samples[[i]],], TRUE)
+        # jacc_rand[i, ] <- jacc_rand[i, ] + jaccard_results(new_results$row_clusters[[i]],
+        #          apply(new_results$col_clusters[[i]], 2, sample),
+        #       results$row_clusters[[i]][row_samples[[i]], ],
+        #        results$col_clusters[[i]][col_samples[[i]],], TRUE)
       }
     }
     
     jacc <- jacc / n_stability
-    jacc_rand <- jacc_rand / n_stability
+    # jacc_rand <- jacc_rand / n_stability
     if(stab_test){
-      return(list("res"=results,"jacc"=jacc, "jacc_rand"=jacc_rand))
+      return(list("res"=results,"jacc"=jacc))
     }else{
     for (i in 1:n_views){
       #set clusters not deemed stable to have 0 members
       results$row_clusters[[i]][, jacc[i, ] <  stab_thres] <- 0
       results$col_clusters[[i]][, jacc[i, ] <  stab_thres] <- 0
-      results$row_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
-      results$col_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
+      # results$row_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
+      # results$col_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
     }
-    results$Sil_score <- bisil_score(Xinput, Sinput,
+    results$Sil_score <- sil_score(Xinput, Sinput,
                   results$row_clusters, results$col_clusters, distance, TRUE)$overall
     return(results)
       }

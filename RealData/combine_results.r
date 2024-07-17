@@ -10,8 +10,8 @@ all_dis <- cbind(rep(c("Euclidean", "Cosine", "Manhattan"), each=4),
             rep(c("E", "C", "M", "F"), 3),
              all_dis)
 all_dis <- data.frame(all_dis)
-all_dis[,3:8] <- apply(all_dis[,3:8],2, as.numeric)
-colnames(all_dis) <- c("","", rep(c("3sources","BBCSport","A549"), each=2))
+all_dis[,3:11] <- apply(all_dis[,3:11],2, as.numeric)
+colnames(all_dis) <- c("","", rep(c("3sources","BBCSport","A549"), each=3))
 write.csv(all_dis, "all_results_dis.csv", row.names=FALSE)
 
 res_text <- kbl(all_dis,booktabs=T,"latex",

@@ -7,7 +7,7 @@ source("extra_funcs.r")
 source("resNMTF_funcs.r")
 source("visualisation.r")
 source("gfa_funcs.r")
-set.seed(40)
+set.seed(40+psi)
 bbc_rows <- read.csv("single_cell/true_labs.csv")[,2:4]
 bbc_d2 <- import_matrix("single_cell/data_processed.xlsx")
 phi_bbc <- matrix(0, 2, 2)
@@ -32,7 +32,6 @@ for(t in 1:n_reps){
         res <- restMultiNMTF_run(Xinput = bbc_d2, k_min = 3, 
                                          k_max = 6, phi = psi*phi_bbc, stab_test=TRUE)
         jacc_mat <- res$jacc
-        jacc_rand_mat <- res$jacc_rand
         for(omega in (stab_vec)){
           bbc_res2[[k]] <- res$res
           #perform stability selection
@@ -41,12 +40,10 @@ for(t in 1:n_reps){
             if(omega!="none"){
               bbc_res2[[k]]$row_clusters[[i]][, jacc_mat[i, ] <  omega] <- 0
               bbc_res2[[k]]$col_clusters[[i]][, jacc_mat[i, ] <  omega] <- 0
-              bbc_res2[[k]]$row_clusters[[i]][, jacc_mat[i, ] <  jacc_rand_mat[i, ]] <- 0
-              bbc_res2[[k]]$col_clusters[[i]][, jacc_mat[i, ] <  jacc_rand_mat[i, ]] <- 0
             }
           }
           results[k,] <-  c(t, omega,
-                                dis_results(bbc_d2, bbc_rows, bbc_res2[[k]], psi, t, paste0("single_cell/",method),row_same=TRUE)) 
+                                dis_results(bbc_d2, bbc_rows, bbc_res2[[k]], omega, t, paste0("single_cell/",method),row_same=TRUE)) 
           k <- k+1
         }
         write.csv(results, paste0("single_cell/sc_stab_", method, ".csv"))

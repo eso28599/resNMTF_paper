@@ -85,6 +85,9 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE){
 }
 
 check <- function(matrix){
+       if(sum(colSums(matrix)!=0)>1){
+        matrix <- matrix[, colSums(matrix)!=0]
+       }
        n_clusts <- ncol(matrix)
        equal <- diag(n_clusts)
        for(i in 1:(n_clusts-1)){
@@ -97,8 +100,7 @@ check <- function(matrix){
        return(nrow(unique(equal))==2)
 }
 
-# calculate sil score for one view
-# sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
+# sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
 #     #simultaneously calculates silhouette score for a 
 #     #clustering as well matching clusters correctly.
 #     if(any(colSums(Xinput)!=1)){
@@ -109,17 +111,16 @@ check <- function(matrix){
 #     sil_score <- rep(0, length = n_clusts)
 #     clust_one <- col_clustering
 #     clust_two <- row_clustering
-#     # rep_check <- any(sum(rowSums(clust_two[,colSums(clust_two)!=0])>=(n_clusts - 1))==colSums(clust_two))
 #     if(check(clust_two)){
 #       clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
-#       n_clusts_row <- n_clusts_row + 1
+#       n_clusts_row <- ncol(clust_two)
 #     }
+#     # define whether repeat needs to happen
+#     rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
 #     s_vals <- vector("list", length=n_clusts)
 #     for (k in 1:n_clusts){
 #       #select data from specific column clustering
 #       new_data <- Xinput[, (clust_one[, k] == 1)]
-#       # norm_val <- ifelse(is.null((dim(new_data)[2])), 1, (dim(new_data)[2]))
-#       # spear_dists <- as.matrix(dist(new_data, method))/ sqrt(norm_val)
 #       spear_dists <- as.matrix(dist(new_data, method))
 
 #       indices <- clust_two[, k] == 1
@@ -188,7 +189,7 @@ check <- function(matrix){
 #                  sum(sil_score) / (sum(sil_score != 0)))
 #   }
 #   #return relationships and mean of sil_score across views
-#   return(list("sil" = sil, "vals" = s_vals))
+#   return(list("sil" = sil, "vals" = s_vals, "repeat" = rep))
 # }
 
 sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
@@ -202,71 +203,63 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
-    if(check(clust_two)){
-      clust_two <- cbind(clust_two,rbinom(nrow(row_clustering), 1, 0.1))
+    while(check(clust_two)){
+      clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
       n_clusts_row <- ncol(clust_two)
     }
     # define whether repeat needs to happen
     rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
     s_vals <- vector("list", length=n_clusts)
     for (k in 1:n_clusts){
-      #select data from specific column clustering
-      new_data <- Xinput[, (clust_one[, k] == 1)]
-      spear_dists <- as.matrix(dist(new_data, method))
-
-      indices <- clust_two[, k] == 1
-      b_vec <- c()
-      if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
-        sil_score[k] <- 0
-      }else {
+        indices <- clust_two[, k] == 1
+       # if row or col cluster empty, set to 0
+        if ((sum(indices) == 0) | (sum(clust_one[,k] == 1) == 0)){
+          sil_score[k] <- 0
+        }else {
+          #select data from specific column clustering
+        new_data <- Xinput[, (clust_one[, k] == 1)]
+        spear_dists <- as.matrix(dist(new_data, method))
+        b_vec <- c()
+        #if only one element in row clust
         if(sum(indices)==1){
           a_vals <- 0
         }else{
-          a_vals <- apply(spear_dists[indices, indices], 1, function(x) sum(x)/(length(x)-1))
+          a_vals <- apply(spear_dists[indices, indices], 
+                         1, function(x) sum(x)/(length(x)-1))
         }
-        #no other clusts
-        if(sum(colSums(row_clustering) != 0)==1){
-          if(sum(indices==1)){
-            b_vals <- mean(spear_dists[indices, clust_two[, k] != 1])
-          }else{
-            b_vals <- rowMeans(spear_dists[indices, clust_two[, k] != 1])
-          }
-          b_vec <- c(b_vec, mean(b_vals))
-        }else{
-          other <- (1:n_clusts_row)[-k]
-          b_vals <- vector("list", length = (n_clusts_row - 1))
-          t <- 1
-          for(l in other){
-              oth_ind <- clust_two[, l] == 1
-              if(sum(oth_ind)==0){
-                b_val <- rep(Inf, sum(indices))
-              }else if(all(oth_ind==indices)){
-                b_val <- rep(Inf, sum(indices))
-              }else if((sum(oth_ind)==1)|(sum(indices)==1)){
-                b_val <- mean(spear_dists[indices, oth_ind])
-              }else{
-                b_val <- rowMeans(spear_dists[indices, oth_ind])
-              }
-              b_vec <- c(b_vec, mean(b_val))
-              b_vals[[t]] <- b_val
-              t <- t + 1
-              }  
-          }
+        # calculate b values
+        other <- (1:n_clusts_row)[-k]
+        b_vals <- vector("list", length = (n_clusts_row - 1))
+        t <- 1
+        for(l in other){
+            oth_ind <- clust_two[, l] == 1
+            if(sum(oth_ind)==0){
+              #if other is empty
+              b_val <- rep(Inf, sum(indices))
+            }else if(all(oth_ind == indices)){
+              #if other is equal
+              b_val <- rep(Inf, sum(indices))
+            }else if((sum(oth_ind) == 1) | (sum(indices) == 1)){
+              #if either has only one element
+              b_val <- mean(spear_dists[indices, oth_ind])
+            }else{
+              b_val <- rowMeans(spear_dists[indices, oth_ind])
+            }
+            b_vec <- c(b_vec, mean(b_val))
+            b_vals[[t]] <- b_val
+            t <- t + 1
+            }
           closest <- which.min(b_vec)
           b_vals <- b_vals[[closest]]
-        if(all(b_vals==Inf)){
+        if(all(b_vals == Inf)){
           s_vals[[k]] <- 0
           sil_score[k] <- 0
-        }else if(all(b_vals==0)&all(a_vals==0)){
+        }else if(all(b_vals == 0) & all(a_vals == 0)){
           sil_score[k] <- 0
         }else{
           s_con <- (b_vals - a_vals) / apply(rbind(b_vals, a_vals), 2, max)
           s_vals[[k]] <- s_con
           sil_score[k] <- mean(s_con)
-          if(is.na(sil_score[k])){
-            print((a_vals))
-            print((b_vals))
-          }
         }
     }
     }
@@ -282,7 +275,6 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
   #return relationships and mean of sil_score across views
   return(list("sil" = sil, "vals" = s_vals, "repeat" = rep))
 }
-
 
 sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean", seed=TRUE){
   #for visualisation - set seed
