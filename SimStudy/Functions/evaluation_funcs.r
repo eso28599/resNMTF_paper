@@ -203,7 +203,7 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
-    while(check(clust_two)){
+    if(check(clust_two)){
       clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
       n_clusts_row <- ncol(clust_two)
     }
@@ -418,6 +418,10 @@ jaccard_row<- function(row_c, true_r, print=FALSE){
   return(list("rec" = rep(rev, 2), "rel" = rep(rel, 2), "f_score" = rep(f, 2), "relations" = relations))
 }
 
+get_sil_mean <- function(vec){
+  return(ifelse(sum(vec)==0, 0, mean(vec[vec!=0])))
+}
+
 calc_all_sils <- function(data,res){
       n_views <- length(data)
       bisils_euc <- c()
@@ -431,9 +435,9 @@ calc_all_sils <- function(data,res){
         bisils_cosine <- c(bisils_cosine,
                     sil_score(data[[i]],res$row_clusters[[i]],res$col_clusters[[i]], method="cosine")$sil)
       }
-      bisils_euc <- c(bisils_euc, mean(bisils_euc))
-      bisils_man <- c(bisils_man, mean(bisils_man))
-      bisils_cosine <- c(bisils_cosine, mean(bisils_cosine))
+      bisils_euc <- c(bisils_euc, get_sil_mean(bisils_euc))
+      bisils_man <- c(bisils_man, get_sil_mean(bisils_man))
+      bisils_cosine <- c(bisils_cosine, get_sil_mean(bisils_cosine))
       return(list("euc"=bisils_euc, "man"=bisils_man, "cosine"=bisils_cosine))
 }
 

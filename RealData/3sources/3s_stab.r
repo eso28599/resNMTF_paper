@@ -7,7 +7,7 @@ source("extra_funcs.r")
 source("resNMTF_funcs.r")
 source("visualisation.r")
 source("gfa_funcs.r")
-set.seed(40 + psi)
+set.seed(10 + psi)
 bbc_rows <- read.csv("3sources/true_labels.csv", row.names=1)
 bbc_d2 <- import_matrix("3sources/3sources_all_diff.xlsx")
 phi_bbc <- matrix(0, 3, 3)
@@ -31,7 +31,7 @@ colnames(results) <- c("rep", "omega",
 k<-1
 for(t in 1:n_reps){
         res <- restMultiNMTF_run(Xinput = bbc_d2, k_min = 4, 
-                                         k_max = 8, psi = psi*phi_bbc, stab_test=TRUE)
+                                         k_max = 8, psi = psi*phi_bbc, distance = "cosine", stab_test=TRUE)
         jacc_mat <- res$jacc
         for(omega in (stab_vec)){
           bbc_res2[[k]] <- res$res

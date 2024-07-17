@@ -48,18 +48,18 @@ dis_study <- rbind(c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.
 write.csv(dis_study,
     paste0(dataset, "/stability_study.csv"))
 
-if(dataset=="bbc"){
+if(dataset=="3sources"){
     for(score in c("bis", "fscore")){
         df <- read.csv(paste0(dataset, "/", dataset2, "_stab_",score,".csv"), row.names=1)
         data <- as.data.frame(df)# Create the line plot
         data <- data[data$omega!="none",]
         data$rep <- factor(data$rep)
         p <- ggplot(data, aes(x = omega, group = rep)) +
-        geom_line(aes(y= F.score), color="black", alpha=0.5) +
-        geom_line(aes(y= BiS.E), color="green") +
+        geom_line(aes(y= Relevance), color="black", alpha=0.5) +
+        # geom_line(aes(y= BiS.E), color="green") +
         labs(
             x = TeX("$\\omega$"),,
-            y = "Measure") +
+            y = "Relevance") +
         theme_minimal()+
         theme(text = element_text(size = 11))
         ggsave(paste0(dataset,"/stab_plot_", score, ".pdf"),p, width=7,height=7)
