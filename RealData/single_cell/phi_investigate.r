@@ -32,15 +32,15 @@ colnames(results) <- c("rep", "phi",
                  paste0("BiS-C (V", 1:n_views, ")"), "BiS-C","k")
 k<-1
 
-# for(t in 1:n_reps){
-#     res <- restMultiNMTF_run(Xinput = cell_data, k_min = 3, 
-#                                             k_max = 6, phi = phi_val*phi_mat, 
-#                                             distance = dis, stability=FALSE)
-#     results[k, ] <- c(t, phi_val,
-#                                 dis_results(cell_data, labs, res, phi_val, t, paste0("single_cell/",dis),row_same=TRUE)) 
-#     k <- k+1
-#     write.csv(results, paste0("single_cell/data/sc_phi_",dis,phi_val,".csv"))
-# }
+for(t in 1:n_reps){
+    res <- restMultiNMTF_run(Xinput = cell_data, k_min = 3, 
+                                            k_max = 6, phi = phi_val*phi_mat, 
+                                            distance = dis, stability=FALSE)
+    results[k, ] <- c(t, phi_val,
+                                dis_results(cell_data, labs, res, phi_val, t, paste0("single_cell/",dis),row_same=TRUE)) 
+    k <- k+1
+    write.csv(results, paste0("single_cell/data/sc_phi_",dis,phi_val,".csv"))
+}
 
 
 # k <- 1

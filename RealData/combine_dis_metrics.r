@@ -92,9 +92,9 @@ p <- ggplot(sc, aes(x = psi)) +
     labels = c("F.score" = "F score", "BiS.E" = "BiS")
   ) +
   theme_minimal()+
-  theme(legend.position="none")
+  theme(legend.position="none", text = element_text(size = 15))
 
-suppressMessages(ggsave(paste0(dataset, "_f_score_bis_psi.pdf"), plot = p, compress = FALSE, device="pdf"))
+suppressMessages(ggsave(paste0(dataset, "_f_score_bis_psi.pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=7))
 
 
 #bisil plot

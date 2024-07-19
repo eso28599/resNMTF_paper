@@ -7,7 +7,7 @@ source("extra_funcs.r")
 source("resNMTF_funcs.r")
 source("visualisation.r")
 source("gfa_funcs.r")
-set.seed(10+psi)
+set.seed(20+psi)
 bbc_rows <- read.csv("bbc/bbc_rows_truth.csv")[,2:6]
 bbc_d2 <- import_matrix("bbc/bbc_data_processed.xlsx")
 phi_bbc <- matrix(0, 2, 2)
@@ -30,7 +30,7 @@ colnames(results) <- c("rep", "omega",
 k<-1
 for(t in 1:n_reps){
         res <- restMultiNMTF_run(Xinput = bbc_d2, k_min = 4, 
-                                         k_max = 8, psi = psi*phi_bbc, distance = "cosine", stab_test=TRUE)
+                                         k_max = 8, psi = psi*phi_bbc, stab_test=TRUE)
         jacc_mat <- res$jacc
         for(omega in (stab_vec)){
           bbc_res2[[k]] <- res$res

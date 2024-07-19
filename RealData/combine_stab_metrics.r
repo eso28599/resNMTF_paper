@@ -56,13 +56,13 @@ if(dataset=="3sources"){
         data$rep <- factor(data$rep)
         p <- ggplot(data, aes(x = omega, group = rep)) +
         geom_line(aes(y= Relevance), color="black", alpha=0.5) +
+        scale_x_discrete(breaks = seq(0,1,0.1))+
         # geom_line(aes(y= BiS.E), color="green") +
         labs(
             x = TeX("$\\omega$"),,
             y = "Relevance") +
         theme_minimal()+
-        theme(text = element_text(size = 11))
+        theme(text = element_text(size = 15))
         ggsave(paste0(dataset,"/stab_plot_", score, ".pdf"),p, width=7,height=7)
     }
-    
 }
