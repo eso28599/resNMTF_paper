@@ -13,7 +13,7 @@ library(MASS)
 
 ## General manipulation functions 
 check_neg <- function(X){
-  #ensures a list of matrices are non-negative
+  
   return(lapply(X, make_non_neg))
 }
 
@@ -85,6 +85,39 @@ init_mats <- function(X, KK, sigma_I = 0.05){
         G_normal <- single_alt_l1_normalisation(Ginit[[i]])
         Ginit[[i]] <- G_normal$newMatrix
         Sinit[[i]]  <- (F_normal$Q) %*% Sinit[[i]] %*% G_normal$Q
+        lambda_init[[i]] <- colSums(Finit[[i]])
+        mu_init[[i]] <-  colSums(Ginit[[i]])
+    }
+
+return(list("Finit" = Finit, "Ginit" = Ginit, "Sinit" = Sinit,
+             "lambda_init" = lambda_init, "mu_init" = mu_init))
+}
+
+
+
+init_mats_random <- function(X, K){ 
+    #' X: list of input data
+    # Initialisation of F, S, G lists
+    n_views <- length(X)
+    Finit <- vector("list", length = n_views)
+    Sinit <- vector("list", length = n_views)
+    Ginit <- vector("list", length = n_views)
+    lambda_init <- vector("list", length = n_views)
+    mu_init <- vector("list", length = n_views)
+    #initialise based on svd
+    for(i in 1:n_views) {
+        # ss <- svd(X[[i]])
+        Finit[[i]] <- abs(mvrnorm(n = nrow(X[[i]]),
+                   mu = rep(0, K), Sigma = diag(K)))
+        F_normal <- single_alt_l1_normalisation(Finit[[i]])
+        Finit[[i]] <- F_normal$newMatrix
+        Sinit[[i]] <- abs(mvrnorm(n = K,
+                   mu = rep(0, K), Sigma = diag(K)))
+        Ginit[[i]] <- abs(mvrnorm(n = ncol(X[[i]]),
+                   mu = rep(0, K), Sigma = diag(K)))
+        G_normal <- single_alt_l1_normalisation(Ginit[[i]])
+        Ginit[[i]] <- G_normal$newMatrix
+        # Sinit[[i]]  <- (F_normal$Q) %*% Sinit[[i]] %*% G_normal$Q
         lambda_init[[i]] <- colSums(Finit[[i]])
         mu_init[[i]] <-  colSums(Ginit[[i]])
     }
