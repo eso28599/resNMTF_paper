@@ -85,6 +85,7 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE){
 }
 
 check <- function(matrix){
+
        if(sum(colSums(matrix)!=0)>1){
         matrix <- matrix[, colSums(matrix)!=0]
        }
@@ -281,6 +282,10 @@ sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean"
   if(!seed){
     set.seed(seed)
   }
+  # if no clusters, return 0
+  if(sum(row_clustering)==0|sum(col_clustering)==0){
+    return(list("sil" = 0, "vals" = 0))
+  }
   #initial results
   results <- sil_score_inner(Xinput, row_clustering, col_clustering, method)
   sil <- results$sil
@@ -366,7 +371,7 @@ evaluate_simulation_comp <- function(row_clustering, col_clustering, true_row_cl
               "Relations" = relations_mat))
 }
 
-eval_method <- function(data_name, file_path){
+eval_method <- function(data_name, file_path,  true_rows, true_cols, data_views){
     #now apply to gfa
     file_path <- paste0(data_name, file_path)
     row_filename <- paste0(file_path, "/row_clusts.xlsx")
