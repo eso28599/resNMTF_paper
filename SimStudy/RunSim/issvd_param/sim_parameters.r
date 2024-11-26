@@ -1,4 +1,4 @@
-source("extra_funcs.r")
+source("Functions/extra_funcs.r")
 #file is specific to simulation
 #simulation parameters
 noise_level <- 5
@@ -20,8 +20,8 @@ phi[2, c(3)] <- 1
 val <- 200
 phi_mat <- val * phi
 bicl_numbers <- 5
-param_vals <- 0:21
-method_vec <- c("")
+param_vals <- 0:20
+method_vec <- paste0("/issvd_", param_vals)
 row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
 col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_issvd <- paste0("/issvd_", param_vals)

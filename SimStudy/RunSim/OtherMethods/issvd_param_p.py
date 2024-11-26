@@ -42,10 +42,10 @@ n_samps = data[0].shape[0]
 for j in method_idx:
     val = method_idx[j]/20
     #save row clustering
-    row_issvd_filename = data_name + "/issvd_" + str(j) + "_row_clusts.xlsx"
-    col_issvd_filename = data_name + "/issvd_" + str(j) +  "_col_clusts.xlsx"
+    row_issvd_filename = data_name + "/issvd_" + str(j) + "/row_clusts.xlsx"
+    col_issvd_filename = data_name + "/issvd_" + str(j) +  "/col_clusts.xlsx"
     iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
-                vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True
+                vthr = 0.7,ssthr=[0.6,0.65],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True
                 ,row_overlap=True,pceru=val,pcerv=val,merr=0.0001,iters=100)           
     n_clusts = iSSVD_applied['N']
     if n_clusts == 0:
