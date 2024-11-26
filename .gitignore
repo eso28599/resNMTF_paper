@@ -1,2 +1,4 @@
 proteomics.txt
 aals_participants.csv
+issvd_param/data/*
+issvd_param/logs/*
