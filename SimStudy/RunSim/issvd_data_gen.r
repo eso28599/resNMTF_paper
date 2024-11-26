@@ -40,6 +40,7 @@ for(i in 1:4){
     true_cols[[1]][non_zeros, i] <- 1
 }
 V1[, 5:100] <- mvrnorm(1000, rep(0, 96), diag(rep(1, 96)))
+
 #1000 x 100
 V2 <- matrix(0, 1000, 100)
 full_list <- 1:1000
@@ -56,13 +57,9 @@ V2[, 5:100] <- mvrnorm(1000, rep(0, 96), diag(rep(1, 96)))
 eps <- 0.3
 S <- diag(c(27, 20, 18, 10, rep(eps, 96)))
 
+
 X1 <- U %*% S %*% t(V1)
 X2 <- 5*(U %*% S %*% t(V2))
-
-
-
-path_to_save <- paste0(paste0(path_to_sim_folder, "/data/"),
-                         batch_folder)
 
 #save data
 for(i in 1:length(numbers1)){

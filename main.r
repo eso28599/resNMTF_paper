@@ -12,16 +12,16 @@ library(MASS)
 
 
 ## General manipulation functions 
-check_neg <- function(X){
-  
-  return(lapply(X, make_non_neg))
+make_non_neg <- function(X){
+  # makes a list of matrices non-negative
+  #'X: list of matrices
+  return(lapply(X, make_non_neg_inner))
 }
 
-make_non_neg <- function(X_mat){
+make_non_neg_inner <- function(X_mat){
   #makes a matrix non-negative
   return(apply(X_mat, 2, function(x) x + abs(min(0, min(x)))))
 }
-
 
 star_prod <- function(vec,mat_list){ 
   # function which takes a list L and vector v as input 
@@ -46,7 +46,7 @@ single_alt_l1_normalisation <- function(Xmatrix){
   return(list("Q" = Q, "newMatrix" = newMatrix))
 }
 
-##Initialisation functions
+## Initialisation functions
 init_rest_mats <- function(mat, n_v){
   # inititialise phi/psi/xi matrices
   # Check if the input matrix is NULL
@@ -59,7 +59,6 @@ init_rest_mats <- function(mat, n_v){
     return(mat)
   }
 }
-
 
 init_mats <- function(X, KK, sigma_I = 0.05){ 
     #' X: list of input data
@@ -93,8 +92,6 @@ return(list("Finit" = Finit, "Ginit" = Ginit, "Sinit" = Sinit,
              "lambda_init" = lambda_init, "mu_init" = mu_init))
 }
 
-
-
 init_mats_random <- function(X, K){ 
     #' X: list of input data
     # Initialisation of F, S, G lists
@@ -125,8 +122,6 @@ init_mats_random <- function(X, K){
 return(list("Finit" = Finit, "Ginit" = Ginit, "Sinit" = Sinit,
              "lambda_init" = lambda_init, "mu_init" = mu_init))
 }
-
-
 
 ## Udate functions
 update_F <- function(Xinput, Finput, Sinput, Ginput, lambda_in, phi, k){
@@ -557,7 +552,6 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
   return(list("sil" = sil, "vals" = s_vals, "repeat" = rep))
 }
 
-
 sil_score <- function(Xinput, row_clustering, col_clustering, method="euclidean", seed=TRUE){
   #for visualisation - set seed
   if(!seed){
@@ -928,7 +922,6 @@ stability_check <- function(Xinput, Sinput, results,
         #        results$col_clusters[[i]][col_samples[[i]],], TRUE)
       }
     }
-    
     jacc <- jacc / n_stability
     # jacc_rand <- jacc_rand / n_stability
     if(stab_test){
@@ -941,8 +934,10 @@ stability_check <- function(Xinput, Sinput, results,
       # results$row_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
       # results$col_clusters[[i]][, jacc[i, ] <  jacc_rand[i, ]] <- 0
     }
-    results$Sil_score <- sil_score(Xinput, Sinput,
-                  results$row_clusters, results$col_clusters, distance, TRUE)$overall
+    # results$Sil_score <- sil_score(Xinput,
+    #               results$row_clusters, results$col_clusters, distance, TRUE)$overall
+    # results$Sil_score <- sil_score(Xinput,
+    #               results$row_clusters, results$col_clusters, distance, TRUE)$sil
     return(results)
       }
 }
@@ -957,7 +952,7 @@ restMultiNMTF_run <- function(Xinput, Finput=NULL, Sinput=NULL,
   # initialise phi etc matrices as zeros if not specified
   # otherwise multiply by given parameter
   n_v <- length(Xinput)
-  Xinput <- check_neg(Xinput)
+  Xinput <- make_non_neg(Xinput)
   if (!typeof(Xinput[[1]]) == "double") {
     Xinput <- lapply(Xinput, function(x) as.matrix(x))
     }

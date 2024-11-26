@@ -3,7 +3,7 @@ path_to_sim_folder = as.character(args[1])
 batch_folder = as.character(args[2])
 source(paste0(path_to_sim_folder,
              "/sim_parameters.r")) #parameters for simulation
-source("data_generation.r") #data gen files
+source("Functions/data_generation.r") #data gen files
 
 path_to_data_folder <- paste0(paste0(path_to_sim_folder, "/data/"),
                          batch_folder)
