@@ -21,7 +21,8 @@ val <- 200
 phi_mat <- val * phi
 bicl_numbers <- 5
 param_vals <- 0:20
-method_vec <- paste0("/issvd_", param_vals)
+# method_vec <- paste0("/issvd_", param_vals)
+method_vec <- paste0("")
 row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
 col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_issvd <- paste0("/issvd_", param_vals)
@@ -32,9 +33,9 @@ x_title <- "Per-comparrison wise error rate"
 plot_title <- "The effect of increasing the per-comparrison wise error rate on iSSVD performance"
 file_names <- paste0("issvd_", param_vals)
 method_vec_res <- rep("iSSVD", 21)
-factor_vec <- 0:21
+factor_vec <- 0:21/20
 k_vec <- 0:21
-phi_constant <- TRUE
+phi_constant <- FALSE
 n_col_plots <- 2
 n_row_plots <- 2
 col_names_tables <- 3:6

@@ -23,6 +23,10 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
     sil_score <- rep(0, length = n_clusts)
     clust_one <- col_clustering
     clust_two <- row_clustering
+    if(n_clusts_row==1){
+      clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
+      n_clusts_row <- ncol(clust_two)
+    }
     while(check(clust_two)){
       clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
       n_clusts_row <- ncol(clust_two)

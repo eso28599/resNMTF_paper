@@ -8,7 +8,7 @@ output: pdf_document
 args = commandArgs(trailingOnly = TRUE)
 path_to_sim_folder = as.character(args[1])
 folder_list = args[2]
-plot_title = args[3]
+# plot_title = args[3]
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 ```
 
@@ -23,7 +23,8 @@ folder_names <- read.delim(folder_list,
          colClasses = "character", header = FALSE)[, 1]
 n_repeats <- length(folder_names)
 # n_repeats x 3 matrices
-measures <- c("CSR", "Rel", "Rec", "F_score", "BiS", "Restrictions")
+# measures <- c("CSR", "Rel", "Rec", "F_score", "BiS", "Restrictions")
+measures <- c("CSR", "Rel", "Rec", "F_score", "BiS")
 averages <- c("Overall")
 results <- data.frame(Method = c(), Choice = c(), Measure=c(), Mean=c(), Sd=c())
 #analyse each method#
@@ -65,7 +66,7 @@ write.csv(results, paste0(path_to_sim_folder, "/all_results.csv"))
 #all measures, only ResNMTF
 colnames(results) <- c("Method", "Factor", "Choice", "Measure", "Mean", "S.d.")
 results_nmtf <- subset(results, Method == "iSSVD")
-measures <- c("F score", "Relevance", "Recovery", "CSR", "BiS", "Restrictions")
+measures <- c("F score", "Relevance", "Recovery", "CSR", "BiS")
 if(phi_constant){
         subhead <- TeX(paste0(kept_factor,
                  "$\\phi$", " = ", val, ", ",
@@ -81,12 +82,12 @@ if(phi_constant){
 }
 
 path_to_save <- paste0(path_to_sim_folder, "/resNMTF_plot_", factor, ".pdf")
-plot_res_nmtf <- make_plot_line_phi(results_nmtf, "Overall", plot_title,
-                subhead, x_title, "Measure",
+plot_res_nmtf <- make_plot_line_issvd(results_nmtf, "Overall", x_title, "Measure",
                 path_to_save, measures)
 if(phi_constant){
         #now produce one plot for each measure
-        measures <- c("Relevance", "Recovery", "F score", "BiS", "CSR", "Restrictions")
+        measures <- c("Relevance", "Recovery", "F score",
+                      "BiS", "CSR", "Restrictions")
         n_measures <- length(measures)
         measure_vec <-  c("Rel", "Rec", "F_score", "BiS", "CSR", "Restrictions")
         plots <- vector("list", length = n_measures)

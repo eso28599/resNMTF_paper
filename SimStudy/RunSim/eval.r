@@ -13,7 +13,7 @@ true_rows <- import_matrix(paste0(data_name, "/true_rows.xlsx"))
 true_cols <- import_matrix(paste0(data_name, "/true_cols.xlsx"))
 data_views <- import_matrix(paste0(data_name, "/data.xlsx"))
 #analyse each method
-for (i in 1:length(method_vec)){
+for (i in 1:length(method_vec_issvd)){
     # file_path <- paste0(data_name, method_vec[i])
     # file_path <- paste0(data_name, method_vec[i])
 

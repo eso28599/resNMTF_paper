@@ -157,6 +157,49 @@ make_plot_line_phi <- function(data_frame, cluster, plot_title, sub_title, x_tit
     suppressMessages(ggsave(filename, plot = p, compress = FALSE, device="pdf"))
     return(p)
 }
+
+make_plot_line_issvd <- function(data_frame, cluster, x_title, y_title, filename, measures){
+    data_frame[["Measure"]] <- factor(data_frame[["Measure"]],
+     labels=measures)
+    
+    if(min(data_frame$Mean)<0){
+        y_min <- min(data_frame$Mean)
+        y_lims <- c(y_min,1)
+        if(y_min< -0.2){
+            y_breaks <- c(sort(seq(-0.2, y_min, by = -0.2)),
+                     seq(0, 1, length = 6))
+        }else{
+            y_breaks <- c(-0.2, seq(0, 1, length = 6) )
+        } 
+    }else{
+        y_lims <- c(0,1)
+        y_breaks <- seq(0, 1, length = 6)
+    }
+    x_breaks <- unique(data_frame$Factor)
+    p <- ggplot(subset(data_frame, Choice==cluster),
+         aes(x=Factor, y=Mean, group=Measure, color=Measure, linetype=Measure)) + 
+    geom_line(stat="identity") +
+    geom_point(show.legend=FALSE) +
+     geom_errorbar(aes(ymin=Mean-S.d., ymax=Mean+S.d.), width=.2,
+                 position=position_dodge(0.01),show.legend=FALSE, linetype=1)+
+     expand_limits(y=y_lims)+
+     scale_color_viridis_d()+
+     scale_y_continuous(breaks = y_breaks)+
+     scale_x_discrete(breaks = x_breaks)+
+     labs(
+     x = "Per-comparison wise error rate",
+     y = "Measure"
+   )
+    p <- p +
+        theme_minimal()+
+        theme(text = element_text(size = 11), legend.position = "bottom", 
+                axis.text.x = element_text(angle = -45, hjust=0.1),
+                axis.ticks = element_line(size = 0.3),
+                axis.line = element_line(size = 0.3))
+    suppressMessages(ggsave(filename, plot = p, compress = FALSE, device="pdf"))
+    return(p)
+}
+
 make_phi_agg <- function(data_frame, cluster, plot_title, 
             sub_title, x_title, y_title, filename, measures, broken=TRUE, x_even= TRUE){
     data_frame[["Measure"]] <- factor(data_frame[["Measure"]],
