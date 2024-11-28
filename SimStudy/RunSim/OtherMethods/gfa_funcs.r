@@ -6,11 +6,11 @@ quiet <- function(x) {
   invisible(force(x)) 
 } 
 #function to apply GFA
-gfa_apply <- function(X, k){
+gfa_apply <- function(X, k , noise = 0.5, conf = 1){
     X_in <- normalizeData(X, type = "center")[[1]]
     n_views <- length(X)
     opts <- getDefaultOpts(bicluster = TRUE)
-    opts <- informativeNoisePrior(X_in, opts, 0.5)
+    opts <- informativeNoisePrior(X_in, opts, noise, conf)
     gfa_res <- quiet(gfa(X_in, K = k + 5, opts))
     rows <- rep(list(apply(gfa_res$X>0, 2, as.numeric)), n_views)
     all_col <- apply(gfa_res$Z>0, 2, as.numeric)

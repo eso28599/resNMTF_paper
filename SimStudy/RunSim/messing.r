@@ -9,7 +9,7 @@ openxlsx::write.xlsx(true_cols, file = paste0(file_path, "/true_cols.xlsx")) #
 
 #check issvd results 
 source("SimStudy/Functions/extra_funcs.r")
-source("SimStudy/Functions/evaluation_funcs.r")
+source("SimStudy/RunSim/Functions/evaluation_funcs.r")
 source("main.r")
 rows_issvd <- import_matrix("test_data/issvd_rows.xlsx")
 cols_issvd <- import_matrix("test_data/issvd_cols.xlsx")
@@ -26,17 +26,28 @@ jaccard_res(res_og2$row_clusters[[2]], res_og2$col_clusters[[2]], true_rows[[2]]
 
 # generate synthetic data via our approach. 
 
-source('SimStudy/Functions/data_generation.r')
+source('SimStudy/RunSim/Functions/data_generation.r')
 # generate a test dataset
 n_views <- 3
 row_cl_dims <- rep(200, n_views)
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)
 save_data(row_cl_dims, col_cl_dims, 5, 'test_data2', 5 ,col_same_shuffle=FALSE)
+data <- import_matrix("test_data2/data.xlsx")
 
+#perform gfa
+source('SimStudy/RunSim/OtherMethods/gfa_funcs.r')
+source("SimStudy/RunSim/Functions/extra_funcs.r")
+test <- gfa_apply(data, 10)
+test_high <- gfa_apply(data, 10, 0.9)
 # check results
 true_rows <- import_matrix("test_data2/true_rows.xlsx")
 true_cols <- import_matrix("test_data2/true_cols.xlsx")
+jaccard_res(test_high$row_clusters[[1]], test_high$col_clusters[[1]], true_rows[[1]], true_cols[[1]])
+jaccard_res(test_high$row_clusters[[2]], test_high$col_clusters[[2]], true_rows[[2]], true_cols[[2]])
+jaccard_res(test$row_clusters[[1]], test$col_clusters[[1]], true_rows[[1]], true_cols[[1]])
+jaccard_res(test$row_clusters[[2]], test$col_clusters[[2]], true_rows[[2]], true_cols[[2]])
+
 
 rows_issvd <- import_matrix("test_data2/issvd_rows.xlsx")
 cols_issvd <- import_matrix("test_data2/issvd_cols.xlsx")

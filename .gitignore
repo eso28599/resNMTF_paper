@@ -3,3 +3,5 @@ aals_participants.csv
 # SimStudy/RunSim/Results/*
 SimStudy/RunSim/Results/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param/logs/*
+SimStudy/RunSim/Results/bicl_3v/data/*
+SimStudy/RunSim/Results/bicl_3v/logs/*
