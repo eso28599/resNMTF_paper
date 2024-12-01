@@ -1,4 +1,4 @@
-source("utils.r")
+source("Functions/utils.r")
 # Libraries
 library(philentropy)
 library("Matrix")

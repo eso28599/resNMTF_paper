@@ -1,5 +1,5 @@
 #source("data_generation.r")
-source("evaluation_funcs.r")
+source("Functions/evaluation_funcs.r")
 #source("toy_data_gen.r")
 #source("sim_common_files/resNMTF_files/data_generation.r")
 #source("sim_common_files/resNMTF_files/evaluation_funcs.r")

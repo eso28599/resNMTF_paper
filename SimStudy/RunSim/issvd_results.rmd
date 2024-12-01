@@ -17,6 +17,7 @@ knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 source("Functions/summary_funcs.r")
 source(paste0(path_to_sim_folder, "/sim_parameters.r"))
 
+
 #file to extract results
 #read in folder_list
 folder_names <- read.delim(folder_list,

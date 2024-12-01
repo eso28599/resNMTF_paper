@@ -1,0 +1,17 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of biclusters} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+  & 3 & 4 & 5 & 6\\
+\midrule
+F score & 1.0000 (0.0000) & 1.0000 (0.0000) & 0.9991 (0.0068) & 0.9945 (0.0156)\\
+Relevance & 1.0000 (0e+00) & 1.0000 (0e+00) & 1.0000 (3e-04) & 1.0000 (3e-04)\\
+Recovery & 1.0000 (0.0000) & 1.0000 (0.0000) & 0.9985 (0.0111) & 0.9908 (0.0255)\\
+CSR & 1.0000 (0.0000) & 1.0000 (0.0000) & 0.9984 (0.0102) & 0.9953 (0.0136)\\
+BiS & 0.9765 (1e-04) & 0.9766 (2e-04) & 0.9766 (2e-04) & 0.9767 (2e-04)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} 4 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

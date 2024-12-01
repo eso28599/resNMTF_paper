@@ -10,9 +10,10 @@ library(doParallel)
 library(doSNOW)
 library(MASS)
 
-source("update_steps.r")
-source("utils.r")
-source("bisilhouette.r")
+source("Functions/update_steps.r")
+source("Functions/utils.r")
+source("Functions/bisilhouette.r")
+source("Functions/spurious_bicl.r")
 
 get_thresholds <- function(Xinput, Foutput, repeats){
     # shuffle data and 

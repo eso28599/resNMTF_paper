@@ -5,7 +5,8 @@ batch_folder = str(sys.argv[2])
 from iSSVD.functions import issvd
 import numpy as np
 import pandas as pd
-import OtherMethods.python_utils
+# import OtherMethods.python_utils
+from OtherMethods.python_utils import fix_row_clusts, fix_col_clusts, save_xls
 
 #method_idx = list(np.round(np.linspace(0.1, 1, 10), 2)) #only thing to change
 method_idx = list(np.arange(1,11))

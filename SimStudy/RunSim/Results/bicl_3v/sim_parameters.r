@@ -1,4 +1,4 @@
-source("extra_funcs.r")
+source("Functions/extra_funcs.r")
 #file is specific to simulation
 #simulation parameters
 noise_level <- 5

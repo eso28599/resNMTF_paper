@@ -1,12 +1,15 @@
 #iSSVD application  
 import sys
+sys.path.insert(1,"OtherMethods")
 path_to_sim_folder = str(sys.argv[1])
 batch_folder = str(sys.argv[2])
 import pandas as pd
 import numpy as np
 from iSSVD.functions import issvd
 from pandas import ExcelWriter
-import OtherMethods.python_utils
+# import OtherMethods.python_utils
+from python_utils import fix_row_clusts, fix_col_clusts, save_xls
+
 
 method_idx = list(np.arange(0,21))
 

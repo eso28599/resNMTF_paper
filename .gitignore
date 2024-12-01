@@ -3,5 +3,30 @@ aals_participants.csv
 # SimStudy/RunSim/Results/*
 SimStudy/RunSim/Results/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param/logs/*
+SimStudy/RunSim/Results/issvd_param4/data/*
+SimStudy/RunSim/Results/issvd_param4/logs/*
+SimStudy/RunSim/Results/issvd_param3/data/*
+SimStudy/RunSim/Results/issvd_param3/logs/*
+#number of biclusters
 SimStudy/RunSim/Results/bicl_3v/data/*
 SimStudy/RunSim/Results/bicl_3v/logs/*
+SimStudy/RunSim/Results/bicl_2v/data/*
+SimStudy/RunSim/Results/bicl_2v/logs/*
+SimStudy/RunSim/Results/bicl_4v/data/*
+SimStudy/RunSim/Results/bicl_4v/logs/*
+#individual studies
+SimStudy/RunSim/Results/indiv_3v5b/data/*
+SimStudy/RunSim/Results/indiv_3v5b/logs/*
+SimStudy/RunSim/Results/indiv_3v4b/data/*
+SimStudy/RunSim/Results/indiv_3v4b/logs/*
+SimStudy/RunSim/Results/indiv_4v5b/data/*
+SimStudy/RunSim/Results/indiv_4v5b/logs/*
+#views
+SimStudy/RunSim/Results/views_5b/data/*
+SimStudy/RunSim/Results/views_5b/logs/*
+SimStudy/RunSim/Results/views_3v4b/data/*
+SimStudy/RunSim/Results/views_3v4b/logs/*
+SimStudy/RunSim/Results/views_4v5b/data/*
+SimStudy/RunSim/Results/views_4v5b/logs/*
+# noise
+

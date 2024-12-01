@@ -1,5 +1,5 @@
 # removal of spurious biclusters
-source("utils.r")
+# source("utils.r")
 # Libraries
 library(philentropy)
 library("Matrix")

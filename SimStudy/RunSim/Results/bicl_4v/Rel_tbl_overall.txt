@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of biclusters} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 3 & 4 & 5 & 6\\
+\midrule
+ResNMTF & \textbf{1.0000 (0.0000)} & \textbf{1.0000 (0.0000)} & \textbf{1.0000 (0.0003)} & \textbf{1.0000 (0.0003)}\\
+GFA & 0.1554 (0.0267) & 0.1733 (0.0380) & 0.1603 (0.0447) & 0.1603 (0.0378)\\
+iSSVD & 0.4810 (0.1221) & 0.6144 (0.1588) & 0.4060 (0.0228) & 0.4810 (0.1430)\\
+NMTF & 0.9923 (0.0108) & 0.9989 (0.0031) & 0.9996 (0.0019) & 0.9999 (0.0005)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 4 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}
