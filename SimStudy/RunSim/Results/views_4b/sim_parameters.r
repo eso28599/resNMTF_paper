@@ -23,7 +23,7 @@ phi[3, c(4, 5)] <- 1
 phi[4, 5] <- 1
 val <- 200
 phi_mat <- val * phi
-phi_mat <- list(phi_mat[1:2,1:2], phi_mat[1:3,1:3], phi_mat[1:4,1:4])
+phi_mat <- list(phi_mat[1:2,1:2], phi_mat[1:3,1:3], phi_mat[1:4,1:4], phi_mat)
 bicl_numbers <- 2:5
 method_vec <- c("/res_nmtf_2", "/res_nmtf_3",
  "/res_nmtf_4", "/res_nmtf_5")
@@ -32,7 +32,7 @@ method_vec <- c("/res_nmtf_2", "/res_nmtf_3",
 method_vec_sgl <- paste0("/nmtf_", bicl_numbers)
 method_vec_gfa <- paste0("/gfa_", bicl_numbers)
 method_vec_issvd <- paste0("/issvd_", bicl_numbers)
-factor <- "bicl"
+factor <- "views"
 kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Views"
 x_title <- "Number of views"

@@ -18,7 +18,7 @@ cd ${PBS_O_WORKDIR}/${sim_folder_name}/data
 if [ ! -d "$I" ]; then
   mkdir $I
   cd $I
-  for i in {3..6}
+  for i in 50, 200, 300, 500, 1000
   do
     mkdir res_nmtf_$i
     mkdir gfa_$i
