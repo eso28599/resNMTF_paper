@@ -1,0 +1,251 @@
+---
+title: "Results"
+author: "Ella Orme"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+setwd("/Users/ellaorme/Documents/resNMTF/")
+source("Investigation/toy_data_gen.r")
+setwd("/Users/ellaorme/Documents/resNMTF/SimStudy/RunSim/")
+invisible(source("Functions/extra_funcs.r"))
+invisible(source("main.r"))
+source("Functions/evaluation_funcs.r")
+row_dims <- rep(200, 2)
+# col_dims <- rep(250, 2)
+col_dims <- c(150, 250)
+no_bicl <- 3
+noise <- 5
+val <- 200
+n_views <- length(row_dims)
+phi_mat <- matrix(0, n_views, n_views)
+phi_mat[1,2] <- 1
+psi_mat <- matrix(0, n_views, n_views)
+psi_mat[1,2] <- 1
+#differing no of biclusters
+diff_bicl <- c(3, 4)
+overlap <- 0.1
+non_exh <- 0.9
+phi_vec <- seq(0,1000,200)
+folder_path <- "Investigation/toy_2v3b5n/data"
+setwd("/Users/ellaorme/Documents/resNMTF")
+```
+
+We consider a base scenario of `r n_views` views (both `r row_dims[1]`x`r col_dims[1]`) with `r no_bicl` shared row clusters across views. A noise level of `r noise` is used. 
+
+# Example 1
+## Noisy views
+(a) We first consider the results when the second view is pure noise.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_1a")
+ex_1a <- multi_view_toy(file_path,row_dims, col_dims,
+             no_bicl, noise, row_e = c(1,0), col_e = c(1,0), seed=4)
+res_1a <- toy_example(ex_1a, file_path, phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+(b) When all views are noise.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_1b")
+ex_1b <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, row_e = 0, col_e = 0, seed=20)
+res_1b <- toy_example(ex_1b, file_path, phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+# Example 2
+## Shared column clusters
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_2")
+ex_2 <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, col_same_shuffle = TRUE, seed=100)      
+res_2 <- toy_example(ex_2, file_path, phi_vec=phi_vec, phi=phi_mat, psi=psi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+# Example 3
+## Differing number of biclusters
+View 2 now has `r diff_bicl[2]` biclusters. This assumes no shared clustering in rows or columns. 
+```{r, echo=FALSE, warning=FALSE}
+file_path <- paste0(folder_path,"/ex_3")
+ex_3 <- multi_view_toy(file_path, row_dims, col_dims,
+             diff_bicl, noise,  seed=5)
+res_3 <- restMultiNMTF_run(Xinput = ex_3$data_views)
+all_results <- evaluate_simulation_comp(res_3$row_clusters,
+                 res_3$col_clusters,
+            ex_3$truth_rows, ex_3$truth_cols, ex_3$data_views)
+row_filename <- paste0(file_path,  "/row_clusts.xlsx")
+col_filename <- paste0(file_path, "/col_clusts.xlsx")
+openxlsx::write.xlsx(res_3$row_clusters, file = row_filename)
+openxlsx::write.xlsx(res_3$col_clusters, file = col_filename)
+f_vec <- (mean(all_results$F_score))
+rec_vec <- (mean(all_results$Rec))
+rel_vec <- (mean(all_results$Rel))
+print(paste0("This gives f-score ", f_vec,
+         ", recovery score ", rec_vec,
+          " and relevance score ", rel_vec,"."))
+summary <- data.frame("phi" = phi_vec, "f_score" = f_vec,
+         "rec" =  rec_vec, "rel" =  rel_vec, "BiS" = res_3$Sil_score)
+write.csv(summary, file = paste0(file_path, "/summary.csv"))
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+
+# Example 4
+## Overlapping biclusters
+(a) Overlapping columns, `r overlap*100`% of a bicluster overlaps with the one beside it (so bicluster 2 overlaps with bicluster 1 and 3).
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_4a")
+ex_4a <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise,  col_o = overlap,  seed=6)
+res_4a <- toy_example(ex_4a,file_path, phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+(b) Overlapping rows, `r overlap*100`% overlap as above.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_4b")
+ex_4b <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, row_o = overlap,  seed=7)
+res_4b <- toy_example(ex_4b, file_path, phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+# Example 5
+## Non- exhaustivitiy
+
+(a) Non-exhaustive columns, `r non_exh*100`% of columns do not belong to any bicluster.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_5a")
+ex_5a <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise,  col_e = non_exh,  seed=6)
+res_5a <- toy_example(ex_5a, file_path, phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+(b) Non-exhaustive rows, `r non_exh*100`% of rows do not belong to any bicluster.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_5b")
+ex_5b <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, row_e = non_exh,  seed=7)
+res_5b <- toy_example(ex_5b,file_path,  phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+
+# Examples 6
+## Combinations
+(a) Non-exhaustive and non-exclusive columns, `r non_exh*100`% of columns do not belong to any bicluster and `r overlap*100`% overlap.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_6a")
+ex_6a <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise,  col_e = non_exh, col_o = overlap, seed=6)
+res_6a <- toy_example(ex_6a,file_path,  phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+(b) Non-exhaustive and non-exlusive rows, `r non_exh*100`% of rows do not belong to any bicluster and `r overlap*100`% overlap.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_6b")
+ex_6b <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, row_e = non_exh, row_o = overlap, seed=7)
+res_6b <- toy_example(ex_6b,file_path,  phi_vec=phi_vec, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+```
+(c) Non-exhaustivitiy and non-exclusitivity for both rows and columns, both at `r overlap*100`%.
+```{r, echo=FALSE}
+file_path <- paste0(folder_path,"/ex_6c")
+ex_6c <- multi_view_toy(file_path, row_dims, col_dims,
+             no_bicl, noise, row_e = non_exh, row_o = 0.2,
+            col_e = non_exh, col_o = 0.2, seed=7)
+res_6c <- toy_example(ex_6c,file_path,  phi_vec=200, phi=phi_mat)
+read.csv(paste0(file_path,"/summary.csv"))
+row_clusters <- res_6c$row_clusters[[1]]
+```
+
+(d)
+```{r, echo=FALSE}
+rows <- import_matrix("Investigation/toy_2v3b5n/data/ex_6c/200_row_clusts.xlsx")
+cols <- import_matrix("Investigation/toy_2v3b5n/data/ex_6c/200_col_clusts.xlsx")
+
+# re order row cluster
+row_order <- c()
+# row cluster 1, no intersection with cluster 3
+row_order <- c(row_order, (1:200)[(rows[[1]][,1]==1)&(rows[[1]][,3]==0)])
+# row cluster 1, intersection with cluster 3
+row_order <- c(row_order,
+          (1:200)[(rows[[1]][,1]==1)&(rows[[1]][,3]==1)])
+# row cluster 3, no intersection with cluster 1 or 2
+row_order <- c(row_order, 
+          (1:200)[(rows[[1]][,3]==1)&(rows[[1]][,1]==0)&(rows[[1]][,2]==0)])
+# row cluster 3, intersection with cluster 2
+row_order <- c(row_order, 
+          (1:200)[(rows[[1]][,3]==1)&(rows[[1]][,2]==1)])
+# row cluster 2, no intersection with cluster 3
+row_order <- c(row_order, 
+          (1:200)[(rows[[1]][,2]==1)&(rows[[1]][,3]==0)])
+# no row clusters
+row_order <- c(row_order, 
+          (1:200)[rowSums(rows[[1]])==0])
+
+# re order clusters
+col_order <- c()
+# col cluster 1, no intersection with cluster 3
+col_order <- c(col_order, (1:150)[(cols[[1]][,1]==1)&(cols[[1]][,3]==0)])
+# row cluster 1, intersection with cluster 3
+col_order <- c(col_order,
+          (1:150)[(cols[[1]][,1]==1)&(cols[[1]][,3]==1)])
+# row cluster 3, no intersection with cluster 1 or 2
+col_order <- c(col_order, 
+          (1:150)[(cols[[1]][,3]==1)&(cols[[1]][,1]==0)&(cols[[1]][,2]==0)])
+# row cluster 3, intersection with cluster 2
+col_order <- c(col_order, 
+          (1:150)[(cols[[1]][,3]==1)&(cols[[1]][,2]==1)])
+# row cluster 2, no intersection with cluster 3
+col_order <- c(col_order, 
+          (1:150)[(cols[[1]][,2]==1)&(cols[[1]][,3]==0)])   
+# no row clusters
+col_order <- c(col_order, 
+          (1:150)[rowSums(cols[[1]])==0])
+data <- import_matrix("/Users/ellaorme/Documents/resNMTF/Investigation/toy_2v3b5n/data/ex_6c/data.xlsx") 
+pdf('Investigation/toy_2v3b5n/data/ex_6c/view1_biclustered.pdf')
+image(data[[1]][row_order,unique(col_order)])
+dev.off()  
+
+col_order2 <- c()
+# col cluster 1, no intersection with cluster 3
+col_order2 <- c(col_order2, (1:250)[(cols[[2]][,1]==1)&(cols[[2]][,3]==0)])
+# row cluster 1, intersection with cluster 3
+col_order2 <- c(col_order2,
+          (1:250)[(cols[[2]][,1]==1)&(cols[[2]][,3]==1)])
+# row cluster 3, no intersection with cluster 1 or 2
+col_order2 <- c(col_order2, 
+          (1:250)[(cols[[2]][,3]==1)&(cols[[2]][,1]==0)&(cols[[2]][,2]==0)])
+# row cluster 3, intersection with cluster 2
+col_order2 <- c(col_order2, 
+          (1:250)[(cols[[2]][,3]==1)&(cols[[2]][,2]==1)])
+# row cluster 2, no intersection with cluster 3
+col_order2 <- c(col_order2, 
+          (1:250)[(cols[[2]][,2]==1)&(cols[[2]][,3]==0)])   
+# no row clusters
+col_order2 <- c(col_order2, 
+          (1:250)[rowSums(cols[[2]])==0])
+# dev.off()
+pdf('Investigation/toy_2v3b5n/data/ex_6c/view2_biclustered.pdf')
+image(data[[2]][row_order,col_order2])
+dev.off()
+pdf('Investigation/toy_2v3b5n/data/ex_6c/view2_shuffle.pdf')
+image(data[[2]][sample(200),sample(250)])
+dev.off()
+pdf('Investigation/toy_2v3b5n/data/ex_6c/view1_shuffle.pdf')
+image(data[[1]][sample(200),sample(150)])
+dev.off()
+```
+
+```{r}
+true_rows <- import_matrix("/Users/ellaorme/Documents/resNMTF/Investigation/toy_2v3b5n/data/ex_6c/true_rows.xlsx")
+true_cols <- import_matrix("/Users/ellaorme/Documents/resNMTF/Investigation/toy_2v3b5n/data/ex_6c/true_cols.xlsx")
+sum((cols[[2]][,1]==1)&(cols[[2]][,3]==1))
+sum((true_cols[[2]][,1]==1)&(true_cols[[2]][,2]==1))
+```

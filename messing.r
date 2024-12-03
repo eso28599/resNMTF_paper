@@ -32,7 +32,7 @@ n_views <- 3
 row_cl_dims <- rep(200, n_views)
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)
-save_data(row_cl_dims, col_cl_dims, 5, 'test_data2', 5 ,col_same_shuffle=FALSE)
+save_data(row_cl_dims, col_cl_dims, 6, 'test_data2', 5 ,col_same_shuffle=FALSE)
 data <- import_matrix("test_data2/data.xlsx")
 
 #perform gfa
