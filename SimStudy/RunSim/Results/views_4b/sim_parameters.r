@@ -4,10 +4,10 @@ source("Functions/extra_funcs.r")
 noise_level <- 5
 #each dataset with 200 samples, same clusters across views
 n_views <- 5
-row_cl_dims <- c(rep(200, 2), rep(200, 3),
+row_cl_dims <- list(rep(200, 2), rep(200, 3),
                 rep(200, 4), rep(200, 5))
 #100, 50,250 features respectively
-col_cl_dims <- c(rep(150, 2), rep(150, 3),
+col_cl_dims <- list(rep(150, 2), rep(150, 3),
                 rep(150, 4), rep(150, 5))
 row_same_shuffle <- TRUE
 col_same_shuffle <- FALSE
