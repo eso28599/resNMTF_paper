@@ -69,8 +69,8 @@ one_view_adv <- function(row_dims, col_dims, k, noise, overlap = FALSE){
     for (i in 1:k){
         n_r <- (row_end[i] - row_start[i] + 1)
         n_c <- (col_end[i] - col_start[i] + 1)
-        # X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(5, n_c), Sigma = diag(n_c))
-        X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(100, n_c), Sigma = diag(n_c))
+        X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(5, n_c), Sigma = diag(n_c))
+        # X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(100, n_c), Sigma = diag(n_c))
 
         true_row[(row_start[i]):(row_end[i]), i] <- 1
         true_col[(col_start[i]):(col_end[i]), i] <- 1
