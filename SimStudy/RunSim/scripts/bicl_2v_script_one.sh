@@ -1,14 +1,14 @@
 #!/bin/bash
-#PBS -N increasing_views
+#PBS -N increasing_bicl
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o Results/views_5b/logs/test_job.out
-#PBS -e Results/views_5b/logs/test_job.err
+#PBS -o Results/bicl_2v/logs/test_job.out
+#PBS -e Results/bicl_2v/logs/test_job.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/views_5b
-export sim=views
+export sim_folder_name=Results/bicl_2v
+export sim=bicl
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
@@ -18,7 +18,7 @@ cd ${PBS_O_WORKDIR}/${sim_folder_name}/data
 if [ ! -d "$I" ]; then
   mkdir $I
   cd $I
-  for i in {2..5}
+  for i in {3..6}
   do
     mkdir res_nmtf_$i
     mkdir gfa_$i

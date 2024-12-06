@@ -4,7 +4,7 @@ source("Functions/extra_funcs.r")
 noise_level <- 5
 #each dataset with 200 samples, same clusters across views
 n_views <- 3
-row_cl_dims <- c(rep(50, n_views), rep(200, n_views), rep(300, n_views),
+row_cl_dims <- list(rep(50, n_views), rep(200, n_views), rep(300, n_views),
                    rep(500, n_views),rep(1000, n_views) )
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)

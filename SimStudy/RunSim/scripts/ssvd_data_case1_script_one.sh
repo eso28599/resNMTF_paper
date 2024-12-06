@@ -1,14 +1,14 @@
 #!/bin/bash
-#PBS -N increasing_indiv
+#PBS -N issvd_data_gen1
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o Results/indiv_3v4b/logs/test_job.out
-#PBS -e Results/indiv_3v4b/logs/test_job.err
+#PBS -o issvd_data_gen/case1/logs/test_job.out
+#PBS -e issvd_data_gen/case1/logs/test_job.err
 
-export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/indiv_3v4b
-export sim=indiv
+export R_LIBS="/home/clustor4/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.4"
+export sim_folder_name=issvd_data_gen/case1
+export sim=issvd_data
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
@@ -18,7 +18,7 @@ cd ${PBS_O_WORKDIR}/${sim_folder_name}/data
 if [ ! -d "$I" ]; then
   mkdir $I
   cd $I
-  for i in 50, 200, 300, 500, 1000
+  for i in 1 2 5 10
   do
     mkdir res_nmtf_$i
     mkdir gfa_$i
@@ -31,13 +31,13 @@ fi
 cd ${PBS_O_WORKDIR}
 
 #generate data
-Rscript --vanilla data_gen.r  ${sim_folder_name} $I
+Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "two"
 
-#now analyse in R
+# analyse in r
 Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
-python3 OtherMethods/indiv_methods_p.py ${sim_folder_name} $I
+python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
 
 #evaluate results in R
 Rscript --vanilla eval.r  ${sim_folder_name} $I

@@ -37,7 +37,7 @@ get_dims <- function(n_r, n_c, k){
              "Col_s" = col_start, "Col_e" = col_end))
 }
 
-one_view_adv <- function(row_dims, col_dims, k, noise, overlap = FALSE){
+one_view_adv <- function(row_dims, col_dims, k, noise,signal, overlap = FALSE){
     #'row_dims: vector of sizes of each row cluster in this view
     #'col_dims: vector of sizes of each row cluster in this view
     #'noise: variance of the noise added to views
@@ -69,7 +69,7 @@ one_view_adv <- function(row_dims, col_dims, k, noise, overlap = FALSE){
     for (i in 1:k){
         n_r <- (row_end[i] - row_start[i] + 1)
         n_c <- (col_end[i] - col_start[i] + 1)
-        X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(5, n_c), Sigma = diag(n_c))
+        X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(signal, n_c), Sigma = diag(n_c))
         # X_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-  mvrnorm(n = n_r, mu = rep(100, n_c), Sigma = diag(n_c))
 
         true_row[(row_start[i]):(row_end[i]), i] <- 1
@@ -80,7 +80,7 @@ one_view_adv <- function(row_dims, col_dims, k, noise, overlap = FALSE){
     return(list(view = X_view, truth_row = true_row, truth_col = true_col))
 }
 
-multi_view <- function(row_dims, col_dims, k, noise,row_same_shuffle=TRUE, col_same_shuffle=TRUE, seed=FALSE){
+multi_view <- function(row_dims, col_dims, k, noise, signal, row_same_shuffle=TRUE, col_same_shuffle=TRUE, seed=FALSE){
     #'rowClusters: n length list of vectors of row cluster sizes in each view
     #'rowClusters: n length list of vectors of column cluster sizes in each view
     #'seed: logical indicator, default is FALSE, if true sets seed so same data is generated each time
@@ -116,7 +116,7 @@ multi_view <- function(row_dims, col_dims, k, noise,row_same_shuffle=TRUE, col_s
             new_col_ind <- sample(col_dims[i])
         }
         data_i <- one_view_adv(row_dims[i], col_dims[i],
-                k, noise)
+                k, noise, signal)
         X_trial[[i]] <- (data_i$view)[new_row_ind, new_col_ind]
         true_row_clusterings[[i]] <- (data_i$truth_row)[new_row_ind, ]
         true_col_clusterings[[i]] <- (data_i$truth_col)[new_col_ind, ]
@@ -125,9 +125,9 @@ multi_view <- function(row_dims, col_dims, k, noise,row_same_shuffle=TRUE, col_s
     return(list(data_views= X_trial, truth_rows = true_row_clusterings, truth_cols = true_col_clusterings))
 }
 
-save_data <- function(row_dims, col_dims, k, file_path, noise, row_same_shuffle=TRUE,col_same_shuffle=TRUE){
+save_data <- function(row_dims, col_dims, k, file_path, noise, row_same_shuffle=TRUE,col_same_shuffle=TRUE, signal=5){
         #can change the noise parameter here for level of noise in views
-        data <- multi_view(row_dims, col_dims,k,  noise, row_same_shuffle , col_same_shuffle )
+        data <- multi_view(row_dims, col_dims,k, noise, signal, row_same_shuffle , col_same_shuffle)
         #save data as a file in given directory
         #export each data frame to separate sheets in same Excel file
         openxlsx::write.xlsx(data$data_views, file = paste0(file_path, "/data.xlsx")) # nolint
