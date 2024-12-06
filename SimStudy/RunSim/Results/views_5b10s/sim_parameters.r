@@ -1,7 +1,7 @@
 source("Functions/extra_funcs.r")
 #file is specific to simulation
 #simulation parameters
-noise_level <- 5
+noise_level <- 10
 #each dataset with 200 samples, same clusters across views
 n_views <- 5
 row_cl_dims <- list(rep(200, 2), rep(200, 3),
@@ -12,7 +12,7 @@ col_cl_dims <- list(rep(150, 2), rep(150, 3),
 row_same_shuffle <- TRUE
 col_same_shuffle <- FALSE
 
-k_vals <- rep(4, 5)
+k_vals <- rep(5, 5)
 
 niter <- 200
 #parameters for restrictive NMTF
