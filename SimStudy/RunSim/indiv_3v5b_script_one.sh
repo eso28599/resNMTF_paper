@@ -37,7 +37,7 @@ Rscript --vanilla data_gen.r  ${sim_folder_name} $I
 Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
-python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
+# python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
 
 #evaluate results in R
 # Rscript --vanilla eval.r  ${sim_folder_name} $I

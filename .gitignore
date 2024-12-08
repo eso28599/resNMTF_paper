@@ -1,6 +1,8 @@
 proteomics.txt
 aals_participants.csv
 # SimStudy/RunSim/Results/*
+SimStudy/RunSim/Results/issvd_param/data/*
+SimStudy/RunSim/Results/issvd_param/logs/*
 SimStudy/RunSim/Results/issvd_param5/data/*
 SimStudy/RunSim/Results/issvd_param5/logs/*
 SimStudy/RunSim/Results/issvd_param4/data/*
