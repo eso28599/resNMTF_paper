@@ -7,6 +7,13 @@ SimStudy/RunSim/Results/issvd_param4/data/*
 SimStudy/RunSim/Results/issvd_param4/logs/*
 SimStudy/RunSim/Results/issvd_param3/data/*
 SimStudy/RunSim/Results/issvd_param3/logs/*
+# SimStudy/RunSim/Results/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param/data/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param/logs/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param4/data/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param4/logs/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param3/data/*
+SimStudy/RunSim/Results/issvd_param_mean100/issvd_param3/logs/*
 #number of biclusters
 SimStudy/RunSim/Results/bicl_3v/data/*
 SimStudy/RunSim/Results/bicl_3v/logs/*

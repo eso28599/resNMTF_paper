@@ -33,6 +33,6 @@ Rscript --vanilla data_gen.r  Results/${sim_folder_name} $I
 
 #analyse in python
 python3 OtherMethods/issvd_param_p.py Results/${sim_folder_name} $I
-
+# 
 #evaluate results in R
-Rscript --vanilla eval.r  Results/${sim_folder_name} $I
+Rscript --vanilla eval_ssvd_param.r  Results/${sim_folder_name} $I

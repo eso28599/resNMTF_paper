@@ -3,8 +3,8 @@
 \toprule
   & BiS & CSR\\
 \midrule
-F score & NA & NA\\
-Relevance & NA & NA\\
-Recovery & NA & NA\\
+F score & 0.999999 & 1\\
+Relevance & 0.999999 & 1\\
+Recovery & 0.999999 & 1\\
 \bottomrule
 \end{tabular}
