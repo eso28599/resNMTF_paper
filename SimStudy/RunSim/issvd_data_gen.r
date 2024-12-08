@@ -1,6 +1,7 @@
 args = commandArgs(trailingOnly = TRUE)
 path_to_sim_folder = as.character(args[1])
 batch_folder = as.character(args[2])
+case = as.character(args[3])
 source(paste0(path_to_sim_folder,
              "/sim_parameters.r")) #parameters for simulation
 library(openxlsx)
@@ -57,19 +58,31 @@ V2[, 5:100] <- mvrnorm(1000, rep(0, 96), diag(rep(1, 96)))
 eps <- 0.3
 S <- diag(c(27, 20, 18, 10, rep(eps, 96)))
 
-
 X1 <- U %*% S %*% t(V1)
-X2 <- 5*(U %*% S %*% t(V2))
-
-#save data
-for(i in 1:length(numbers1)){
-    #noise
-    sigma2 <- numbers1[i]
+if(case=="two"){
+    X2 <- 5*(U %*% S %*% t(V2))
+    #save data
+    for(i in 1:length(sigma_vec)){
+        #noise
+        sigma2 <- sigma_vec[i]^2
+        noise1 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
+        noise2 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
+        data_mod <- list("v1"=(X1 + noise1), "v2"=(X2 + noise2))
+        file_path <- paste0(path_to_save, method_vec[i])
+        openxlsx::write.xlsx(data_mod, file = paste0(file_path, "/data.xlsx"))
+        openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) 
+        openxlsx::write.xlsx(true_cols, file = paste0(file_path, "/true_cols.xlsx"))
+    }
+}else{
+    sigma2 <- 0.2^2
     noise1 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
     noise2 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
-    data_mod <- list("v1"=(X1 + noise1), "v2"=(X2 + noise2))
-    file_path <- paste0(path_to_save, method_vec[i])
-    openxlsx::write.xlsx(data_mod, file = paste0(file_path, "/data.xlsx"))
-    openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) 
-    openxlsx::write.xlsx(true_cols, file = paste0(file_path, "/true_cols.xlsx"))
+    X2 <- (U %*% S %*% t(V2))
+    for(i in 1:length(scalar_vec)){
+        data_mod <- list("v1"=(X1 + noise1), "v2"=(scalar_vec[i]*X2 + noise2))
+        file_path <- paste0(path_to_save, method_vec[i])
+        openxlsx::write.xlsx(data_mod, file = paste0(file_path, "/data.xlsx"))
+        openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) 
+        openxlsx::write.xlsx(true_cols, file = paste0(file_path, "/true_cols.xlsx"))
+    }
 }

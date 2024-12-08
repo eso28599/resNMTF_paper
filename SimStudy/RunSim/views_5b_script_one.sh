@@ -8,7 +8,7 @@
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
 export sim_folder_name=Results/views_5b
-export sim=bicl
+export sim=views
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
@@ -37,7 +37,7 @@ Rscript --vanilla data_gen.r  ${sim_folder_name} $I
 Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
-# python3 OtherMethods/views_methods_p.py ${sim_folder_name} $I
+python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
 
 #evaluate results in R
 # Rscript --vanilla eval.r  ${sim_folder_name} $I

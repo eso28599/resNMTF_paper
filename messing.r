@@ -8,9 +8,12 @@ openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) # n
 openxlsx::write.xlsx(true_cols, file = paste0(file_path, "/true_cols.xlsx")) #
 
 #check issvd results 
-source("SimStudy/Functions/extra_funcs.r")
+source("SimStudy/RunSim/Functions/extra_funcs.r")
 source("SimStudy/RunSim/Functions/evaluation_funcs.r")
-source("main.r")
+source("SimStudy/RunSim/main.r")
+true_rows <- import_matrix("test_data/true_rows.xlsx")
+true_cols <- import_matrix("test_data/true_cols.xlsx")
+data <- import_matrix("test_data/data.xlsx")
 rows_issvd <- import_matrix("test_data/issvd_rows.xlsx")
 cols_issvd <- import_matrix("test_data/issvd_cols.xlsx")
 jaccard_res(rows_issvd[[2]], cols_issvd[[2]], true_rows[[2]], true_cols[[2]])
@@ -19,7 +22,7 @@ jaccard_res(rows_issvd[[1]], cols_issvd[[1]], true_rows[[1]], true_cols[[1]])
 # applying the restMultiNMTF on the data generated from issvd
 phi_mat <- matrix(0,2,2)
 phi_mat[1,2] <- 200
-res_og2 <- restMultiNMTF_run(ssvd_data2, phi=phi_mat)
+res_og2 <- restMultiNMTF_run(data, phi=2*phi_mat)
 jaccard_res(res_og2$row_clusters[[1]], res_og2$col_clusters[[1]], true_rows[[1]], true_cols[[1]])
 jaccard_res(res_og2$row_clusters[[2]], res_og2$col_clusters[[2]], true_rows[[2]], true_cols[[2]])
 
@@ -32,9 +35,9 @@ n_views <- 3
 row_cl_dims <- rep(200, n_views)
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)
-save_data(row_cl_dims, col_cl_dims, 6, 'test_data2', 5 ,col_same_shuffle=FALSE)
+save_data(row_cl_dims, col_cl_dims, 3, 'test_data2', 5 ,col_same_shuffle=FALSE, signal=5)
 data <- import_matrix("test_data2/data.xlsx")
-
+max(data[[1]])
 #perform gfa
 source('SimStudy/RunSim/OtherMethods/gfa_funcs.r')
 source("SimStudy/RunSim/Functions/extra_funcs.r")

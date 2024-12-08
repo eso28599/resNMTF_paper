@@ -1,8 +1,8 @@
 proteomics.txt
 aals_participants.csv
 # SimStudy/RunSim/Results/*
-SimStudy/RunSim/Results/issvd_param/data/*
-SimStudy/RunSim/Results/issvd_param/logs/*
+SimStudy/RunSim/Results/issvd_param5/data/*
+SimStudy/RunSim/Results/issvd_param5/logs/*
 SimStudy/RunSim/Results/issvd_param4/data/*
 SimStudy/RunSim/Results/issvd_param4/logs/*
 SimStudy/RunSim/Results/issvd_param3/data/*
@@ -37,3 +37,25 @@ SimStudy/RunSim/Results/views_4v5b/data/*
 SimStudy/RunSim/Results/views_4v5b/logs/*
 # noise
 
+
+# signal investigation
+SimStudy/RunSim/Results/signal/signal3/data/*
+SimStudy/RunSim/Results/signal/signal3/logs/*
+SimStudy/RunSim/Results/signal/signal4/data/*
+SimStudy/RunSim/Results/signal/signal4/logs/*
+SimStudy/RunSim/Results/signal/signal5/data/*
+SimStudy/RunSim/Results/signal/signal5/logs/*
+SimStudy/RunSim/Results/signal/signal6/data/*
+SimStudy/RunSim/Results/signal/signal6/logs/*
+
+# issvd data generation 
+SimStudy/RunSim/Results/issvd_data_gen/case2/data/*
+SimStudy/RunSim/Results/issvd_data_gen/case2/logs/*
+SimStudy/RunSim/Results/issvd_data_gen/case1/data/*
+SimStudy/RunSim/Results/issvd_data_gen/case1/logs/*
+
+# overlap
+SimStudy/RunSim/Results/overlap/exhaustive_3v5b/data/*
+SimStudy/RunSim/Results/overlap/exhaustive_3v5b/logs/*
+SimStudy/RunSim/Results/overlap/non_exhaust_3v5b/data/*
+SimStudy/RunSim/Results/overlap/non_exhaust_3v5b/logs/*
