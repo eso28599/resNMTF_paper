@@ -36,7 +36,7 @@ for j in method_idx:
     col_issvd_filename = data_name + "/issvd_" + str(j) + "/col_clusts.xlsx"
     iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
                 vthr = 0.7,ssthr=[0.6,0.65],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True
-                ,row_overlap=True,pceru=0.6,pcerv=0.6,merr=0.0001,iters=100)           
+                ,row_overlap=True,pceru=0.7,pcerv=0.7,merr=0.0001,iters=100)           
     n_clusts = iSSVD_applied['N']
     if n_clusts == 0:
         row_clusts = [pd.DataFrame([0 for i in np.arange(k)]) for k in [n_samps for j in np.arange(n_views)]]

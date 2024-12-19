@@ -14,7 +14,7 @@ export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
 
-cd ${PBS_O_WORKDIR}/Results/${sim_folder_name}/data
+cd ${PBS_O_WORKDIR}/../Results/${sim_folder_name}/data
 #mkdir $I
 if [ ! -d "$I" ]; then
   mkdir $I
@@ -26,7 +26,7 @@ if [ ! -d "$I" ]; then
 fi
 
 #move back into original folder
-cd ${PBS_O_WORKDIR}
+cd ${PBS_O_WORKDIR}/..
 
 #generate data
 Rscript --vanilla data_gen.r  Results/${sim_folder_name} $I

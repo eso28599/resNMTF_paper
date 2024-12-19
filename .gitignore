@@ -3,6 +3,8 @@ aals_participants.csv
 # SimStudy/RunSim/Results/*
 SimStudy/RunSim/Results/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param/logs/*
+SimStudy/RunSim/Results/issvd_param6/data/*
+SimStudy/RunSim/Results/issvd_param6/logs/*
 SimStudy/RunSim/Results/issvd_param5/data/*
 SimStudy/RunSim/Results/issvd_param5/logs/*
 SimStudy/RunSim/Results/issvd_param4/data/*
@@ -31,12 +33,12 @@ SimStudy/RunSim/Results/indiv_3v4b/logs/*
 SimStudy/RunSim/Results/indiv_4v5b/data/*
 SimStudy/RunSim/Results/indiv_4v5b/logs/*
 #views
-SimStudy/RunSim/Results/views_5b/data/*
-SimStudy/RunSim/Results/views_5b/logs/*
-SimStudy/RunSim/Results/views_3v4b/data/*
-SimStudy/RunSim/Results/views_3v4b/logs/*
-SimStudy/RunSim/Results/views_4v5b/data/*
-SimStudy/RunSim/Results/views_4v5b/logs/*
+SimStudy/RunSim/Results/views/views_5b/data/*
+SimStudy/RunSim/Results/views/views_5b/logs/*
+SimStudy/RunSim/Results/views/views_3v4b/data/*
+SimStudy/RunSim/Results/views/views_3v4b/logs/*
+SimStudy/RunSim/Results/views/views_4v5b/data/*
+SimStudy/RunSim/Results/views/views_4v5b/logs/*
 # noise
 
 

@@ -7,6 +7,7 @@ n_views <- 3
 row_cl_dims <- rep(200, n_views)
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)
+# col_cl_dims <- c(200, 150, 250)
 row_same_shuffle <- TRUE
 col_same_shuffle <- FALSE
 
@@ -35,8 +36,12 @@ plot_title <- "The effect of increasing the number of biclusters on performance"
 file_names <- c(paste0("res_nmtf_", bicl_numbers),
     paste0("gfa_", bicl_numbers), 
     paste0("issvd_", bicl_numbers), paste0("nmtf_", bicl_numbers))
+#comment out above for slides showing just res_nmtf and nmtf
+# file_names <- c(paste0("res_nmtf_", bicl_numbers),
+#      paste0("nmtf_", bicl_numbers))
 method_vec_res <- c(rep("ResNMTF", 4), rep("GFA", 4),
  rep("iSSVD", 4), rep("NMTF", 4))
+# method_vec_res <- c(rep("ResNMTF", 4),rep("NMTF", 4))
 factor_vec <- rep(3:6, 4)
 k_vec <- rep(3:6, 4)
 phi_constant <- TRUE

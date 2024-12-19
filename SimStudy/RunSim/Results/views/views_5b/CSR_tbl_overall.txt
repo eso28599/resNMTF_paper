@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & 0.9189 (0.0873) & 0.8650 (0.0841) & 0.8210 (0.0695) & 0.7993 (0.0624)\\
+GFA & 0.9030 (0.0171) & 0.9030 (0.0171) & 0.9100 (0.0302) & \textbf{0.9210 (0.0409)}\\
+iSSVD & 0.1667 (0.0000) & 0.1667 (0.0000) & 0.1667 (0.0000) & 0.1667 (0.0000)\\
+NMTF & \textbf{0.9260 (0.0665)} & \textbf{0.9188 (0.0564)} & \textbf{0.9209 (0.0474)} & 0.9154 (0.0459)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} CSR scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

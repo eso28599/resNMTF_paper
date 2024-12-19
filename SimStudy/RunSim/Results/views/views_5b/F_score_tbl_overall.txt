@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & 0.8067 (0.1247) & 0.7347 (0.1300) & 0.6625 (0.1189) & 0.6225 (0.0885)\\
+GFA & 0.2302 (0.0416) & 0.2383 (0.0515) & 0.2421 (0.0532) & 0.2462 (0.0695)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & \textbf{0.8147 (0.0835)} & \textbf{0.8084 (0.0732)} & \textbf{0.8074 (0.0612)} & \textbf{0.8025 (0.0565)}\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} F scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

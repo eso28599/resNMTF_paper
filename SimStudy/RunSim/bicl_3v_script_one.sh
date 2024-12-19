@@ -2,7 +2,7 @@
 #PBS -N increasing_bicl
 #PBS -m a
 #PBS -q medium
-#PBS -t 1-100
+#PBS -t 1-10
 #PBS -o Results/bicl_3v/logs/test_job.out
 #PBS -e Results/bicl_3v/logs/test_job.err
 
@@ -40,4 +40,4 @@ Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
 
 #evaluate results in R
-# Rscript --vanilla eval.r  ${sim_folder_name} $I
+Rscript --vanilla eval.r  ${sim_folder_name} $I
