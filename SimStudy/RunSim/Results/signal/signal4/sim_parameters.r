@@ -20,7 +20,7 @@ phi[2, c(3)] <- 1
 val <- 200
 phi_mat <- val * phi
 bicl_numbers <- 5
-param_vals <- 1:21
+param_vals <- 1:20
 method_vec <- paste0("/issvd_", param_vals)
 row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
 col_cl_dims <- rep(list(col_cl_dims), length(method_vec))

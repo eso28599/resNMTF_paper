@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of biclusters} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 3 & 4 & 5 & 6\\
+\midrule
+ResNMTF & \textbf{1.0000 (0.0000)} & \textbf{0.9304 (0.0492)} & \textbf{0.8468 (0.1036)} & \textbf{0.7480 (0.1310)}\\
+GFA & 0.2215 (0.0406) & 0.2109 (0.0725) & 0.2087 (0.0459) & 0.2053 (0.0505)\\
+iSSVD & 0.0050 (0.0500) & 0.6167 (0.0113) & 0.0032 (0.0324) & 0.0036 (0.0363)\\
+NMTF & 0.9972 (0.0222) & 0.8633 (0.0482) & 0.6514 (0.0919) & 0.7072 (0.1044)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Recovery scores. 3 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

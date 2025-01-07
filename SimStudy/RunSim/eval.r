@@ -11,7 +11,7 @@ data_name <- paste0(paste0(path_to_sim_folder, "/data/"), batch_folder)
 #analyse each method
 for (i in 1:length(method_vec_issvd)){
     file_path <- paste0(data_name, method_vec[i])
-    file_path <- paste0(data_name, method_vec[i])
+    # file_path <- paste0(data_name, method_vec[i])
 
     # #export each data frame to separate sheets in same Excel file
     true_rows <- import_matrix(paste0(file_path, "/true_rows.xlsx"))

@@ -187,7 +187,7 @@ make_plot_line_issvd <- function(data_frame, cluster, x_title, y_title, filename
      scale_y_continuous(breaks = y_breaks)+
      scale_x_discrete(breaks = x_breaks)+
      labs(
-     x = "Per-comparison wise error rate",
+     x = x_title,
      y = "Measure"
    )
     p <- p +

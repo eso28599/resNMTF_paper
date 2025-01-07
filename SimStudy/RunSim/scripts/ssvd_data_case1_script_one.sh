@@ -3,17 +3,17 @@
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o issvd_data_gen/case1/logs/test_job.out
-#PBS -e issvd_data_gen/case1/logs/test_job.err
+#PBS -o ../Results/issvd_data_gen/case1/logs/test_job.out
+#PBS -e ../Results/issvd_data_gen/case1/logs/test_job.err
 
 export R_LIBS="/home/clustor4/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.4"
-export sim_folder_name=issvd_data_gen/case1
+export sim_folder_name=Results/issvd_data_gen/case1
 export sim=issvd_data
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
 
-cd ${PBS_O_WORKDIR}/${sim_folder_name}/data
+cd ${PBS_O_WORKDIR}/../${sim_folder_name}/data
 #mkdir $I
 if [ ! -d "$I" ]; then
   mkdir $I
@@ -28,7 +28,7 @@ if [ ! -d "$I" ]; then
 fi
 
 #move back into original folder
-cd ${PBS_O_WORKDIR}
+cd ${PBS_O_WORKDIR}/..
 
 #generate data
 Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "two"

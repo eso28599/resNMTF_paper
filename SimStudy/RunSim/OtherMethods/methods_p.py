@@ -26,7 +26,10 @@ elif investigate == "issvd_data":
 
 data_name = path_to_sim_folder + "/data/" + batch_folder 
 for j in method_idx:
-    data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
+    if investigate == "signal":
+        data_views = pd.ExcelFile(data_name + "/issvd_" + str(j) + "/data.xlsx")
+    else:
+        data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
     data = [np.array(pd.read_excel(data_views, sheet)) for sheet in data_views.sheet_names]
     #save row clustering
     n_views = len(data)

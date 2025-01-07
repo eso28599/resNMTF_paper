@@ -9,6 +9,8 @@ row_cl_dims <- list(rep(200, 2), rep(200, 3),
 #100, 50,250 features respectively
 col_cl_dims <- list(rep(150, 2), rep(150, 3),
                 rep(150, 4), rep(150, 5))
+# col_cl_dims <- list(rep(250, 2), rep(250, 3),
+#                 rep(250, 4), rep(250, 5))
 row_same_shuffle <- TRUE
 col_same_shuffle <- FALSE
 

@@ -21,9 +21,9 @@ for (i in 1:length(method_vec)){
         nmtf_sgl_res <- single_nmtf(data_views)
     }
     save_results(nmtf_results, file_path)
-    #run gfa and save results
-    gfa_res <- gfa_apply(data_views, k_vec[i])
-    save_results(gfa_res, file_path2)
-    #run single view nmtf
-    save_results(nmtf_sgl_res, file_path3)
+   #run gfa and save results
+  gfa_res <- gfa_apply(data_views, k_vec[i])
+  save_results(gfa_res, file_path2)
+  #run single view nmtf
+  save_results(nmtf_sgl_res, file_path3)
 }
