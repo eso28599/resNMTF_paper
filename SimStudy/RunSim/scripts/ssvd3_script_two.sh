@@ -1,12 +1,12 @@
 #!/bin/bash
-#PBS -N issvd_param_res
+#PBS -N issvd_param_res3
 #PBS -m a
 #PBS -q medium
-#PBS -o ../Results/issvd_param3/logs/results.out
-#PBS -e ../Results/issvd_param3/logs/results.err
+#PBS -o ../Results/issvd_param_signal5/issvd_param3/logs/results.out
+#PBS -e ../Results/issvd_param_signal5/issvd_param3/logs/results.err
 
 export R_LIBS="/home/clustor4/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.4"
-export sim_folder_name=issvd_param3
+export sim_folder_name=issvd_param_signal5/issvd_param3
 export sim=issvd
 
 

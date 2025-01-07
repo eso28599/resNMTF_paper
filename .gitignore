@@ -1,17 +1,17 @@
 proteomics.txt
 aals_participants.csv
 # SimStudy/RunSim/Results/*
-SimStudy/RunSim/Results/issvd_param/data/*
-SimStudy/RunSim/Results/issvd_param/logs/*
-SimStudy/RunSim/Results/issvd_param6/data/*
-SimStudy/RunSim/Results/issvd_param6/logs/*
-SimStudy/RunSim/Results/issvd_param5/data/*
-SimStudy/RunSim/Results/issvd_param5/logs/*
-SimStudy/RunSim/Results/issvd_param4/data/*
-SimStudy/RunSim/Results/issvd_param4/logs/*
-SimStudy/RunSim/Results/issvd_param3/data/*
-SimStudy/RunSim/Results/issvd_param3/logs/*
-# SimStudy/RunSim/Results/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/data/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/logs/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param6/data/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param6/logs/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param5/data/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param5/logs/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param4/data/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param4/logs/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param3/data/*
+SimStudy/RunSim/Results/issvd_param_signal5/issvd_param3/logs/*
+# SimStudy/RunSim/Results/*	
 SimStudy/RunSim/Results/issvd_param_mean100/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param_mean100/issvd_param/logs/*
 SimStudy/RunSim/Results/issvd_param_mean100/issvd_param4/data/*

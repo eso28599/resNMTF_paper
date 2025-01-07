@@ -1,14 +1,14 @@
 #!/bin/bash
-#PBS -N issvd_param
+#PBS -N issvd_param3
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o ../Results/issvd_param3/logs/test_job.out
-#PBS -e ../Results/issvd_param3/logs/test_job.err
+#PBS -o ../Results/issvd_param_signal5/issvd_param3/logs/test_job.out
+#PBS -e ../Results/issvd_param_signal5/issvd_param3/logs/test_job.err
 
 export R_LIBS="/home/clustor4/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.4"
 # export R_LIBS="/usr/local/lib/R/site-library"
-export sim_folder_name=issvd_param3
+export sim_folder_name=issvd_param_signal5/issvd_param3
 export sim=issvd3
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
