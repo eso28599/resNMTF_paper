@@ -31,7 +31,7 @@ fi
 cd ${PBS_O_WORKDIR}/..
 
 #generate data
-Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "two"
+Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "one"
 
 # analyse in r
 Rscript --vanilla methods_r.r  ${sim_folder_name} $I

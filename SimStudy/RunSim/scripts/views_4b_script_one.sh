@@ -3,11 +3,11 @@
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o ../Results/views/views_5b/logs/test_job.out
-#PBS -e ../Results/views/views_5b/logs/test_job.err
+#PBS -o ../Results/views/views_4b/logs/test_job.out
+#PBS -e ../Results/views/views_4b/logs/test_job.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/views/views_5b
+export sim_folder_name=Results/views/views_4b
 export sim=views
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
@@ -31,10 +31,10 @@ fi
 cd ${PBS_O_WORKDIR}/..
 
 #generate data
-Rscript --vanilla data_gen.r  ${sim_folder_name} $I
+# Rscript --vanilla data_gen.r  ${sim_folder_name} $I
 
 #now analyse in R
-Rscript --vanilla methods_r.r  ${sim_folder_name} $I
+# Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
 python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}

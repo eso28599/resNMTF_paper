@@ -22,6 +22,8 @@ elif investigate == "noise":
     method_idx = list(np.arange(1,11)) + list(np.arange(20,110,10))#only thing to change
 elif investigate == "issvd_data":
     method_idx = list(np.arange(1,11))
+elif investigate == "overlap":
+    method_idx = list(np.arange(0,45,5))
 
 
 data_name = path_to_sim_folder + "/data/" + batch_folder 

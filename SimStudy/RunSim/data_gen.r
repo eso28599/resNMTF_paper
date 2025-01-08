@@ -20,6 +20,14 @@ if(factor=="noise"){
                  k_vals[i],
                 path, noise_level,  row_same_shuffle, col_same_shuffle,signal_vec[i])
 }
+}else if (factor == "overlap"){
+  for (i in 1:length(method_vec)){
+        #generate data and save in given path
+        path <- paste0(path_to_data_folder, paste0("/", method_vec[i]))
+        save_data(row_cl_dims[i][[1]], col_cl_dims[i][[1]],
+                 k_vals[i],
+                path, noise_level,row_e[i], col_e[i], row_o[i], col_o[i],  row_same_shuffle, col_same_shuffle)
+  }
 }else{
   for (i in 1:length(method_vec)){
         #generate data and save in given path

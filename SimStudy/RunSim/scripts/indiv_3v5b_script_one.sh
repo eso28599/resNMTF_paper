@@ -7,7 +7,7 @@
 #PBS -e ../Results/indiv/indiv_3v5b/logs/test_job.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/indiv_3v5b
+export sim_folder_name=Results/indiv/indiv_3v5b
 export sim=indiv
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
