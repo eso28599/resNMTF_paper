@@ -99,13 +99,13 @@ make_plot_measure <- function(data_frame, cluster, plot_title, sub_title, x_titl
      scale_y_continuous(breaks = y_breaks)
     p <- p +
         theme_minimal()+
-        theme(text = element_text(size = 11), legend.position = "bottom",
+        theme(text = element_text(size = 11), legend.position = "none",
         axis.ticks = element_line(size = 0.3),
                 axis.line = element_line(size = 0.3))
     p_save <- p + labs(x = x_title, y = y_title)
     p <- p + labs(
-     title = plot_title,
-     subtitle = sub_title,
+     #title = plot_title,
+     #subtitle = sub_title,
      x = x_title, 
      y = y_title
    )
