@@ -3,7 +3,7 @@ library(MASS)
 library(Matrix)
 
 #toy examples
-get_dims_toy <- function(n_r, n_c, k, row_e = 1, col_e = 1, row_o = 0, col_o = 0){
+get_dims <- function(n_r, n_c, k, row_e = 1, col_e = 1, row_o = 0, col_o = 0){
     #' row_e portion of rows in biclusters
     part_r <- floor((row_e*n_r)/7)
     part_c <- floor((col_e*n_c)/7)

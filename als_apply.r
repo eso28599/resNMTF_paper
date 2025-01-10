@@ -59,17 +59,3 @@ source('main.r')
 source('SimStudy/Functions/extra_funcs.r')
 data <- import_matrix("test_data/data.xlsx")
 test_init <- init_mats_random(data, 5)
-
-
-
-n <- 1:10
-pbinom(10, 10, 0.5)
-p <- 0.1
-n <- 6
-#plot the probability of getting 6 or more heads in 10 coin flips
-plot(1:10, pbinom(1:10, 10, 0.5), type='l')
-prob_glasto <- function(n,p){
-    1-pbinom(n,6*n,p)
-}
-n <- 1
-pbinom(n,6*n,p)

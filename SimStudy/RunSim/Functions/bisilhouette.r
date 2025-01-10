@@ -42,6 +42,7 @@ sil_score_inner <- function(Xinput, row_clustering, col_clustering, method="eucl
         }else {
           #select data from specific column clustering
         new_data <- Xinput[, (clust_one[, k] == 1)]
+        # spear_dists <- as.matrix(stats::dist(new_data, method))
         spear_dists <- as.matrix(dist(new_data, method))
         b_vec <- c()
         #if only one element in row clust
