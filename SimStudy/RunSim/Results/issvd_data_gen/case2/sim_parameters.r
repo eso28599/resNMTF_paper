@@ -31,6 +31,7 @@ col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_sgl <- paste0("/nmtf_", param_vals)
 method_vec_gfa <- paste0("/gfa_", param_vals)
 method_vec_issvd <- paste0("/issvd_", param_vals)
+factor_vec <- rep(param_vals, 4)
 factor <- "issvd_param"
 kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Parameter"

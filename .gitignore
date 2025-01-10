@@ -35,6 +35,8 @@ SimStudy/RunSim/Results/indiv/indiv_4v5b/logs/*
 #views
 SimStudy/RunSim/Results/views/views_5b/data/*
 SimStudy/RunSim/Results/views/views_5b/logs/*
+SimStudy/RunSim/Results/views/views_5b_nostab/data/*
+SimStudy/RunSim/Results/views/views_5b_nostab/logs/*
 SimStudy/RunSim/Results/views/views_3v4b/data/*
 SimStudy/RunSim/Results/views/views_3v4b/logs/*
 SimStudy/RunSim/Results/views/views_4b/data/*

@@ -36,12 +36,18 @@ method_vec_issvd <- paste0("/issvd_", param_vals)
 factor <- "issvd_param"
 kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Parameter"
+factor_vec <- rep(param_vals, 4)
 x_title <- "Scalar"
 plot_title <- "The effect of increasing the scale on performance"
-file_names <- paste0("issvd_", param_vals)
-method_vec_res <- rep("iSSVD", 10)
+# file_names <- paste0("issvd_", param_vals)
+file_names <- c(paste0("res_nmtf_", param_vals),
+    paste0("gfa_", param_vals), 
+    paste0("issvd_", param_vals), paste0("nmtf_", param_vals))
+# method_vec_res <- rep("iSSVD", 10)
+method_vec_res <- c(rep("ResNMTF", 4), rep("GFA", 4),
+ rep("iSSVD", 4), rep("NMTF", 4))
 k_vec <- rep(4,4)
-phi_constant <- FALSE
+phi_constant <- TRUE
 n_col_plots <- 2
 n_row_plots <- 2
 col_names_tables <- c(1, 2, 5, 10)

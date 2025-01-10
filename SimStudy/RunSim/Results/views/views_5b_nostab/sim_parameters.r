@@ -1,7 +1,7 @@
 source("Functions/extra_funcs.r")
 #file is specific to simulation
 #simulation parameters
-noise_level <- 10
+noise_level <- 5
 #each dataset with 200 samples, same clusters across views
 n_views <- 5
 row_cl_dims <- list(rep(200, 2), rep(200, 3),
@@ -9,6 +9,8 @@ row_cl_dims <- list(rep(200, 2), rep(200, 3),
 #100, 50,250 features respectively
 col_cl_dims <- list(rep(150, 2), rep(150, 3),
                 rep(150, 4), rep(150, 5))
+# col_cl_dims <- list(rep(250, 2), rep(250, 3),
+#                 rep(250, 4), rep(250, 5))
 row_same_shuffle <- TRUE
 col_same_shuffle <- FALSE
 
@@ -30,18 +32,18 @@ method_vec <- c("/res_nmtf_2", "/res_nmtf_3",
 # row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
 # col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_sgl <- paste0("/nmtf_", bicl_numbers)
-method_vec_gfa <- paste0("/gfa_", bicl_numbers)
-method_vec_issvd <- paste0("/issvd_", bicl_numbers)
+method_vec_gfa <- paste0("/resnmtf0_", bicl_numbers)
+method_vec_issvd <- paste0("/nmtf0_", bicl_numbers)
 factor <- "views"
 kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Views"
 x_title <- "Number of views"
 plot_title <- "The effect of increasing the number of views on performance"
 file_names <- c(paste0("res_nmtf_", bicl_numbers),
-    paste0("gfa_", bicl_numbers), 
-    paste0("issvd_", bicl_numbers), paste0("nmtf_", bicl_numbers))
-method_vec_res <- c(rep("ResNMTF", 4), rep("GFA", 4),
- rep("iSSVD", 4), rep("NMTF", 4))
+    paste0("resnmtf0_", bicl_numbers), 
+    paste0("nmtf0_", bicl_numbers), paste0("nmtf_", bicl_numbers))
+method_vec_res <- c(rep("ResNMTF", 4), rep("ResNMTF (no s.a.)", 4),
+ rep("iSSVD", 4), rep("NMTF (no s.a.)", 4))
 factor_vec <- rep(2:5, 4)
 k_vec <- rep(2:5, 4)
 phi_constant <- TRUE

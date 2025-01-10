@@ -2,7 +2,7 @@
 #PBS -N increasing_indiv_3v5b
 #PBS -m a
 #PBS -q medium
-#PBS -t 1-100
+#PBS -t 57-59
 #PBS -o ../Results/indiv/indiv_3v5b/logs/test_job.out
 #PBS -e ../Results/indiv/indiv_3v5b/logs/test_job.err
 

@@ -6,7 +6,7 @@
 #PBS -e ../Results/indiv/indiv_3v5b/logs/results.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/indiv_3v5b
+export sim_folder_name=Results/indiv/indiv_3v5b
 export sim=indiv
 
 cd ${PBS_O_WORKDIR}/../${sim_folder_name}

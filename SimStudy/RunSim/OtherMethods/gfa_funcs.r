@@ -27,14 +27,14 @@ return(list("row_clusters" = rows, "col_clusters" = cols))
 }
 
 
-single_nmtf <- function(Xinput, k_min=3, k_max =6, repeats = 5){
+single_nmtf <- function(Xinput, k_min=3, k_max =8, repeats = 5, stab=TRUE){
     n_views <- length(Xinput)
     row_clusters <- vector("list", length = n_views)
     col_clusters <- vector("list", length = n_views)
     error <- c()
     for(i in 1:n_views){
       results <- restMultiNMTF_run(list(Xinput[[i]]), phi = matrix(0,1,1),
-     k_min, k_max)
+     k_min, k_max, stability=stab)
       row_clusters[[i]] <- results$row_clusters[[1]]
       col_clusters[[i]] <- results$col_clusters[[1]]
       error <- c(error, results$Error)

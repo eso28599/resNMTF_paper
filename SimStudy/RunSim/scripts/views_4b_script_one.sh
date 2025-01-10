@@ -31,10 +31,10 @@ fi
 cd ${PBS_O_WORKDIR}/..
 
 #generate data
-# Rscript --vanilla data_gen.r  ${sim_folder_name} $I
+Rscript --vanilla data_gen.r  ${sim_folder_name} $I
 
 #now analyse in R
-# Rscript --vanilla methods_r.r  ${sim_folder_name} $I
+Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
 python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}

@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Scalar} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 1 & 2 & 5 & 10\\
+\midrule
+ResNMTF & \textbf{0.2740 (0.0221)} & \textbf{0.2732 (0.0226)} & \textbf{0.2744 (0.0219)} & \textbf{0.2716 (0.0264)}\\
+GFA & 0.1427 (0.0791) & 0.1490 (0.0636) & 0.1403 (0.0766) & 0.1411 (0.0605)\\
+iSSVD & 0.0778 (0.0083) & 0.0776 (0.0089) & 0.0793 (0.0088) & 0.0804 (0.0084)\\
+NMTF & 0.2666 (0.0223) & 0.2652 (0.0229) & 0.2656 (0.0218) & 0.2669 (0.0208)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 2 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

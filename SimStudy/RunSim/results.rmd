@@ -2,6 +2,8 @@
 title: "Simulation results"
 author: "Ella Orme"
 output: pdf_document
+pdf_document:
+    latex_engine: xelatex
 ---
 
 ```{r, echo=FALSE}
