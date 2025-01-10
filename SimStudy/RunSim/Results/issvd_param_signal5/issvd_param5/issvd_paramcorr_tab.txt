@@ -1,0 +1,10 @@
+
+\begin{tabular}[t]{lrr}
+\toprule
+  & BiS & CSR\\
+\midrule
+F score & NA & NA\\
+Relevance & NA & NA\\
+Recovery & NA & NA\\
+\bottomrule
+\end{tabular}

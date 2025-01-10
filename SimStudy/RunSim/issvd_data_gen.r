@@ -11,6 +11,8 @@ library(MASS)
 #X2 100 x 1000
 #4 biclusters
 #each bicluster is 10x100
+path_to_save <- paste0(paste0(path_to_sim_folder, "/data/"),
+                         batch_folder)
 
 #U is 100x100
 #we randomly select 10 rows in each column of the first four columns in matrix 𝑈

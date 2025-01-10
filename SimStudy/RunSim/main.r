@@ -437,8 +437,8 @@ stability_check <- function(Xinput, Sinput, results,
 
 restMultiNMTF_run <- function(Xinput, Finput=NULL, Sinput=NULL, 
             Ginput=NULL, KK=NULL, phi=NULL, xi=NULL, psi=NULL, 
-            nIter=NULL, k_min=3, k_max =6, distance= "euclidean",repeats = 5, no_clusts = FALSE, 
-             sample_rate = 0.8, n_stability = 5, stability = TRUE, stab_thres = 0.6, stab_test=FALSE){
+            nIter=NULL, k_min=3, k_max =8, distance= "euclidean",repeats = 5, no_clusts = FALSE, 
+             sample_rate = 0.9, n_stability = 5, stability = TRUE, stab_thres = 0.4, stab_test=FALSE){
 
   #' @param k_max integer, default is 6, must be greater than 2, largest value of k to be considered initially,
   # initialise phi etc matrices as zeros if not specified

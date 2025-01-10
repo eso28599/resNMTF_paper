@@ -21,8 +21,8 @@ val <- 200
 phi_mat <- val * phi
 bicl_numbers <- c(1:9,10*(1:10))
 method_vec <- paste0("/res_nmtf_", c(1:9,10*(1:10)))
-row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
-col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
+# row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
+# col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_sgl <- paste0("/nmtf_", bicl_numbers)
 method_vec_gfa <- paste0("/gfa_", bicl_numbers)
 method_vec_issvd <- paste0("/issvd_", bicl_numbers)

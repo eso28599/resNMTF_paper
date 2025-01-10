@@ -22,11 +22,18 @@ elif investigate == "noise":
     method_idx = list(np.arange(1,11)) + list(np.arange(20,110,10))#only thing to change
 elif investigate == "issvd_data":
     method_idx = list(np.arange(1,11))
+elif investigate == "issvd_data1":
+    method_idx = [1, 2, 5, 10]
+elif investigate == "overlap":
+    method_idx = list(np.arange(0,45,5))
 
 
 data_name = path_to_sim_folder + "/data/" + batch_folder 
 for j in method_idx:
-    data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
+    if investigate == "signal":
+        data_views = pd.ExcelFile(data_name + "/issvd_" + str(j) + "/data.xlsx")
+    else:
+        data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
     data = [np.array(pd.read_excel(data_views, sheet)) for sheet in data_views.sheet_names]
     #save row clustering
     n_views = len(data)
@@ -34,9 +41,14 @@ for j in method_idx:
     n_samps = data[0].shape[0]
     row_issvd_filename = data_name + "/issvd_" + str(j) + "/row_clusts.xlsx"
     col_issvd_filename = data_name + "/issvd_" + str(j) + "/col_clusts.xlsx"
-    iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
-                vthr = 0.7,ssthr=[0.6,0.65],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True
-                ,row_overlap=True,pceru=0.6,pcerv=0.6,merr=0.0001,iters=100)           
+    if investigate == "issvd_data1":
+        iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
+                    ,ssthr=[0.6,0.65],nbicluster=4,rows_nc=True,cols_nc=True,col_overlap=False
+                    ,row_overlap=False,pceru=0.1,pcerv=[0.1,0.1],merr=0.0001,iters=100)  
+    else:
+        iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
+                    vthr = 0.7,ssthr=[0.6,0.65],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True
+                    ,row_overlap=True,pceru=0.7,pcerv=0.7,merr=0.0001,iters=100)           
     n_clusts = iSSVD_applied['N']
     if n_clusts == 0:
         row_clusts = [pd.DataFrame([0 for i in np.arange(k)]) for k in [n_samps for j in np.arange(n_views)]]

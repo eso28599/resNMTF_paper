@@ -1,10 +1,10 @@
 #!/bin/bash
-#PBS -N increasing_noise
+#PBS -N increasing_noise_4v5b
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
-#PBS -o Results/noise/noise_4v5b/logs/test_job.out
-#PBS -e Results/noise/noise_4v5b/logs/test_job.err
+#PBS -o ../Results/noise/noise_4v5b/logs/test_job.out
+#PBS -e ../Results/noise/noise_4v5b/logs/test_job.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
 export sim_folder_name=Results/noise/noise_4v5b
@@ -13,7 +13,7 @@ export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`
 
 
-cd ${PBS_O_WORKDIR}/${sim_folder_name}/data
+cd ${PBS_O_WORKDIR}/../${sim_folder_name}/data
 #mkdir $I
 if [ ! -d "$I" ]; then
   mkdir $I
@@ -28,7 +28,7 @@ if [ ! -d "$I" ]; then
 fi
 
 #move back into original folder
-cd ${PBS_O_WORKDIR}
+cd ${PBS_O_WORKDIR}/..
 
 #generate data
 Rscript --vanilla data_gen.r  ${sim_folder_name} $I
