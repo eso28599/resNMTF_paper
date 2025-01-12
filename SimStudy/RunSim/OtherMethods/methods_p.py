@@ -31,7 +31,11 @@ elif investigate == "overlap":
 data_name = path_to_sim_folder + "/data/" + batch_folder 
 for j in method_idx:
     if investigate == "signal":
-        data_views = pd.ExcelFile(data_name + "/issvd_" + str(j) + "/data.xlsx")
+        #if investigating all performance
+        if path_to_sim_folder[-1]=="l":
+            data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
+        else:
+            data_views = pd.ExcelFile(data_name + "/issvd_" + str(j) + "/data.xlsx")
     else:
         data_views = pd.ExcelFile(data_name + "/res_nmtf_" + str(j) + "/data.xlsx")
     data = [np.array(pd.read_excel(data_views, sheet)) for sheet in data_views.sheet_names]
@@ -41,10 +45,10 @@ for j in method_idx:
     n_samps = data[0].shape[0]
     row_issvd_filename = data_name + "/issvd_" + str(j) + "/row_clusts.xlsx"
     col_issvd_filename = data_name + "/issvd_" + str(j) + "/col_clusts.xlsx"
-    if investigate == "issvd_data1":
+    if investigate in ["issvd_data1", "issvd_data"]:
         iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
-                    ,ssthr=[0.6,0.65],nbicluster=4,rows_nc=True,cols_nc=True,col_overlap=False
-                    ,row_overlap=False,pceru=0.1,pcerv=[0.1,0.1],merr=0.0001,iters=100)  
+                    ssthr=[0.6,0.65],nbicluster=4,rows_nc=True,cols_nc=True,col_overlap=False
+                    ,row_overlap=False,pceru=0.1,pcerv=0.1,merr=0.0001,iters=100)  
     else:
         iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
                     vthr = 0.7,ssthr=[0.6,0.65],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=True

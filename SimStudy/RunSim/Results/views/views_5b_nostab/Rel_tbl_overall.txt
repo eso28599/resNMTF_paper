@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & \textbf{0.8674 (0.0528)} & 0.8270 (0.0571) & 0.8133 (0.0599) & 0.7826 (0.0506)\\
+ResNMTF (no s.a.) & 0.8619 (0.0567) & 0.8174 (0.0430) & 0.7916 (0.0293) & 0.7725 (0.0412)\\
+NMTF & 0.8540 (0.0406) & 0.8564 (0.0306) & 0.8531 (0.0258) & 0.8541 (0.0276)\\
+NMTF (no s.a.) & 0.8589 (0.0420) & \textbf{0.8570 (0.0376)} & \textbf{0.8610 (0.0310)} & \textbf{0.8598 (0.0278)}\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

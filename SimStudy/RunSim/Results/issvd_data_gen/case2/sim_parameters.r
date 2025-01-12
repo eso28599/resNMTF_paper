@@ -37,8 +37,11 @@ kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Parameter"
 x_title <- "sigma"
 plot_title <- "The effect of increasing sigma on performance"
-file_names <- paste0("issvd_", param_vals)
-method_vec_res <- rep("iSSVD", 10)
+file_names <- c(paste0("res_nmtf_", param_vals),
+    paste0("gfa_", param_vals), 
+    paste0("issvd_", param_vals), paste0("nmtf_", param_vals))
+method_vec_res <- c(rep("ResNMTF", 10), rep("GFA", 10),
+ rep("iSSVD", 10), rep("NMTF", 10))
 sigma_vec <- (1:10)/10
 k_vec <- rep(4,10)
 phi_constant <- FALSE

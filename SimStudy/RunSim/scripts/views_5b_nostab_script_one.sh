@@ -21,9 +21,9 @@ if [ ! -d "$I" ]; then
   for i in {2..5}
   do
     mkdir res_nmtf_$i
-    mkdir gfa_$i
-    mkdir issvd_$i
     mkdir nmtf_$i
+    mkdir res_nmtf0_$i
+    mkdir nmtf0_$i
   done
 fi
 

@@ -199,7 +199,7 @@ save_data <- function(row_dims, col_dims, k, file_path, noise, row_e = 1, col_e 
 
 save_data_noise <- function(row_dims, col_dims, k, file_path, method_vec, noise_vec, row_same_shuffle=TRUE,col_same_shuffle=TRUE){
         #can change the noise parameter here for level of noise in views
-        data <- multi_view(row_dims, col_dims, k, 0, row_same_shuffle , col_same_shuffle )
+        data <- multi_view(row_dims, col_dims, k, 0, row_same_shuffle=row_same_shuffle,col_same_shuffle=col_same_shuffle)
         #save data as a file in given directory
         #export each data frame to separate sheets in same Excel file
         for(i in 1:length(noise_vec)){

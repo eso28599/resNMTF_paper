@@ -32,7 +32,7 @@ method_vec <- c("/res_nmtf_2", "/res_nmtf_3",
 # row_cl_dims <- rep(list(row_cl_dims), length(method_vec))
 # col_cl_dims <- rep(list(col_cl_dims), length(method_vec))
 method_vec_sgl <- paste0("/nmtf_", bicl_numbers)
-method_vec_gfa <- paste0("/resnmtf0_", bicl_numbers)
+method_vec_gfa <- paste0("/res_nmtf0_", bicl_numbers)
 method_vec_issvd <- paste0("/nmtf0_", bicl_numbers)
 factor <- "views"
 kept_factor <- paste0(n_views, " views, ") #changed
@@ -40,10 +40,10 @@ factor_name <- "Views"
 x_title <- "Number of views"
 plot_title <- "The effect of increasing the number of views on performance"
 file_names <- c(paste0("res_nmtf_", bicl_numbers),
-    paste0("resnmtf0_", bicl_numbers), 
+    paste0("res_nmtf0_", bicl_numbers), 
     paste0("nmtf0_", bicl_numbers), paste0("nmtf_", bicl_numbers))
 method_vec_res <- c(rep("ResNMTF", 4), rep("ResNMTF (no s.a.)", 4),
- rep("iSSVD", 4), rep("NMTF (no s.a.)", 4))
+ rep("NMTF", 4), rep("NMTF (no s.a.)", 4))
 factor_vec <- rep(2:5, 4)
 k_vec <- rep(2:5, 4)
 phi_constant <- TRUE
