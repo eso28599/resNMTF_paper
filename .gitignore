@@ -41,6 +41,8 @@ SimStudy/RunSim/Results/views/views_3v4b/data/*
 SimStudy/RunSim/Results/views/views_3v4b/logs/*
 SimStudy/RunSim/Results/views/views_4b/data/*
 SimStudy/RunSim/Results/views/views_4b/logs/*
+SimStudy/RunSim/Results/views/views_3b/data/*
+SimStudy/RunSim/Results/views/views_3b/logs/*
 # noise
 SimStudy/RunSim/Results/noise/noise_3v5b/data/*
 SimStudy/RunSim/Results/noise/noise_3v5b/logs/*
@@ -50,6 +52,8 @@ SimStudy/RunSim/Results/signal/signal3/data/*
 SimStudy/RunSim/Results/signal/signal3/logs/*
 SimStudy/RunSim/Results/signal/signal4/data/*
 SimStudy/RunSim/Results/signal/signal4/logs/*
+SimStudy/RunSim/Results/signal/signal4_all/data/*
+SimStudy/RunSim/Results/signal/signal4_all/logs/*
 SimStudy/RunSim/Results/signal/signal5/data/*
 SimStudy/RunSim/Results/signal/signal5/logs/*
 SimStudy/RunSim/Results/signal/signal6/data/*
@@ -66,3 +70,9 @@ SimStudy/RunSim/Results/overlap/exhaustive_3v5b/data/*
 SimStudy/RunSim/Results/overlap/exhaustive_3v5b/logs/*
 SimStudy/RunSim/Results/overlap/non_exhaust_3v5b/data/*
 SimStudy/RunSim/Results/overlap/non_exhaust_3v5b/logs/*
+
+# exhaustive
+SimStudy/RunSim/Results/exhaustive/overlap_3v5b/data/*
+SimStudy/RunSim/Results/exhaustive/overlap_3v5b/logs/*
+SimStudy/RunSim/Results/exhaustive/no_overlap_3v5b/data/*
+SimStudy/RunSim/Results//exhaustive/no_overlap_3v5b/logs/*

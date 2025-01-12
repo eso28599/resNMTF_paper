@@ -2,6 +2,7 @@ args = commandArgs(trailingOnly = TRUE)
 path_to_sim_folder = as.character(args[1]) #simulation folder
 batch_folder = as.character(args[2]) #repeat
 source(paste0(path_to_sim_folder, "/sim_parameters.r"))
+source("OtherMethods/gfa_funcs.r")
 source("main.r")
 
 data_name <- paste0(paste0(path_to_sim_folder, "/data/"), batch_folder)

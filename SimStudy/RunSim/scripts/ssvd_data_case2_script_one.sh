@@ -2,7 +2,7 @@
 #PBS -N issvd_data_gen
 #PBS -m a
 #PBS -q medium
-#PBS -t 70-100
+#PBS -t 90-100
 #PBS -o ../Results/issvd_data_gen/case2/logs/test_job.out
 #PBS -e ../Results/issvd_data_gen/case2/logs/test_job.err
 
@@ -31,10 +31,10 @@ fi
 cd ${PBS_O_WORKDIR}/..
 
 #generate data
-Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "two"
+# Rscript --vanilla issvd_data_gen.r  ${sim_folder_name} $I "two"
 
-# analyse in r
-Rscript --vanilla methods_r.r  ${sim_folder_name} $I
+# # analyse in r
+# Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
 python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}

@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & \textbf{0.8382 (0.0975)} & 0.7551 (0.1150) & 0.7060 (0.1117) & 0.6427 (0.1152)\\
+ResNMTF (no s.a.) & 0.8302 (0.1079) & 0.7520 (0.1113) & 0.6993 (0.1054) & 0.6378 (0.1096)\\
+NMTF & 0.8311 (0.0729) & \textbf{0.8344 (0.0561)} & 0.8247 (0.0530) & \textbf{0.8264 (0.0487)}\\
+NMTF (no s.a.) & 0.8264 (0.0759) & 0.8258 (0.0660) & \textbf{0.8265 (0.0617)} & 0.8234 (0.0544)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Recovery scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}
