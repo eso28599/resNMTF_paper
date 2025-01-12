@@ -55,7 +55,7 @@ sil <- sil_score_inner(data[[1]], results$row_clusters[[1]], results$col_cluster
 plot(results$Foutput[[1]])
 
 bis <- bisil_score(list(data[[1]]), list(row_switch), list(col_switch))
-
+sil_score_inner(data[[1]], row_switch, col_switch)
 jaccard_res(row_switch, col_switch[,c(1,2,3,3)], true_rows[[i]], true_cols[[i]])
 
 
@@ -127,15 +127,11 @@ i <- 5
 max((data[[j]])[(1:200)[true_rows[[j]][,i]==1],(1:150)[true_cols[[j]][,i]==1]])
 
 # generate synthetic data via our approach. 
-<<<<<<< HEAD
 source("SimStudy/RunSim/resNMTF_funcs.r")
 source("resNMTF_funcs.r")
 
 source("resNMTF_funcs.r")
 
-=======
-source("main.r")
->>>>>>> f653a3377b6b395d2c9bc5f87ccbfca8696c0bc3
 source('SimStudy/RunSim/Functions/data_generation.r')
 source('data_generation_og.r')
 # generate a test dataset
@@ -143,32 +139,42 @@ n_views <- 5
 row_cl_dims <- rep(200, n_views)
 #100, 50,250 features respectively
 col_cl_dims <- c(100, 50, 250)
-<<<<<<< HEAD
 col_cl_dims <- rep(200,3)
 save_data(row_cl_dims, col_cl_dims, 5, 'test_data', 5, col_same_shuffle=FALSE)
 data <- import_matrix("test_data/data.xlsx")
 true_rows <- import_matrix("test_data/true_rows.xlsx")
 true_cols <- import_matrix("test_data/true_cols.xlsx")
-=======
-col_cl_dims <- rep(250,5)
-save_data(row_cl_dims, col_cl_dims, 5, 'test_data2', 5 ,col_same_shuffle=FALSE, signal=5)
-data <- import_matrix("test_data2/data.xlsx")
-rows <- import_matrix("test_data2/true_rows.xlsx")
-cols <- import_matrix("test_data2/true_cols.xlsx")
+
+source("Functions/visualisation.r")
+xx
+
+bisil_plot(data[[1]], true_rows[[1]], matrix(1,100,5))
+bisil_plot(data[[1]], rows_shuffled, matrix(1,100,5))
+
+i <- 2
+test <- sil_score_inner(data[[i]], true_rows[[i]], true_cols[[i]])
 
 
-niter <- 200
-#parameters for restrictive NMTF
-phi <- matrix(0, nrow = n_views, ncol = n_views)
-phi[1, c(2, 3, 4, 5)] <- 1
-phi[2, c(3, 4, 5)] <- 1
-phi[3, c(4, 5)] <- 1
-phi[4, 5] <- 1
-val <- 200
-res_og <- restMultiNMTF_run(data, phi=val*phi)
-jaccard_res(res_og$row_clusters[[1]], res_og$col_clusters[[1]], rows[[1]], cols[[1]])
-jaccard_res(res_og$row_clusters[[2]], res_og$col_clusters[[2]], rows[[2]], cols[[2]])
->>>>>>> f653a3377b6b395d2c9bc5f87ccbfca8696c0bc3
+scores <-sil_score_inner(data[[i]], true_rows[[i]], true_cols[[i]])
+df <- df_plot(scores$vals)
+break_vals <- break_func(df$y)
+breaks_x <- x_breaks(df)
+bis_val <- scores$sil
+p <- ggplot(df)+
+        geom_col(aes(x = x, y = y, group=clust, color=clust, fill=clust), width=1, position=position_dodge())+
+        scale_y_continuous(breaks=break_vals,limits=c(min(break_vals), max(break_vals)))+
+        scale_x_continuous(breaks = breaks_x, labels=1:(dim(rows[[1]])[2]))+
+        scale_color_viridis_c()+
+        scale_fill_viridis_c()+
+        ylab("BiSilhouette score")+
+        xlab("Cluster")+
+        geom_hline(yintercept=bis_val, linetype="dashed", color ="black")+
+        coord_flip()+
+        theme_minimal()+
+        theme(legend.position = "none", 
+        axis.ticks = element_line(size = 0.3),
+                axis.line = element_line(size = 0.3))
+
 
 max(data[[1]])
 #perform gfa
@@ -246,4 +252,7 @@ cols_issvd <- import_matrix("test_data/issvd_cols.xlsx")
 
 
 
-
+source("Functions/visualisation.r")
+bisil_plot(data, true_rows[[1]], true_cols[[1]])
+i<- 2
+test <- sil_score_inner(data[[i]], true_rows[[i]], true_cols[[i]])

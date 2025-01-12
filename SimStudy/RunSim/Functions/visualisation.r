@@ -1,28 +1,22 @@
-#source("data_generation.r")
-source("Functions/evaluation_funcs.r")
-#source("toy_data_gen.r")
-#source("sim_common_files/resNMTF_files/data_generation.r")
-#source("sim_common_files/resNMTF_files/evaluation_funcs.r")
-#source("investigate_applications/toy_data_gen.r")
-# source("main.r")
+source("SimStudy/RunSim/Functions/evaluation_funcs.r")
 library(ggplot2)
 library(ggfortify)
 library(ggpubr)
 
 break_func <- function(lower){
-    x <- seq(-1,1,0.1)
-    breaks <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
-    x <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
-    if(length(breaks)<5){
-        print(breaks)
-        x <- seq(breaks[1],last(breaks),length=5)
-    }
-    return(x)
-    # if(min(lower)<0){
-    #     return(seq(-1,1,0.2)[seq(-1,1,0.2)>(min(lower)-0.2)])
-    # }else{
-    #     return(seq(0,1,0.2))
+    # x <- seq(-1,1,0.1)
+    # breaks <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
+    # x <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
+    # if(length(breaks)<5){
+    #     print(breaks)
+    #     x <- seq(breaks[1],last(breaks),length=5)
     # }
+    # return(x)
+    if(min(lower)<0){
+        return(seq(-1,1,0.2)[seq(-1,1,0.2)>(min(lower)-0.2)])
+    }else{
+        return(seq(0,1,0.2))
+    }
 }
 
 df_plot <- function(values){
@@ -49,7 +43,7 @@ x_breaks <- function(df){
 }
 
 bisil_plot <- function(data, rows, cols, filename=NULL){
-    scores <- sil_score(data, rows, cols)
+    scores <- sil_score_inner(data, rows, cols)
     df <- df_plot(scores$vals)
     break_vals <- break_func(df$y)
     breaks_x <- x_breaks(df)
@@ -60,8 +54,8 @@ bisil_plot <- function(data, rows, cols, filename=NULL){
         scale_x_continuous(breaks = breaks_x, labels=1:(dim(rows)[2]))+
         scale_color_viridis_c()+
         scale_fill_viridis_c()+
-        ylab("BiSilhouette score")+
-        xlab("Cluster")+
+        ylab("Bisilhouette score")+
+        xlab("Bicluster")+
         geom_hline(yintercept=bis_val, linetype="dashed", color ="black")+
         coord_flip()+
         theme_minimal()+
