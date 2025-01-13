@@ -69,7 +69,7 @@ if(case=="two"){
         sigma2 <- sigma_vec[i]^2
         noise1 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
         noise2 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
-        data_mod <- list("v1"=(X1 + noise1), "v2"=(X2 + noise2))
+        data_mod <- list("v1"=(X1 + noise1), "v2"=(X2 + 5*noise2))
         file_path <- paste0(path_to_save, method_vec[i])
         openxlsx::write.xlsx(data_mod, file = paste0(file_path, "/data.xlsx"))
         openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) 
@@ -81,7 +81,7 @@ if(case=="two"){
     noise2 <- mvrnorm(100, rep(0, 1000), sigma2*diag(1, 1000))
     X2 <- (U %*% S %*% t(V2))
     for(i in 1:length(scalar_vec)){
-        data_mod <- list("v1"=(X1 + noise1), "v2"=(scalar_vec[i]*X2 + noise2))
+        data_mod <- list("v1"=(X1 + noise1), "v2"=(scalar_vec[i]*(X2 + noise2)))
         file_path <- paste0(path_to_save, method_vec[i])
         openxlsx::write.xlsx(data_mod, file = paste0(file_path, "/data.xlsx"))
         openxlsx::write.xlsx(true_rows, file = paste0(file_path, "/true_rows.xlsx")) 

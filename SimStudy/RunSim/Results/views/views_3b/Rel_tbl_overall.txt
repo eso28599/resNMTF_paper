@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & \textbf{1.0000 (0.0000)} & \textbf{1.0000 (0.0000)} & \textbf{1.0000 (0.0000)} & \textbf{1.0000 (0.0000)}\\
+GFA & 0.3419 (0.0591) & 0.3443 (0.0564) & 0.3503 (0.0595) & 0.3468 (0.0637)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & 1.0000 (0.0000) & 0.9995 (0.0039) & 0.9998 (0.0015) & 0.9999 (0.0006)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

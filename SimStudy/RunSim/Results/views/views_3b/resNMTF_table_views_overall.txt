@@ -1,0 +1,17 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+  & 2 & 3 & 4 & 5\\
+\midrule
+F score & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000)\\
+Relevance & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000)\\
+Recovery & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000)\\
+CSR & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000) & 1.0000 (0.0000)\\
+BiS & 0.5650 (0.0022) & 0.5648 (0.0019) & 0.5648 (0.0015) & 0.5648 (0.0013)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

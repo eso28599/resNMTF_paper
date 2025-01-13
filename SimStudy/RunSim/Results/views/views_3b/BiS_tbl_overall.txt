@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Number of views} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+ & 2 & 3 & 4 & 5\\
+\midrule
+ResNMTF & \textbf{0.5650 (0.0022)} & \textbf{0.5648 (0.0019)} & \textbf{0.5648 (0.0015)} & \textbf{0.5648 (0.0013)}\\
+GFA & 0.2975 (0.1468) & 0.3019 (0.1469) & 0.3170 (0.1396) & 0.3155 (0.1477)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & 0.5650 (0.0022) & 0.5648 (0.0019) & 0.5648 (0.0016) & 0.5648 (0.0013)\\
+\bottomrule
+\multicolumn{5}{l}{\textsuperscript{a} BiS scores. 5 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

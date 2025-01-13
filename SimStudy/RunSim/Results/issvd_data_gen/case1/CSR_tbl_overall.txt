@@ -2,7 +2,7 @@
 \centering
 \begin{tabular}[t]{lllll}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Scalar} \\
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{s} \\
 \cmidrule(l{3pt}r{3pt}){2-5}
  & 1 & 2 & 5 & 10\\
 \midrule

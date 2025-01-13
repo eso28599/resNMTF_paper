@@ -38,13 +38,14 @@ plot_title <- "The effect of increasing the non-exhaustivity rate on performance
 file_names <- c(paste0("res_nmtf_", exhaust),
     paste0("gfa_", exhaust), 
     paste0("issvd_", exhaust), paste0("nmtf_", exhaust))
-method_vec_res <- c(rep("ResNMTF", 4), rep("GFA", 4),
- rep("iSSVD", 4), rep("NMTF", 4))
+n_vars <- length(exhaust)
+method_vec_res <- c(rep("ResNMTF", n_vars), rep("GFA", n_vars),
+ rep("iSSVD", n_vars), rep("NMTF", n_vars))
 # method_vec_res <- c(rep("ResNMTF", 4),rep("NMTF", 4))
 factor_vec <- rep(exhaust, 4)
 k_vec <- rep(exhaust, 4)
 phi_constant <- TRUE
 n_col_plots <- 2
 n_row_plots <- 2
-col_names_tables <- exhaust/100
+col_names_tables <- exhaust
 order_fac <- FALSE 

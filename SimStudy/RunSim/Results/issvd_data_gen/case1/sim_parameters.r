@@ -37,7 +37,7 @@ factor <- "issvd_param"
 kept_factor <- paste0(n_views, " views, ") #changed
 factor_name <- "Parameter"
 factor_vec <- rep(param_vals, 4)
-x_title <- "Scalar"
+x_title <- "s"
 plot_title <- "The effect of increasing the scale on performance"
 # file_names <- paste0("issvd_", param_vals)
 file_names <- c(paste0("res_nmtf_", param_vals),
