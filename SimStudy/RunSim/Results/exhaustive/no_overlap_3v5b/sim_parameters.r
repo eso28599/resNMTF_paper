@@ -47,5 +47,5 @@ k_vec <- rep(exhaust, 4)
 phi_constant <- TRUE
 n_col_plots <- 2
 n_row_plots <- 2
-col_names_tables <- exhaust
+col_names_tables <- exhaust/100 
 order_fac <- FALSE 
