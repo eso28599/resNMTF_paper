@@ -42,7 +42,7 @@ n_vars <- length(exhaust)
 method_vec_res <- c(rep("ResNMTF", n_vars), rep("GFA", n_vars),
  rep("iSSVD", n_vars), rep("NMTF", n_vars))
 # method_vec_res <- c(rep("ResNMTF", 4),rep("NMTF", 4))
-factor_vec <- rep(exhaust, 4)
+factor_vec <- rep(exhaust/100, 4)
 k_vec <- rep(exhaust, 4)
 phi_constant <- TRUE
 n_col_plots <- 2

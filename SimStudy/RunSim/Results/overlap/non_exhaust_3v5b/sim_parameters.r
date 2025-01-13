@@ -42,10 +42,10 @@ n_vars <- length(overlap)
 method_vec_res <- c(rep("ResNMTF", n_vars), rep("GFA", n_vars),
  rep("iSSVD", n_vars), rep("NMTF", n_vars))
 # method_vec_res <- c(rep("ResNMTF", 4),rep("NMTF", 4))
-factor_vec <- rep(overlap, 4)
+factor_vec <- rep(overlap/100, 4)
 k_vec <- rep(overlap, 4)
 phi_constant <- TRUE
 n_col_plots <- 2
 n_row_plots <- 2
-col_names_tables <- overlap
+col_names_tables <- overlap/100
 order_fac <- FALSE 

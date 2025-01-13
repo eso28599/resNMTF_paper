@@ -4,7 +4,7 @@
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{9}{c}{Overlap rate} \\
 \cmidrule(l{3pt}r{3pt}){2-10}
- & 0 & 5 & 10 & 15 & 20 & 25 & 30 & 35 & 40\\
+ & 0 & 0.05 & 0.1 & 0.15 & 0.2 & 0.25 & 0.3 & 0.35 & 0.4\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{10}{l}{\textbf{Relevance}}\\

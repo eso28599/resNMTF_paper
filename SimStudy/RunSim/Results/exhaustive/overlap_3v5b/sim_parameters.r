@@ -41,10 +41,10 @@ file_names <- c(paste0("res_nmtf_", exhaust),
 n_vars <- length(exhaust)
 method_vec_res <- c(rep("ResNMTF", n_vars), rep("GFA", n_vars),
  rep("iSSVD", n_vars), rep("NMTF", n_vars))
-factor_vec <- rep(exhaust, 4)
+factor_vec <- rep(exhaust/100, 4)
 k_vec <- rep(exhaust, 4)
 phi_constant <- TRUE
 n_col_plots <- 2
 n_row_plots <- 2
-col_names_tables <- exhaust
+col_names_tables <- exhaust/100
 order_fac <- FALSE 
