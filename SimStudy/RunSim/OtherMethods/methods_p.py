@@ -47,7 +47,7 @@ for j in method_idx:
     col_issvd_filename = data_name + "/issvd_" + str(j) + "/col_clusts.xlsx"
     if investigate in ["issvd_data1", "issvd_data"]:
         iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
-                    ssthr=[0.6,0.65],nbicluster=4,rows_nc=True,cols_nc=True,col_overlap=False
+                    ssthr=[0.6,0.8],nbicluster=4,rows_nc=True,cols_nc=True,col_overlap=False
                     ,row_overlap=False,pceru=0.1,pcerv=0.1,merr=0.0001,iters=100)  
     else:
         iSSVD_applied = issvd(data, standr=False, pointwise=True,steps=100,size=0.5,
