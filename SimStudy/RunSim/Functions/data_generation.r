@@ -137,7 +137,7 @@ make_longer <- function(vec, n){
     return(vec)
 }
 
-multi_view <- function(row_dims, col_dims, k, noise, signal, row_e = 1, col_e =1, row_o = 0, col_o = 0, row_same_shuffle=TRUE, col_same_shuffle=TRUE, seed=FALSE){
+multi_view <- function(row_dims, col_dims, k, noise, signal, row_e = 1, col_e =1, row_o = 0, col_o = 0, row_same_shuffle=TRUE, col_same_shuffle=TRUE, seed=FALSE, file_path=NA){
     #'rowClusters: n length list of vectors of row cluster sizes in each view
     #'rowClusters: n length list of vectors of column cluster sizes in each view
     #'seed: logical indicator, default is FALSE, if true sets seed so same data is generated each time
@@ -178,6 +178,11 @@ multi_view <- function(row_dims, col_dims, k, noise, signal, row_e = 1, col_e =1
         }
         data_i <- one_view_adv(row_dims[i], col_dims[i],
                 k, noise, signal, row_e[i], col_e[i], row_o[i], col_o[i])
+         if(!is.na(file_path)){
+            pdf(paste0(file_path, "/true_image_", i, ".pdf"))
+            image(t(data_i$view))
+            dev.off()
+        }
         X_trial[[i]] <- (data_i$view)[new_row_ind, new_col_ind]
         true_row_clusterings[[i]] <- (data_i$truth_row)[new_row_ind, ]
         true_col_clusterings[[i]] <- (data_i$truth_col)[new_col_ind, ]

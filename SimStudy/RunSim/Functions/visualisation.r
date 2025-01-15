@@ -59,9 +59,11 @@ bisil_plot <- function(data, rows, cols, filename=NULL){
         geom_hline(yintercept=bis_val, linetype="dashed", color ="black")+
         coord_flip()+
         theme_minimal()+
-        theme(legend.position = "none", 
-        axis.ticks = element_line(size = 0.3),
-                axis.line = element_line(size = 0.3))
+        theme(legend.position = "none",axis.text=element_text(size=12), 
+        axis.title=element_text(size=14),
+        axis.ticks = element_line(size = 0.4),
+                axis.line = element_line(size = 0.4))
+        
     if(!is.null(filename)){ggsave(filename, p)}
     return(p)
 }
