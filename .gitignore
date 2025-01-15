@@ -46,7 +46,10 @@ SimStudy/RunSim/Results/views/views_3b/logs/*
 # noise
 SimStudy/RunSim/Results/noise/noise_3v5b/data/*
 SimStudy/RunSim/Results/noise/noise_3v5b/logs/*
-
+SimStudy/RunSim/Results/noise/noise_3v4b/data/*
+SimStudy/RunSim/Results/noise/noise_3v4b/logs/*
+SimStudy/RunSim/Results/noise/noise_4v5b/data/*
+SimStudy/RunSim/Results/noise/noise_4v5b/logs/*
 # signal investigation
 SimStudy/RunSim/Results/signal/signal3/data/*
 SimStudy/RunSim/Results/signal/signal3/logs/*

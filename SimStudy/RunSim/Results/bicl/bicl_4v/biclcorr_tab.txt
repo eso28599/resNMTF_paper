@@ -3,8 +3,8 @@
 \toprule
   & BiS & CSR\\
 \midrule
-F score & 0.9930298 & 0.9010373\\
-Relevance & 0.9969340 & 0.9125583\\
-Recovery & 0.9838285 & 0.8809256\\
+F score & 0.9738588 & 0.7742437\\
+Relevance & 0.9813703 & 0.7989575\\
+Recovery & 0.9649009 & 0.7543966\\
 \bottomrule
 \end{tabular}

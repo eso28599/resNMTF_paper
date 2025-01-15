@@ -10,7 +10,7 @@ export sim_folder_name=Results/exhaustive/overlap_3v5b
 export sim=overlap
 
 cd ${PBS_O_WORKDIR}/../${sim_folder_name}
-# ls data/ > repeat_folders.txt
+ls data/ > repeat_folders.txt
 #move back into original folder
 cd ${PBS_O_WORKDIR}/..
 
