@@ -1,5 +1,7 @@
 source("SimStudy/RunSim/Functions/visualisation.r")
 source("SimStudy/RunSim/Functions/data_generation.r")
+source("SimStudy/RunSim/Functions/extra_funcs.r")
+
 
 n_views <- 3
 row_cl_dims <- rep(200, n_views)
@@ -20,3 +22,8 @@ rows_shuffled <- cbind(true_rows[[1]][,c(1,2,3)], sample(true_rows[[1]][,4]), sa
 bisil_plot(data[[1]], true_rows[[1]], true_cols[[1]], filename = "investigation/visual_data/true_bisil_plot.pdf")
 #plot for shuffled cols for two biclusters
 bisil_plot(data[[1]], rows_shuffled, true_cols[[1]], filename = "investigation/visual_data/shuffled_bisil_plot.pdf")
+
+
+#overlap example plot
+path <- "investigation/overlap_nonex_example"
+data <- multi_view(row_cl_dims, col_cl_dims, 5, 5, 5, row_e = 0.9, col_e =0.9, row_o = 0.2, col_o = 0.2, row_same_shuffle=TRUE, col_same_shuffle=FALSE, seed=123, file_path=path)
