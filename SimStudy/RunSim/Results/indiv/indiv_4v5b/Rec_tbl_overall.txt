@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{llllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{5}{c}{Number of individuals} \\
+\cmidrule(l{3pt}r{3pt}){2-6}
+ & 50 & 200 & 300 & 500 & 1000\\
+\midrule
+ResNMTF & 0.7159 (0.1417) & \textbf{0.7537 (0.1190)} & \textbf{0.8035 (0.1140)} & \textbf{0.8724 (0.0845)} & \textbf{0.7870 (0.1405)}\\
+GFA & 0.2108 (0.0938) & 0.2091 (0.0513) & 0.2141 (0.0417) & 0.2193 (0.0453) & 0.2413 (0.0771)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & \textbf{0.7601 (0.0435)} & 0.7297 (0.0585) & 0.7131 (0.0450) & 0.6959 (0.0695) & 0.6519 (0.0643)\\
+\bottomrule
+\multicolumn{6}{l}{\textsuperscript{a} Recovery scores. 4 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

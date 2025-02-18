@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{llllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{5}{c}{Number of individuals} \\
+\cmidrule(l{3pt}r{3pt}){2-6}
+ & 50 & 200 & 300 & 500 & 1000\\
+\midrule
+ResNMTF & \textbf{0.4517 (0.0644)} & \textbf{0.4311 (0.0384)} & \textbf{0.4330 (0.0289)} & \textbf{0.4314 (0.0246)} & \textbf{0.3960 (0.0210)}\\
+GFA & 0.1440 (0.0865) & 0.1718 (0.0671) & 0.1736 (0.0681) & 0.1773 (0.0615) & 0.1690 (0.0762)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & 0.4441 (0.0208) & 0.4122 (0.0184) & 0.4063 (0.0147) & 0.4018 (0.0199) & 0.3957 (0.0178)\\
+\bottomrule
+\multicolumn{6}{l}{\textsuperscript{a} BiS scores. 4 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

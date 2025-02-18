@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N increasing_indiv
+#PBS -N indiv_4v5b
 #PBS -m a
 #PBS -q medium
 #PBS -t 1-100
@@ -7,7 +7,7 @@
 #PBS -e ../Results/indiv/indiv_4v5b/logs/test_job.err
 
 export R_LIBS="/home/clustor2/ma/e/eso18/R/x86_64-pc-linux-gnu-library/4.3"
-export sim_folder_name=Results/indiv/indiv_4sv5b
+export sim_folder_name=Results/indiv/indiv_4v5b
 export sim=indiv
 export i=${PBS_ARRAYID}
 export I=`echo $i | awk '{printf "%3.3d", $1}'`

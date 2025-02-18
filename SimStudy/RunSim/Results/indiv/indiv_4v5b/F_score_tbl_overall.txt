@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{tabular}[t]{llllll}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{5}{c}{Number of individuals} \\
+\cmidrule(l{3pt}r{3pt}){2-6}
+ & 50 & 200 & 300 & 500 & 1000\\
+\midrule
+ResNMTF & 0.7473 (0.1052) & \textbf{0.7879 (0.0911)} & \textbf{0.8272 (0.0876)} & \textbf{0.8815 (0.0662)} & \textbf{0.8115 (0.1090)}\\
+GFA & 0.2301 (0.0922) & 0.2348 (0.0546) & 0.2422 (0.0456) & 0.2490 (0.0513) & 0.2640 (0.0768)\\
+iSSVD & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & \textbf{0.7786 (0.0330)} & 0.7656 (0.0450) & 0.7535 (0.0352) & 0.7409 (0.0532) & 0.7083 (0.0490)\\
+\bottomrule
+\multicolumn{6}{l}{\textsuperscript{a} F scores. 4 views, $\phi$ = 200, 100 repetitions.}\\
+\end{tabular}
+\end{table}

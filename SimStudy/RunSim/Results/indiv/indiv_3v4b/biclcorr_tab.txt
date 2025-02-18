@@ -1,0 +1,10 @@
+
+\begin{tabular}[t]{lrr}
+\toprule
+  & BiS & CSR\\
+\midrule
+F score & 0.9906931 & 0.7270329\\
+Relevance & 0.9959753 & 0.6645319\\
+Recovery & 0.9810779 & 0.7723263\\
+\bottomrule
+\end{tabular}
