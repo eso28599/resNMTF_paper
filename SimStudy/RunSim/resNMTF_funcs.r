@@ -1,10 +1,10 @@
 # Libraries
 library(philentropy)
-library("Matrix")
-library("clue")
-library("aricode")
-library("rio")
-library("eList")
+library(Matrix)
+library(clue)
+library(aricode)
+library(rio)
+library(eList)
 library(foreach)
 library(doParallel)
 library(doSNOW)
@@ -13,6 +13,9 @@ library(MASS)
 
 ## General manipulation functions 
 check_neg <- function(X){
+  '
+  
+  '
   #ensures a list of matrices are non-negative
   return(lapply(X, make_non_neg))
 }

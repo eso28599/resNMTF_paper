@@ -1,89 +1,37 @@
 # Libraries
 library(philentropy)
-library("Matrix")
-library("clue")
-library("aricode")
-library("rio")
-library("eList")
+library(Matrix)
+library(clue)
+library(aricode)
+library(rio)
+library(eList)
 library(foreach)
 library(doParallel)
 library(doSNOW)
 library(MASS)
-
 source("Functions/update_steps.r")
 source("Functions/utils.r")
 source("Functions/bisilhouette.r")
 source("Functions/spurious_bicl.r")
 
-get_thresholds <- function(Xinput, Foutput, repeats){
-    # shuffle data and 
-    # find the threshold for removal of spurious biclusters
-    #repeats: minimum value of 2
-    n_views <- length(Xinput)
-    n_clusts <- dim(Foutput[[1]])[2]
-    k_input <- n_clusts * rep(1, length = n_views)
-    x_mess <- vector(mode = "list", length = repeats)
-    for (n in 1:repeats) {
-      data_messed <- vector(mode = "list", length = n_views)
-      for (i in 1:n_views){
-          #correct shuffling
-          dims <- dim(Xinput[[i]])
-          data_messed[[i]] <- matrix(sample(Xinput[[i]]),
-                                  dims[1], dims[2])
-          while(any(colSums(data_messed[[i]])==0)| any(rowSums(data_messed[[i]])==0)){
-              data_messed[[i]] <- matrix(sample(Xinput[[i]]),
-                                       dims[1], dims[2])
-          }
-      }
-      results <- restMultiNMTF_run(Xinput = data_messed,
-               KK = k_input,  no_clusts = TRUE, stability = FALSE)
-      x_mess[[n]] <- results$Foutput
-    }
-    avg_score <- c()
-    max_score <- c()
-    data <- vector(mode = "list", length = n_views)
-    dens_list <- vector(mode = "list", length = n_views)
-    d <- 1
-    for (i in 1:n_views){
-      scores <- c()
-        for (j in 1:max(repeats - 1,1)){
-          data[[i]] <- cbind(data[[i]], x_mess[[j]][[i]])
-          for (k in 1:n_clusts){
-            #jth repeat, ith view, kth cluster
-            x1 <- ((x_mess[[j]])[[i]])[, k]
-            for (l in (j + 1):repeats){
-              for (m in 1:n_clusts){
-                x2 <- ((x_mess[[l]])[[i]])[, m]
-                max_val <- max(x1,x2)
-                d1  <- density(x1, from=0, to=max_val)
-                d2  <- density(x2, from=0, to=max_val)
-                d1$y[d1$x>max(x1)] <- 0
-                d2$y[d2$x>max(x2)] <- 0
-                dens_list[[d]] <- d1
-                scores <- c(scores,
-                   suppressMessages(JSD(rbind(d1$y, d2$y), unit = "log2", est.prob="empirical")))
-              }
-            }
-          }
-      }
-      data[[i]] <- cbind(data[[i]], x_mess[[repeats]][[i]])
-      avg_score <- c(avg_score, mean(scores))
-      #max_score <- c(max_score, max(scores))
-      dens <- density(scores)
-      max_score <- c(max_score, dens$x[which.max(dens$y)])
-    }
-  return(list("avg_score" = avg_score,
-             "max_score" = max_score, "scores" = scores, "data" = data, "dens" = dens_list))
-}
-
-clustering_res_NMTF <- function(Xinput, Foutput,
+BiclusteringResNMTF <- function(Xinput, Foutput,
                Goutput, Soutput, repeats, distance){
-  #takes F,S,G returns clustering and removes 
-  #spurious bicluster
+  # Obtains biclustering from ResNMTF factorisation
+  # Args:
+  #  Xinput: list of data matrices
+  #  Foutput: list of F matrices
+  #  Goutput: list of G matrices
+  #  Soutput: list of S matrices
+  #  repeats: minimum value of 2
+  #  distance: distance metric to use, can be . Default is euclidean.
+  # Returns:
+  #  list containing row and column clusterings, and the bisilhouette score of the biclustering 
+
   n_views <- length(Foutput)
   row_clustering <- vector("list", length = n_views)
   col_clustering <- vector("list", length = n_views)
-  #check clustering and remove if necessary
+
+  # assign biclusters 
   biclusts <- check_biclusters(Xinput, Foutput, repeats)
   for (i in 1:n_views) {
     row_clustering[[i]] <- apply(Foutput[[i]],
@@ -92,11 +40,11 @@ clustering_res_NMTF <- function(Xinput, Foutput,
     col_clustering[[i]] <- apply(Goutput[[i]],
            2, function(x) as.numeric(x > (1 / dim(Goutput[[i]])[1])))
   }
-  sil <- c()
+  bisil <- c()
   #update realtions and
   #set biclusters that aren't strong enough to 0
   #and if bicluster is empty set row and cols to 0
-  for (i in 1:n_views){
+  for (i in 1:n_views) {
      indices <- (((biclusts$score[i, ]) < biclusts$max_threshold[i])
                    | ((biclusts$score[i, ]) == 0))
      relations <- apply(Soutput[[i]], 1, which.max)
@@ -104,23 +52,21 @@ clustering_res_NMTF <- function(Xinput, Foutput,
      row_clustering[[i]] <- row_clustering[[i]][, relations]
      row_clustering[[i]][, new_indices] <- 0
      col_clustering[[i]][, new_indices] <- 0
-     sil <- c(sil,
-       sil_score(Xinput[[i]], row_clustering[[i]], col_clustering[[i]], method=distance)$sil)
+     bisil <- c(bisil,
+       BisilhouetteScore(Xinput[[i]], row_clustering[[i]], col_clustering[[i]], method=distance)$bisil)
   }
   #calculate overall bisil
-  sil <- ifelse(sum(sil)==0, 0, mean(sil[sil!=0]))
-  return(list("row_clustering" = row_clustering,
-      "col_clustering" = col_clustering, "sil" = sil))
+  bisil <- ifelse(sum(bisil) == 0, 0, mean(bisil[bisil != 0]))
+  return(list("row_clustering"=row_clustering,
+      "col_clustering"=col_clustering, "bisil"=bisil))
 }
 
-
-
 #Application of ResNMTF to data!
-restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
-         Ginput = NULL, KK = NULL,
-          phi = NULL, xi = NULL, psi = NULL,
-          nIter = NULL, 
-         repeats = 5, distance="euclidean", no_clusts = FALSE){
+restMultiNMTF_main <- function(Xinput, Finput=NULL, Sinput=NULL,
+         Ginput=NULL, KK=NULL,
+          phi=NULL, xi=NULL, psi=NULL,
+          nIter=NULL, 
+         repeats=5, distance="euclidean", no_clusts=FALSE){
   #' Run Restrictive-Multi NMTF, following the above algorithm
   #' 
   #' 1. Normalise X^v s.t ||X||_1 = 1
@@ -133,14 +79,14 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
   n_v <- length(Xinput)
   
   # initialise F, S and G based on svd decomposition if not given
-  if (is.null(Finput) | is.null(Ginput) | is.null(Sinput) ) {
+  if (is.null(Finput) | is.null(Ginput) | is.null(Sinput)) {
         inits <- init_mats(Xinput, KK)
         currentF <- inits$Finit
         currentS <- inits$Sinit
         currentG <- inits$Ginit
         currentlam <- inits$lambda_init
         currentmu <- inits$mu_init
-  }else {
+  } else {
     # Take Finit, Sinit, Ginit as the initialised latent representations
     currentF <- Finput
     currentS <- Sinput
@@ -151,7 +97,7 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
   # Initialising additional parameters
   Xhat <- vector("list", length = n_v)
   # Update until convergence, or for nIter times
-  if (is.null(nIter)){
+  if (is.null(nIter)) {
     total_err <- c()
     # Run while-loop until convergence
     err_diff <- 1
@@ -172,7 +118,7 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
       currentG <- new_parameters$Goutput
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
-      for (v in 1:n_v){
+      for (v in 1:n_v) {
         Xhat[[v]] <- currentF[[v]] %*% currentS[[v]] %*% t(currentG[[v]])
         err[v] <- sum((Xinput[[v]] - Xhat[[v]])**2)/ sum((Xinput[[v]])**2)
       }
@@ -199,9 +145,9 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
       currentG <- new_parameters$Goutput
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
-      for (v in 1:n_v){
+      for (v in 1:n_v) {
         Xhat[[v]] <- currentF[[v]] %*% currentS[[v]] %*% t(currentG[[v]])
-        err[v] <- sum((Xinput[[v]] - Xhat[[v]])**2)/ sum((Xinput[[v]])**2)
+        err[v] <- sum((Xinput[[v]] - Xhat[[v]]) ** 2) / sum((Xinput[[v]]) ** 2)
       }
       total_err[t] <- mean(err)
     }
@@ -221,20 +167,20 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
   mu_out <- currentmu
   # if only need to obtain factorisation, return values now
   if (no_clusts) {
-    return(list("Foutput" = Foutput, "Soutput" = Soutput,
-              "Goutput" = Goutput))
+    return(list("Foutput"=Foutput, "Soutput"=Soutput,
+              "Goutput"=Goutput))
   }
   # find clustering results and silhouette score
-  clusters <- clustering_res_NMTF(Xinput, Foutput,
+  clusters <- BiclusteringResNMTF(Xinput, Foutput,
                Goutput, Soutput, repeats, distance)
   if (is.null(nIter)) {
-    error <- mean(tail(total_err, n = 10))
+    error <- mean(tail(total_err, n=10))
   }else {
-    error <- tail(total_err, n = 1)
+    error <- tail(total_err, n=1)
   }
   return(list("Foutput" = Foutput, "Soutput" = Soutput,
               "Goutput" = Goutput, "Error" = error,
-              "All_Error" = total_err, "Sil_score" = clusters$sil,
+              "All_Error" = total_err, "Sil_score" = clusters$bisil,
               "row_clusters" = clusters$row_clustering,
               "col_clusters" = clusters$col_clustering, 
               "lambda" = lam_out, 
@@ -437,8 +383,8 @@ stability_check <- function(Xinput, Sinput, results,
 
 restMultiNMTF_run <- function(Xinput, Finput=NULL, Sinput=NULL, 
             Ginput=NULL, KK=NULL, phi=NULL, xi=NULL, psi=NULL, 
-            nIter=NULL, k_min=3, k_max =8, distance= "euclidean",repeats = 5, no_clusts = FALSE, 
-             sample_rate = 0.9, n_stability = 5, stability = TRUE, stab_thres = 0.4, stab_test=FALSE){
+            nIter=NULL, k_min=3, k_max=8, distance="euclidean", repeats=5, no_clusts=FALSE, 
+            sample_rate = 0.9, n_stability=5, stability=TRUE, stab_thres=0.4, stab_test=FALSE){
 
   #' @param k_max integer, default is 6, must be greater than 2, largest value of k to be considered initially,
   # initialise phi etc matrices as zeros if not specified
