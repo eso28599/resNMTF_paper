@@ -27,13 +27,13 @@ if [ ! -d "$I" ]; then
   done
 fi
 
-#move back into original folder
+# #move back into original folder
 cd ${PBS_O_WORKDIR}/..
 
-#generate data
+# #generate data
 Rscript --vanilla data_gen.r  ${sim_folder_name} $I
 
-#now analyse in R
+# #now analyse in R
 Rscript --vanilla methods_r.r  ${sim_folder_name} $I
 
 #analyse in python
