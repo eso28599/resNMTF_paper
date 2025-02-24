@@ -14,34 +14,34 @@ source("Functions/utils.r")
 source("Functions/bisilhouette.r")
 source("Functions/spurious_bicl.r")
 
-BiclusteringResNMTF <- function(Xinput, Foutput,
-                                Goutput, Soutput, repeats, distance) {
+obtain_biclusters <- function(data, output_f,
+                              output_g, output_s, repeats, distance) {
   # Obtains biclustering from ResNMTF factorisation
   # Args:
-  #  Xinput: list of data matrices
-  #  Foutput: list of F matrices
-  #  Goutput: list of G matrices
-  #  Soutput: list of S matrices
+  #  data: list of data matrices
+  #  output_f: list of F matrices
+  #  output_g: list of G matrices
+  #  output_s: list of S matrices
   #  repeats: minimum value of 2
   #  distance: distance metric to use, can be . Default is euclidean.
   # Returns:
   #  list containing row and column clusterings, and the bisilhouette score of the biclustering
 
-  n_views <- length(Foutput)
+  n_views <- length(output_f)
   row_clustering <- vector("list", length = n_views)
   col_clustering <- vector("list", length = n_views)
 
   # assign biclusters
-  biclusts <- check_biclusters(Xinput, Foutput, repeats)
+  biclusts <- check_biclusters(data, output_f, repeats)
   for (i in 1:n_views) {
     row_clustering[[i]] <- apply(
-      Foutput[[i]],
-      2, function(x) as.numeric(x > (1 / dim(Foutput[[i]])[1]))
+      output_f[[i]],
+      2, function(x) as.numeric(x > (1 / dim(output_f[[i]])[1]))
     )
 
     col_clustering[[i]] <- apply(
-      Goutput[[i]],
-      2, function(x) as.numeric(x > (1 / dim(Goutput[[i]])[1]))
+      output_g[[i]],
+      2, function(x) as.numeric(x > (1 / dim(output_g[[i]])[1]))
     )
   }
   bisil <- c()
@@ -51,14 +51,14 @@ BiclusteringResNMTF <- function(Xinput, Foutput,
   for (i in 1:n_views) {
     indices <- (((biclusts$score[i, ]) < biclusts$max_threshold[i]) |
       ((biclusts$score[i, ]) == 0))
-    relations <- apply(Soutput[[i]], 1, which.max)
+    relations <- apply(output_s[[i]], 1, which.max)
     new_indices <- indices[relations] # i==0, col cluster i isn't a bicluster
     row_clustering[[i]] <- row_clustering[[i]][, relations]
     row_clustering[[i]][, new_indices] <- 0
     col_clustering[[i]][, new_indices] <- 0
     bisil <- c(
       bisil,
-      BisilhouetteScore(Xinput[[i]], row_clustering[[i]], col_clustering[[i]], method = distance)$bisil
+      BisilhouetteScore(data[[i]], row_clustering[[i]], col_clustering[[i]], method = distance)$bisil
     )
   }
   # calculate overall bisil
@@ -70,9 +70,9 @@ BiclusteringResNMTF <- function(Xinput, Foutput,
 }
 
 # Application of ResNMTF to data!
-restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
-                               Ginput = NULL, KK = NULL,
-                               phi = NULL, xi = NULL, psi = NULL,
+rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
+                                  init_g = NULL, KK = NULL,
+                                  phi = NULL, xi = NULL, psi = NULL,
                                nIter = NULL,
                                repeats = 5, distance = "euclidean", no_clusts = FALSE) {
   #' Run Restrictive-Multi NMTF, following the above algorithm
@@ -84,23 +84,23 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
   #'    c. Fix ALL, update G^u
   #'    d. Fix ALL, update S^u
   #' until convergence
-  n_v <- length(Xinput)
+  n_v <- length(data)
 
   # initialise F, S and G based on svd decomposition if not given
-  if (is.null(Finput) | is.null(Ginput) | is.null(Sinput)) {
-    inits <- init_mats(Xinput, KK)
-    currentF <- inits$Finit
-    currentS <- inits$Sinit
-    currentG <- inits$Ginit
-    currentlam <- inits$lambda_init
-    currentmu <- inits$mu_init
+  if (is.null(init_f) | is.null(init_g) | is.null(init_s)) {
+    inits <- init_mats(data, KK)
+    current_f <- inits$init_f
+    current_s <- inits$init_s
+    current_g <- inits$init_g
+    currentlam <- inits$init_lambda
+    currentmu <- inits$init_mu
   } else {
-    # Take Finit, Sinit, Ginit as the initialised latent representations
-    currentF <- Finput
-    currentS <- Sinput
-    currentG <- Ginput
-    currentlam <- lapply(currentF, colSums)
-    currentmu <- lapply(currentG, colSums)
+    # Take init_f, init_s, init_g as the initialised latent representations
+    current_f <- init_f
+    current_s <- init_s
+    current_g <- init_g
+    currentlam <- lapply(current_f, colSums)
+    currentmu <- lapply(current_g, colSums)
   }
   # Initialising additional parameters
   Xhat <- vector("list", length = n_v)
@@ -113,24 +113,24 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
     while ((err_diff > 1.0e-6)) {
       err <- numeric(length = n_v)
       new_parameters <- update_matrices(
-        X = Xinput,
-        Finput = currentF,
-        Sinput = currentS,
-        Ginput = currentG,
+        X = data,
+        init_f = current_f,
+        init_s = current_s,
+        init_g = current_g,
         lambda = currentlam,
         mu = currentmu,
         phi = phi,
         xi = xi,
         psi = psi
       )
-      currentF <- new_parameters$Foutput
-      currentS <- new_parameters$Soutput
-      currentG <- new_parameters$Goutput
+      current_f <- new_parameters$output_f
+      current_s <- new_parameters$output_s
+      current_g <- new_parameters$output_g
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
       for (v in 1:n_v) {
-        Xhat[[v]] <- currentF[[v]] %*% currentS[[v]] %*% t(currentG[[v]])
-        err[v] <- sum((Xinput[[v]] - Xhat[[v]])**2) / sum((Xinput[[v]])**2)
+        Xhat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
+        err[v] <- sum((data[[v]] - Xhat[[v]])**2) / sum((data[[v]])**2)
       }
       mean_err <- mean(err)
       total_err <- c(total_err, mean_err)
@@ -140,54 +140,48 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
   } else {
     total_err <- numeric(length = nIter)
     for (t in 1:nIter) {
-      err <- numeric(length = length(currentF))
+      err <- numeric(length = length(current_f))
       new_parameters <- update_matrices(
-        X = Xinput,
-        Finput = currentF,
-        Sinput = currentS,
-        Ginput = currentG,
+        X = data,
+        init_f = current_f,
+        init_s = current_s,
+        init_g = current_g,
         lambda = currentlam,
         mu = currentmu,
         phi = phi,
         xi = xi,
         psi = psi
       )
-      currentF <- new_parameters$Foutput
-      currentS <- new_parameters$Soutput
-      currentG <- new_parameters$Goutput
+      current_f <- new_parameters$output_f
+      current_s <- new_parameters$output_s
+      current_g <- new_parameters$output_g
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
       for (v in 1:n_v) {
-        Xhat[[v]] <- currentF[[v]] %*% currentS[[v]] %*% t(currentG[[v]])
-        err[v] <- sum((Xinput[[v]] - Xhat[[v]])**2) / sum((Xinput[[v]])**2)
+        Xhat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
+        err[v] <- sum((data[[v]] - Xhat[[v]])**2) / sum((data[[v]])**2)
       }
       total_err[t] <- mean(err)
     }
   }
   for (v in 1:n_v) {
-    F_normal <- single_alt_l1_normalisation(currentF[[v]])
-    currentF[[v]] <- F_normal$newMatrix
-    G_normal <- single_alt_l1_normalisation(currentG[[v]])
-    currentG[[v]] <- G_normal$newMatrix
-    currentS[[v]] <- (F_normal$Q) %*% currentS[[v]] %*% G_normal$Q
+    F_normal <- single_alt_l1_normalisation(current_f[[v]])
+    current_f[[v]] <- F_normal$newMatrix
+    G_normal <- single_alt_l1_normalisation(current_g[[v]])
+    current_g[[v]] <- G_normal$newMatrix
+    current_s[[v]] <- (F_normal$Q) %*% current_s[[v]] %*% G_normal$Q
   }
-
-  Foutput <- currentF
-  Soutput <- currentS
-  Goutput <- currentG
-  lam_out <- currentlam
-  mu_out <- currentmu
   # if only need to obtain factorisation, return values now
   if (no_clusts) {
     return(list(
-      "Foutput" = Foutput, "Soutput" = Soutput,
-      "Goutput" = Goutput
+      "output_f" = current_f, "output_s" = current_s,
+      "output_g" = current_g
     ))
   }
-  # find clustering results and silhouette score
-  clusters <- BiclusteringResNMTF(
-    Xinput, Foutput,
-    Goutput, Soutput, repeats, distance
+  # find clustering results and bisilhouette score
+  clusters <- obtain_biclusters(
+    data, output_f,
+    output_g, output_s, repeats, distance
   )
   if (is.null(nIter)) {
     error <- mean(tail(total_err, n = 10))
@@ -195,13 +189,13 @@ restMultiNMTF_main <- function(Xinput, Finput = NULL, Sinput = NULL,
     error <- tail(total_err, n = 1)
   }
   return(list(
-    "Foutput" = Foutput, "Soutput" = Soutput,
-    "Goutput" = Goutput, "Error" = error,
+    "output_f" = current_f, "output_s" = current_s,
+    "output_g" = current_g, "Error" = error,
     "All_Error" = total_err, "Sil_score" = clusters$bisil,
     "row_clusters" = clusters$row_clustering,
     "col_clusters" = clusters$col_clustering,
-    "lambda" = lam_out,
-    "mu" = mu_out
+    "lambda" = currentlam,
+    "mu" = currentmu
   ))
 }
 
@@ -291,7 +285,7 @@ test_cond <- function(data, attempt) {
 }
 
 
-stability_check <- function(Xinput, Sinput, results,
+stability_check <- function(data, init_s, results,
                             k, phi, xi, psi, nIter,
                             repeats, no_clusts, distance, sample_rate = 0.9,
                             n_stability = 5, stab_thres = 0.6, stab_test = FALSE) {
@@ -305,7 +299,7 @@ stability_check <- function(Xinput, Sinput, results,
     print("No biclusters detected!")
     return(results)
   }
-  n_views <- length(Xinput)
+  n_views <- length(data)
   # initialise storage of results
   jacc <- matrix(0, nrow = n_views, ncol = k[1])
   jacc_rand <- matrix(0, nrow = n_views, ncol = k[1])
@@ -315,7 +309,7 @@ stability_check <- function(Xinput, Sinput, results,
     col_samples <- vector(mode = "list", length = n_views)
     # turn this into a function to be used with lapply
 
-    dim <- dim(Xinput[[1]])
+    dim <- dim(data[[1]])
     attempt <- 1
     while (test_cond(new_data, attempt)) {
       if (attempt == 20) {
@@ -324,17 +318,17 @@ stability_check <- function(Xinput, Sinput, results,
       }
       row_samples[[1]] <- sample(dim[1], (dim[1] * sample_rate))
       col_samples[[1]] <- sample(dim[2], (dim[2] * sample_rate))
-      new_data[[1]] <- Xinput[[1]][row_samples[[1]], col_samples[[1]]]
+      new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
       if (any(colSums(new_data[[1]]) == 0) | any(rowSums(new_data[[1]]) == 0)) {
         zeros_cols <- colSums(new_data[[1]]) != 0
         zeros_rows <- rowSums(new_data[[1]]) != 0
         row_samples[[1]] <- row_samples[[1]][zeros_rows]
         col_samples[[1]] <- col_samples[[1]][zeros_cols]
-        new_data[[1]] <- Xinput[[1]][row_samples[[1]], col_samples[[1]]]
+        new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
       }
       if (n_views > 1) {
         for (i in 2:n_views) {
-          dims <- dim(Xinput[[i]])
+          dims <- dim(data[[i]])
           if ((dims[1]) == dim[1]) {
             row_samples[[i]] <- row_samples[[1]]
           } else {
@@ -345,7 +339,7 @@ stability_check <- function(Xinput, Sinput, results,
           } else {
             col_samples[[i]] <- sample(dims[2], (dims[2] * sample_rate))
           }
-          new_data[[i]] <- Xinput[[i]][row_samples[[i]], col_samples[[i]]]
+          new_data[[i]] <- data[[i]][row_samples[[i]], col_samples[[i]]]
           if (any(colSums(new_data[[i]]) == 0) | any(rowSums(new_data[[i]]) == 0)) {
             zeros_cols <- colSums(new_data[[i]]) != 0
             zeros_rows <- rowSums(new_data[[i]]) != 0
@@ -364,16 +358,16 @@ stability_check <- function(Xinput, Sinput, results,
               col_samples[[i]] <- col_samples[[i]][zeros_cols]
             }
             for (p in 1:i) {
-              new_data[[p]] <- Xinput[[p]][row_samples[[p]], col_samples[[p]]]
+              new_data[[p]] <- data[[p]][row_samples[[p]], col_samples[[p]]]
             }
           }
         }
       }
       attempt <- attempt + 1
     }
-    new_results <- restMultiNMTF_main(new_data,
-      Finput = NULL, Sinput = NULL,
-      Ginput = NULL, k,
+    new_results <- rest_multi_nmtf_inner(new_data,
+      init_f = NULL, init_s = NULL,
+      init_g = NULL, k,
       phi, xi, psi, nIter, repeats, distance
     )
     # compare results
@@ -397,29 +391,30 @@ stability_check <- function(Xinput, Sinput, results,
       results$row_clusters[[i]][, jacc[i, ] < stab_thres] <- 0
       results$col_clusters[[i]][, jacc[i, ] < stab_thres] <- 0
     }
-    # results$Sil_score <- sil_score(Xinput,
+    # results$Sil_score <- sil_score(data,
     #               results$row_clusters, results$col_clusters, distance, TRUE)$overall
-    # results$Sil_score <- sil_score(Xinput,
+    # results$Sil_score <- sil_score(data,
     #               results$row_clusters, results$col_clusters, distance, TRUE)$sil
     return(results)
   }
 }
 
 
-restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
-                              Ginput = NULL, KK = NULL, phi = NULL, xi = NULL, psi = NULL,
+restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
+                              init_g = NULL, KK = NULL,
+                              phi = NULL, xi = NULL, psi = NULL,
                               nIter = NULL, k_min = 3, k_max = 8, distance = "euclidean", repeats = 5, no_clusts = FALSE,
                               sample_rate = 0.9, n_stability = 5, stability = TRUE, stab_thres = 0.4, stab_test = FALSE) {
   #' @param k_max integer, default is 6, must be greater than 2, largest value of k to be considered initially,
   # initialise phi etc matrices as zeros if not specified
   # otherwise multiply by given parameter
-  n_v <- length(Xinput)
-  Xinput <- make_non_neg(Xinput)
-  if (!typeof(Xinput[[1]]) == "double") {
-    Xinput <- lapply(Xinput, function(x) as.matrix(x))
+  n_v <- length(data)
+  data <- make_non_neg(data)
+  if (!typeof(data[[1]]) == "double") {
+    data <- lapply(data, function(x) as.matrix(x))
   }
-  # Normalise Xinput
-  Xinput <- lapply(Xinput, function(x) single_alt_l1_normalisation(x)$newMatrix)
+  # Normalise data
+  data <- lapply(data, function(x) single_alt_l1_normalisation(x)$newMatrix)
   # initialise restriction matrices if not specified
   # views with no restrictions require no input
   phi <- init_rest_mats(phi, n_v)
@@ -427,8 +422,8 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
   xi <- init_rest_mats(xi, n_v)
   # if number of clusters has been specified method can be applied straight away
   if ((!is.null(KK))) {
-    results <- restMultiNMTF_main(
-      Xinput, Finput, Sinput, Ginput,
+    results <- rest_multi_nmtf_inner(
+      data, init_f, init_s, init_g,
       KK, phi, xi, psi, nIter,
       repeats, distance, no_clusts
     )
@@ -436,7 +431,7 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
     # otherwise we want the results
     if (stability) {
       return(stability_check(
-        Xinput, Sinput, results,
+        data, init_s, results,
         KK, phi, xi, psi, nIter,
         repeats, no_clusts, distance, sample_rate,
         n_stability, stab_thres
@@ -456,8 +451,8 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
   if ((.Platform$OS.type == "windows") | (.Platform$OS.type == "unix")) {
     res_list <- vector("list", length = n_k)
     for (i in 1:n_k) {
-      res_list[[i]] <- restMultiNMTF_main(
-        Xinput, Finput, Sinput, Ginput,
+      res_list[[i]] <- rest_multi_nmtf_inner(
+        data, init_f, init_s, init_g,
         KK[i] * k_vec, phi, xi, psi, nIter,
         repeats, distance, no_clusts
       )
@@ -468,8 +463,8 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
     # Register all the cores
     registerDoParallel(min(numberOfCores, length(KK)))
     res_list <- foreach(i = 1:length(KK)) %dopar% {
-      restMultiNMTF_main(
-        Xinput, Finput, Sinput, Ginput,
+      rest_multi_nmtf_inner(
+        data, init_f, init_s, init_g,
         KK[i] * k_vec, phi, xi, psi, nIter,
         repeats, distance, no_clusts
       )
@@ -491,8 +486,8 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
       KK <- c(KK, max_i)
       k <- max_i * k_vec
       new_l <- length(KK)
-      res_list[[new_l]] <- restMultiNMTF_main(
-        Xinput, Finput, Sinput, Ginput,
+      res_list[[new_l]] <- rest_multi_nmtf_inner(
+        data, init_f, init_s, init_g,
         k, phi, xi, psi, nIter,
         repeats, distance, no_clusts
       )
@@ -506,7 +501,7 @@ restMultiNMTF_run <- function(Xinput, Finput = NULL, Sinput = NULL,
   k_vec <- rep(KK[k], length = n_v)
   if (stability) {
     return(stability_check(
-      Xinput, Sinput, results,
+      data, init_s, results,
       k_vec, phi, xi, psi, nIter,
       repeats, no_clusts, distance, sample_rate, n_stability, stab_thres, stab_test
     ))

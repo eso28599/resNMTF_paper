@@ -1,6 +1,3 @@
-# functions
-# source("utils.r")
-# Libraries
 library(philentropy)
 library("Matrix")
 library("clue")
@@ -29,35 +26,35 @@ init_mats <- function(X, KK, sigma_I = 0.05) {
   #' X: list of input data
   # Initialisation of F, S, G lists
   n_views <- length(X)
-  Finit <- vector("list", length = n_views)
-  Sinit <- vector("list", length = n_views)
-  Ginit <- vector("list", length = n_views)
-  lambda_init <- vector("list", length = n_views)
-  mu_init <- vector("list", length = n_views)
+  init_f <- vector("list", length = n_views)
+  init_s <- vector("list", length = n_views)
+  init_g <- vector("list", length = n_views)
+  init_lambda <- vector("list", length = n_views)
+  init_mu <- vector("list", length = n_views)
   # initialise based on svd
   for (i in 1:n_views) {
     K <- KK[i]
     vals <- 1:K
     ss <- svd(X[[i]])
-    Finit[[i]] <- abs(ss$u[, vals])
-    F_normal <- single_alt_l1_normalisation(Finit[[i]])
-    Finit[[i]] <- F_normal$newMatrix
-    Sinit[[i]] <- abs(diag(ss$d)[vals, vals])
-    Sinit[[i]] <- Sinit[[i]] + abs(mvrnorm(
+    init_f[[i]] <- abs(ss$u[, vals])
+    normal_f <- single_alt_l1_normalisation(init_f[[i]])
+    init_f[[i]] <- normal_f$newMatrix
+    init_s[[i]] <- abs(diag(ss$d)[vals, vals])
+    init_s[[i]] <- init_s[[i]] + abs(mvrnorm(
       n = K,
       mu = rep(0, K), Sigma = sigma_I * diag(K)
     )[vals, vals])
-    Ginit[[i]] <- abs(ss$v[, vals])
-    G_normal <- single_alt_l1_normalisation(Ginit[[i]])
-    Ginit[[i]] <- G_normal$newMatrix
-    Sinit[[i]] <- (F_normal$Q) %*% Sinit[[i]] %*% G_normal$Q
-    lambda_init[[i]] <- colSums(Finit[[i]])
-    mu_init[[i]] <- colSums(Ginit[[i]])
+    init_g[[i]] <- abs(ss$v[, vals])
+    G_normal <- single_alt_l1_normalisation(init_g[[i]])
+    init_g[[i]] <- G_normal$newMatrix
+    init_s[[i]] <- (normal_f$Q) %*% init_s[[i]] %*% G_normal$Q
+    init_lambda[[i]] <- colSums(init_f[[i]])
+    init_mu[[i]] <- colSums(init_g[[i]])
   }
 
   return(list(
-    "Finit" = Finit, "Ginit" = Ginit, "Sinit" = Sinit,
-    "lambda_init" = lambda_init, "mu_init" = mu_init
+    "init_f" = init_f, "init_g" = init_g, "init_s" = init_s,
+    "init_lambda" = init_lambda, "init_mu" = init_mu
   ))
 }
 
@@ -65,38 +62,38 @@ init_mats_random <- function(X, K) {
   #' X: list of input data
   # Initialisation of F, S, G lists
   n_views <- length(X)
-  Finit <- vector("list", length = n_views)
-  Sinit <- vector("list", length = n_views)
-  Ginit <- vector("list", length = n_views)
-  lambda_init <- vector("list", length = n_views)
-  mu_init <- vector("list", length = n_views)
+  init_f <- vector("list", length = n_views)
+  init_s <- vector("list", length = n_views)
+  init_g <- vector("list", length = n_views)
+  init_lambda <- vector("list", length = n_views)
+  init_mu <- vector("list", length = n_views)
   # initialise based on svd
   for (i in 1:n_views) {
     # ss <- svd(X[[i]])
-    Finit[[i]] <- abs(mvrnorm(
+    init_f[[i]] <- abs(mvrnorm(
       n = nrow(X[[i]]),
       mu = rep(0, K), Sigma = diag(K)
     ))
-    F_normal <- single_alt_l1_normalisation(Finit[[i]])
-    Finit[[i]] <- F_normal$newMatrix
-    Sinit[[i]] <- abs(mvrnorm(
+    normal_f <- single_alt_l1_normalisation(init_f[[i]])
+    init_f[[i]] <- normal_f$newMatrix
+    init_s[[i]] <- abs(mvrnorm(
       n = K,
       mu = rep(0, K), Sigma = diag(K)
     ))
-    Ginit[[i]] <- abs(mvrnorm(
+    init_g[[i]] <- abs(mvrnorm(
       n = ncol(X[[i]]),
       mu = rep(0, K), Sigma = diag(K)
     ))
-    G_normal <- single_alt_l1_normalisation(Ginit[[i]])
-    Ginit[[i]] <- G_normal$newMatrix
-    # Sinit[[i]]  <- (F_normal$Q) %*% Sinit[[i]] %*% G_normal$Q
-    lambda_init[[i]] <- colSums(Finit[[i]])
-    mu_init[[i]] <- colSums(Ginit[[i]])
+    G_normal <- single_alt_l1_normalisation(init_g[[i]])
+    init_g[[i]] <- G_normal$newMatrix
+    # init_s[[i]]  <- (normal_f$Q) %*% init_s[[i]] %*% G_normal$Q
+    init_lambda[[i]] <- colSums(init_f[[i]])
+    init_mu[[i]] <- colSums(init_g[[i]])
   }
 
   return(list(
-    "Finit" = Finit, "Ginit" = Ginit, "Sinit" = Sinit,
-    "lambda_init" = lambda_init, "mu_init" = mu_init
+    "init_f" = init_f, "init_g" = init_g, "init_s" = init_s,
+    "init_lambda" = init_lambda, "init_mu" = init_mu
   ))
 }
 
@@ -193,9 +190,9 @@ update_matrices <- function(Xinput, Finput, Sinput, Ginput, lambda, mu, phi, xi,
   #' phi: weight on restrictions for F -> matrix of size (n_v x n_v)
   #' psi: weight on restrictions for S -> matrix of size (n_v x n_v)
   #' xi: weight on restrictions for G -> matrix of size (n_v x n_v)
-  #' Finit: Inital F matrix
-  #' Sinit: Inital S matrix
-  #' Ginit: Inital G matrix
+  #' init_f: Inital F matrix
+  #' init_s: Inital S matrix
+  #' init_g: Inital G matrix
   #' Output: Foutput, Soutput, Goutput
 
   # Update view-by-view
