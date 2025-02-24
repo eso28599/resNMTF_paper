@@ -8,7 +8,31 @@ library(foreach)
 library(doParallel)
 library(doSNOW)
 library(MASS)
-source("Functions/utils.r")
+
+single_alt_l1_normalisation <- function(Xmatrix) {
+  # normalises a matrix so that the l1 norm of each column is 1
+  Q <- diag(colSums(Xmatrix))
+  # solve Q
+  newMatrix <- Xmatrix %*% solve(Q)
+  return(list("Q" = Q, "newMatrix" = newMatrix))
+}
+
+check <- function(matrix) {
+  if (sum(colSums(matrix) != 0) > 1) {
+    matrix <- matrix[, colSums(matrix) != 0]
+  }
+  n_clusts <- ncol(matrix)
+  equal <- diag(n_clusts)
+
+  for (i in 1:(n_clusts - 1)) {
+    for (j in (i + 1):n_clusts) {
+      check <- all(matrix[, i] == matrix[, j])
+      equal[i, j] <- check
+      equal[j, i] <- check
+    }
+  }
+  return(nrow(unique(equal)) == 2)
+}
 
 BisilScoreInner <- function(Xinput, row_clustering, col_clustering, method="euclidean"){
   #' Calculate the bisilhouette score without repeats
@@ -38,7 +62,7 @@ BisilScoreInner <- function(Xinput, row_clustering, col_clustering, method="eucl
     clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
     n_clusts_row <- ncol(clust_two)
   }
-  n_reps <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
+  rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
 
   # calculate score for each cluster
   s_vals <- vector("list", length=n_clusts)
@@ -146,7 +170,7 @@ BisilhouetteScore <- function(Xinput, row_clustering, col_clustering, method="eu
   }
 
   
-  }
+  
   # initial results
   results <- BisilScoreInner(Xinput, row_clustering, col_clustering, method)
   bisil <- results$bisil

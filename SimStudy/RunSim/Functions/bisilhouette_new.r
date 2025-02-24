@@ -3,10 +3,11 @@ check_unique <- function(row_clustering) {
   #' Args:
   #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
   #' Returns:
-  #'  TRUE if there are at least two unique row clusters, bool.
-  if (sum(colSums(row_clustering) != 0) > 1) {
-    row_clustering <- row_clustering[, colSums(matrix) != 0]
+  #'  FALSE if there are not at least three unique row clusters, bool.
+  if (sum(colSums(row_clustering) != 0) < 3) {
+    return(FALSE)
   }
+  row_clustering <- row_clustering[, colSums(matrix) != 0]
   n_clusts <- ncol(row_clustering)
   equal <- diag(n_clusts)
   for (i in 1:(n_clusts - 1)) {
@@ -16,7 +17,7 @@ check_unique <- function(row_clustering) {
       equal[j, i] <- check
     }
   }
-  return(nrow(unique(equal)) == 2)
+  return(nrow(unique(equal)) < 3)
 }
 
 calculate_scores <- function(distances, indices, k, n_clusts_row, clust_two) {
@@ -88,8 +89,8 @@ calculate_bis <- function(data, row_clustering,
   #'
   #' Args:
   #'  data: data matrix, shape (N, p).
-  #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
-  #'  col_clustering: binary matrix indicating column clustering, shape(p, k).
+  #'  row_clustering: binary matrix indicating row clustering, shape(N, K).
+  #'  col_clustering: binary matrix indicating column clustering, shape(p, K).
   #'  method: distance metric to use, str. Default is "euclidean".
   #'
   #' Returns:
@@ -99,36 +100,30 @@ calculate_bis <- function(data, row_clustering,
   #'          and repeats are needed, bool.
 
   n_clusts <- ncol(row_clustering)
-  n_clusts_row <- n_clusts
   bisil_score <- rep(0, length = n_clusts)
 
   # ensure there are at least three unique row clusters
-  clust_one <- col_clustering
-  clust_two <- row_clustering
-  # can I remove this one??
-  if (n_clusts_row == 1) {
-    clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
-    n_clusts_row <- ncol(clust_two)
+  while (check_unique(row_clustering)) {
+    row_clustering <- cbind(row_clustering,
+                            rbinom(nrow(row_clustering), 1, 0.1))
   }
-  while (check_unique(clust_two)) {
-    clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
-    n_clusts_row <- ncol(clust_two)
-  }
+  n_clusts_row <- ncol(row_clustering)
   rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
 
   # calculate score for each cluster
   bis_vals <- vector("list", length = n_clusts)
   for (k in 1:n_clusts) {
-    indices <- clust_two[, k] == 1
+    indices <- row_clustering[, k] == 1
     # if row or col cluster empty, set score to 0
-    if ((sum(indices) == 0) || (sum(clust_one[, k] == 1) == 0)) {
+    if ((sum(indices) == 0) || (sum(col_clustering[, k] == 1) == 0)) {
       bisil_score[k] <- bisil_score[k] + 0
     } else {
       # subset data using column cluster k
-      new_data <- data[, (clust_one[, k] == 1)]
+      new_data <- data[, (col_clustering[, k] == 1)]
       distances <- as.matrix(stats::dist(new_data, method))
       # calculate scores
-      scores <- calculate_scores(distances, indices, k, n_clusts_row, clust_two)
+      scores <- calculate_scores(distances, indices, k,
+                                 n_clusts_row, row_clustering)
       bisil_score[k] <- bisil_score[k] + scores$bisil
       bis_vals[[k]] <- scores$bis_vals
     }
@@ -137,12 +132,9 @@ calculate_bis <- function(data, row_clustering,
   bisil <- ifelse(sum(bisil_score != 0) <= 1,
     sum(bisil_score),
     sum(bisil_score) / (sum(bisil_score != 0))
-    - 2 * sd(bisil_score[bisil_score != 0])
   )
   return(list("bisil" = bisil, "vals" = bis_vals, "repeat" = rep))
 }
-
-
 
 bisilhouette <- function(data, row_clustering, col_clustering,
                          method = "euclidean", seed = TRUE, n_reps = 10) {
@@ -165,10 +157,12 @@ bisilhouette <- function(data, row_clustering, col_clustering,
   if (ncol(row_clustering) != ncol(col_clustering)) {
     stop("Number of row and column clusters do not match.")
   }
-
+  # if no biclusters are present, return 0
+  if (sum(row_clustering) == 0 || sum(col_clustering) == 0) {
+    return(list("bisil" = 0, "vals" = rep(0, nrow(row_clustering))))
+  }
   if (!seed) set.seed(seed)
   data <- scale(data)
-
   # initial results
   results <- calculate_bis(data, row_clustering, col_clustering, method)
   bisil <- results$bisil
