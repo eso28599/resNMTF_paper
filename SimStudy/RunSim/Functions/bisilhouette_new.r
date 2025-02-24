@@ -1,18 +1,22 @@
+library(docstring)
+
 check_unique <- function(row_clustering) {
   #' Check if there are at least two unique row clusters.
-  #' Args:
-  #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
-  #' Returns:
-  #'  FALSE if there are not at least three unique row clusters, bool.
+  #'
+  #' @param row_clustering: binary matrix indicating row clustering,
+  #'                        shape(N, k).
+  #'
+  #' @return FALSE if there are not at least three unique row clusters, bool.
+
   if (sum(colSums(row_clustering) != 0) < 3) {
     return(FALSE)
   }
-  row_clustering <- row_clustering[, colSums(matrix) != 0]
+  row_clustering <- row_clustering[, colSums(row_clustering) != 0]
   n_clusts <- ncol(row_clustering)
   equal <- diag(n_clusts)
   for (i in 1:(n_clusts - 1)) {
     for (j in (i + 1):n_clusts) {
-      check <- all(matrix[, i] == matrix[, j])
+      check <- all(row_clustering[, i] == row_clustering[, j])
       equal[i, j] <- check
       equal[j, i] <- check
     }
@@ -29,8 +33,8 @@ calculate_scores <- function(distances, indices, k, n_clusts_row, clust_two) {
   #'  n_clusts_row: number of row clusters, int.
   #'  clust_two: binary matrix indicating row clustering,
   #'             shape(N, n_clusts_row).
-  #' Returns:
-  #'  bisil: bisilhouette score, float.
+  #'
+  #' @return bisil: bisilhouette score, float.
   b_vec <- c()
   # calculate a values
   if (sum(indices) == 1) {
@@ -93,10 +97,10 @@ calculate_bis <- function(data, row_clustering,
   #'  col_clustering: binary matrix indicating column clustering, shape(p, K).
   #'  method: distance metric to use, str. Default is "euclidean".
   #'
-  #' Returns:
-  #'  bisil: bisilhouette score, float.
-  #'  vals: individual sample scores, shape (N, ).
-  #'  repeat: if TRUE, a random row cluster has been added
+  #'
+  #' @return bisil: bisilhouette score, float.
+  #' @return vals: individual sample scores, shape (N, ).
+  #' @return repeat: if TRUE, a random row cluster has been added
   #'          and repeats are needed, bool.
 
   n_clusts <- ncol(row_clustering)
@@ -140,15 +144,15 @@ bisilhouette <- function(data, row_clustering, col_clustering,
                          method = "euclidean", seed = TRUE, n_reps = 10) {
   #' Calculate the bisilhouette score.
   #'
-  #' Args:
-  #'  data: data matrix, shape (N, p).
-  #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
-  #'  col_clustering: binary matrix indicating column clustering, shape(p, k).
-  #'  method: distance metric to use, str. Default is "euclidean".
+  #' @param data: data matrix, shape (N, p).
+  #' @param row_clustering: binary matrix indicating row clustering,
+  #'                        shape(N, k).
+  #' @param col_clustering: binary matrix indicating column clustering,
+  #'                        shape(p, k).
+  #' @param method: distance metric to use, str. Default is "euclidean".
   #'
-  #' Returns:
-  #'  bisil: bisilhouette score, float.
-  #'  vals: individual sample scores, shape (N, ).
+  #' @return bisil: bisilhouette score, float.
+  #' @return vals: individual sample scores, shape (N, ).
 
   # Error handling
   if (any(dim(data) != c(nrow(row_clustering), nrow(col_clustering)))) {
