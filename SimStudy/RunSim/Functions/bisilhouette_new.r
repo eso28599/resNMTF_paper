@@ -10,16 +10,21 @@ library(doParallel)
 library(doSNOW)
 library(MASS)
 
-MatrixNormalisation <- function(Xinput) {
-  #' Normalises a matrix to have l
-  # normalises a matrix so that the l1 norm of each column is 1
-  Q <- diag(colSums(Xinput))
-  # solve Q
-  new_matrix <- Xinput %*% solve(Q)
-  return(list("Q" = Q, "new_matrix" = new_matrix))
+normalise_matrix <- function(matrix) {
+  #' Normalises a matrix to have column sums of 1.
+  #' Args:
+  #'  matrix: input matrix, shape (N, p).
+  #' Returns:
+  #'  The normalised matrix,  shape (N, p).
+  return(matrix %*% solve(diag(colSums(matrix))))
 }
 
-CheckThreeUnique <- function(matrix) {
+check_unique <- function(matrix) {
+  #' Check if there are at least two unique row clusters.
+  #' Args:
+  #'  matrix: binary matrix indicating row clustering, shape(N, k).
+  #' Returns:
+  #'  TRUE if there are at least two unique row clusters, bool.
   if (sum(colSums(matrix) != 0) > 1) {
     matrix <- matrix[, colSums(matrix) != 0]
   }
@@ -35,12 +40,13 @@ CheckThreeUnique <- function(matrix) {
   return(nrow(unique(equal)) == 2)
 }
 
-BisilScoreInner <- function(Xinput, row_clustering, col_clustering,
-                            method = "euclidean") {
+inner_bis <- function(data, row_clustering,
+                      col_clustering,
+                      method = "euclidean") {
   #' Calculate the bisilhouette score without repeats
   #'
   #' Args:
-  #'  Xinput: data matrix, shape (N, p).
+  #'  data: data matrix, shape (N, p).
   #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
   #'  col_clustering: binary matrix indicating column clustering, shape(p, k).
   #'  method: distance metric to use, str. Default is "euclidean".
@@ -63,7 +69,7 @@ BisilScoreInner <- function(Xinput, row_clustering, col_clustering,
     clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
     n_clusts_row <- ncol(clust_two)
   }
-  while (CheckThreeUnique(clust_two)) {
+  while (check_unique(clust_two)) {
     clust_two <- cbind(clust_two, rbinom(nrow(row_clustering), 1, 0.1))
     n_clusts_row <- ncol(clust_two)
   }
@@ -78,7 +84,7 @@ BisilScoreInner <- function(Xinput, row_clustering, col_clustering,
       bisil_score[k] <- bisil_score[k] + 0
     } else {
       # subset data using column cluster k
-      new_data <- Xinput[, (clust_one[, k] == 1)]
+      new_data <- X[, (clust_one[, k] == 1)]
       distances <- as.matrix(stats::dist(new_data, method))
       b_vec <- c()
       # calculate a values
@@ -117,7 +123,7 @@ BisilScoreInner <- function(Xinput, row_clustering, col_clustering,
       }
       b_vals <- b_vals[[which.min(b_vec)]]
       # calculate bisilhouette score
-      if (all(b_vals == Inf) || (all(b_vals == 0) & all(a_vals == 0))) {
+      if (all(b_vals == Inf) || (all(b_vals == 0) && all(a_vals == 0))) {
         # if all b values are Inf, set score to 0
         # this corresponds to all other clusters being empty
         # or the same as the current cluster
@@ -146,12 +152,12 @@ BisilScoreInner <- function(Xinput, row_clustering, col_clustering,
 
 
 
-BisilhouetteScore <- function(Xinput, row_clustering, col_clustering,
-                              method = "euclidean", seed = TRUE, n_reps = 10) {
+bisilhouette <- function(data, row_clustering, col_clustering,
+                         method = "euclidean", seed = TRUE, n_reps = 10) {
   #' Calculate the bisilhouette score.
   #'
   #' Args:
-  #'  Xinput: data matrix, shape (N, p).
+  #'  data: data matrix, shape (N, p).
   #'  row_clustering: binary matrix indicating row clustering, shape(N, k).
   #'  col_clustering: binary matrix indicating column clustering, shape(p, k).
   #'  method: distance metric to use, str. Default is "euclidean".
@@ -161,10 +167,10 @@ BisilhouetteScore <- function(Xinput, row_clustering, col_clustering,
   #'  vals: individual sample scores, shape (N, ).
 
   # Error handling
-  if (nrow(Xinput) != nrow(row_clustering)) {
+  if (nrow(data) != nrow(row_clustering)) {
     stop("Number of rows in data and row clustering do not match.")
   }
-  if (ncol(Xinput) != nrow(col_clustering)) {
+  if (ncol(data) != nrow(col_clustering)) {
     stop("Number of columns in data and column clustering do not match.")
   }
   if (ncol(row_clustering) != ncol(col_clustering)) {
@@ -177,20 +183,22 @@ BisilhouetteScore <- function(Xinput, row_clustering, col_clustering,
   }
 
   # normalise input data if needed
-  if (any(colSums(Xinput) != 1)) {
-    Xinput <- MatrixNormalisation(Xinput)$new_matrix
+  if (any(colSums(data) != 1)) {
+    data <- normalise_matrix(data)
   }
 
   # initial results
-  results <- BisilScoreInner(Xinput, row_clustering, col_clustering, method)
+  results <- bisilhouette_inner(data, row_clustering, col_clustering, method)
   bisil <- results$bisil
   vals <- results$vals
   # repeat if necessary
   if (results$rep) {
     for (i in 1:(n_reps - 1)) {
-      res_rep <- BisilScoreInner(Xinput, row_clustering, col_clustering, method)
+      res_rep <- bisilhouette_inner(data, row_clustering,
+                                    col_clustering, method)
       bisil <- bisil + res_rep$bisil
-      vals <- lapply(seq_along(vals), function(k) vals[[k]] + res_rep$vals[[k]])
+      vals <- lapply(seq_along(length(vals)),
+                     function(k) vals[[k]] + res_rep$vals[[k]])
     }
     bisil <- bisil / n_reps
     vals <- lapply(vals, function(x) x / 10)

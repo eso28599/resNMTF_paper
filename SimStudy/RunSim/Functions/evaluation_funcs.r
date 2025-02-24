@@ -46,7 +46,10 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
     if (stability) {
       return(0)
     } else {
-      return(list("rec" = rep(0, 2), "rel" = rep(0, 2), "f_score" = rep(0, 2), "relations" = rep(0, n)))
+      return(list("rec" = rep(0, 2),
+                  "rel" = rep(0, 2),
+                  "f_score" = rep(0, 2),
+                  "relations" = rep(0, n)))
     }
   }
   # if no biclusters present and none detected - score of 1
@@ -54,11 +57,14 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
     if (stability) {
       return(1)
     } else {
-      return(list("rec" = rep(1, 2), "rel" = rep(1, 2), "f_score" = rep(1, 2), "relations" = rep(0, n)))
+      return(list("rec" = rep(1, 2),
+                  "rel" = rep(1, 2),
+                  "f_score" = rep(1, 2),
+                  "relations" = rep(0, n)))
     }
   }
-  samps <- 1:nrow(row_c)
-  feats <- 1:nrow(col_c)
+  samps <- seq_along(nrow(row_c))
+  feats <- seq_along(nrow(col_c))
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
@@ -83,7 +89,10 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
   )
   f <- ifelse(rel * rev == 0, 0, 2 * rel * rev / (rel + rev))
   relations <- apply(jac_mat, 2, which.max)
-  return(list("rec" = rep(rev, 2), "rel" = rep(rel, 2), "f_score" = rep(f, 2), "relations" = relations))
+  return(list("rec" = rep(rev, 2),
+              "rel" = rep(rel, 2),
+              "f_score" = rep(f, 2),
+              "relations" = relations))
 }
 
 check <- function(matrix) {
