@@ -9,72 +9,17 @@ library(foreach)
 library(doParallel)
 library(doSNOW)
 library(MASS)
-source("Functions/update_steps.r")
-source("Functions/utils.r")
-source("Functions/bisilhouette.r")
-source("Functions/spurious_bicl.r")
+# load bisilhouette score somehow
 
-obtain_biclusters <- function(data, output_f,
-                              output_g, output_s, repeats, distance) {
-  # Obtains biclustering from ResNMTF factorisation
-  # Args:
-  #  data: list of data matrices
-  #  output_f: list of F matrices
-  #  output_g: list of G matrices
-  #  output_s: list of S matrices
-  #  repeats: minimum value of 2
-  #  distance: distance metric to use, can be . Default is euclidean.
-  # Returns:
-  #  list containing row and column clusterings, and the bisilhouette score of the biclustering
 
-  n_views <- length(output_f)
-  row_clustering <- vector("list", length = n_views)
-  col_clustering <- vector("list", length = n_views)
 
-  # assign biclusters
-  biclusts <- check_biclusters(data, output_f, repeats)
-  for (i in 1:n_views) {
-    row_clustering[[i]] <- apply(
-      output_f[[i]],
-      2, function(x) as.numeric(x > (1 / dim(output_f[[i]])[1]))
-    )
-
-    col_clustering[[i]] <- apply(
-      output_g[[i]],
-      2, function(x) as.numeric(x > (1 / dim(output_g[[i]])[1]))
-    )
-  }
-  bisil <- c()
-  # update realtions and
-  # set biclusters that aren't strong enough to 0
-  # and if bicluster is empty set row and cols to 0
-  for (i in 1:n_views) {
-    indices <- (((biclusts$score[i, ]) < biclusts$max_threshold[i]) |
-      ((biclusts$score[i, ]) == 0))
-    relations <- apply(output_s[[i]], 1, which.max)
-    new_indices <- indices[relations] # i==0, col cluster i isn't a bicluster
-    row_clustering[[i]] <- row_clustering[[i]][, relations]
-    row_clustering[[i]][, new_indices] <- 0
-    col_clustering[[i]][, new_indices] <- 0
-    bisil <- c(
-      bisil,
-      BisilhouetteScore(data[[i]], row_clustering[[i]], col_clustering[[i]], method = distance)$bisil
-    )
-  }
-  # calculate overall bisil
-  bisil <- ifelse(sum(bisil) == 0, 0, mean(bisil[bisil != 0]))
-  return(list(
-    "row_clustering" = row_clustering,
-    "col_clustering" = col_clustering, "bisil" = bisil
-  ))
-}
 
 # Application of ResNMTF to data!
 rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
                                   init_g = NULL, KK = NULL,
                                   phi = NULL, xi = NULL, psi = NULL,
-                               nIter = NULL,
-                               repeats = 5, distance = "euclidean", no_clusts = FALSE) {
+                                  nIter = NULL,
+                                  repeats = 5, distance = "euclidean", no_clusts = FALSE) {
   #' Run Restrictive-Multi NMTF, following the above algorithm
   #'
   #' 1. Normalise X^v s.t ||X||_1 = 1
@@ -165,11 +110,12 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
     }
   }
   for (v in 1:n_v) {
-    F_normal <- single_alt_l1_normalisation(current_f[[v]])
-    current_f[[v]] <- F_normal$newMatrix
-    G_normal <- single_alt_l1_normalisation(current_g[[v]])
-    current_g[[v]] <- G_normal$newMatrix
-    current_s[[v]] <- (F_normal$Q) %*% current_s[[v]] %*% G_normal$Q
+    F_normal <- matrix_normalisation(current_f[[v]])
+    current_f[[v]] <- F_normal$normalised_matrix
+    G_normal <- matrix_normalisation(current_g[[v]])
+    current_g[[v]] <- G_normal$normalised_matrix
+    current_s[[v]] <- (F_normal$normaliser) %*% current_s[[v]] %*%
+      G_normal$normaliser
   }
   # if only need to obtain factorisation, return values now
   if (no_clusts) {
@@ -414,7 +360,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     data <- lapply(data, function(x) as.matrix(x))
   }
   # Normalise data
-  data <- lapply(data, function(x) single_alt_l1_normalisation(x)$newMatrix)
+  data <- lapply(data, function(x) matrix_normalisation(x)$normalised_matrix)
   # initialise restriction matrices if not specified
   # views with no restrictions require no input
   phi <- init_rest_mats(phi, n_v)

@@ -4,42 +4,35 @@ library(ggfortify)
 library(ggpubr)
 
 break_func <- function(lower) {
-    # x <- seq(-1,1,0.1)
-    # breaks <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
-    # x <- x[(x>=(min(lower)-0.1))&(x<=(max(lower)+0.1))]
-    # if(length(breaks)<5){
-    #     print(breaks)
-    #     x <- seq(breaks[1],last(breaks),length=5)
-    # }
-    # return(x)
-    if (min(lower) < 0) {
-        return(seq(-1, 1, 0.2)[seq(-1, 1, 0.2) > (min(lower) - 0.2)])
-    } else {
-        return(seq(0, 1, 0.2))
-    }
+  if (min(lower) < 0) {
+    return(seq(-1, 1, 0.2)[seq(-1, 1, 0.2) > (min(lower) - 0.2)])
+  } else {
+    return(seq(0, 1, 0.2))
+  }
 }
 
-df_plot <- function(values) {
-    x <- c()
-    y <- c()
-    cluster <- c()
-    for (i in 1:length(values)) {
-        x <- c(x, 1:length(values[[i]]))
-        y <- c(y, sort(values[[i]]))
-        cluster <- c(cluster, rep(i, length(values[[i]])))
-    }
-    x <- 1:length(x)
-    return(data.frame(x = (x), y = y, clust = (cluster)))
+df_plot <- function(values){
+  x <- c()
+  y <- c()
+  cluster <- c()
+  for (i in seq_along(length(values))) {
+    x <- c(x, seq_along(length(values[[i]])))
+    y <- c(y, sort(values[[i]]))
+    cluster <- c(cluster, rep(i, length(values[[i]])))
+  }
+  x <- seq_along(length(x))
+  return(data.frame(x = x, y = y, clust = cluster))
 }
-x_breaks <- function(df) {
-    n_c <- length(unique(df$clust))
-    ticks <- c()
-    num <- c(0)
-    for (i in 1:n_c) {
-        num <- c(num, sum(df$clust == i))
-        ticks <- c(ticks, floor(sum(df$clust == i) / 2))
-    }
-    return(cumsum(num[1:(n_c)]) + ticks)
+
+x_breaks <- function(df) {  
+  n_c <- length(unique(df$clust))
+  ticks <- c()
+  num <- c(0)
+  for (i in 1:n_c) {
+    num <- c(num, sum(df$clust == i))
+    ticks <- c(ticks, floor(sum(df$clust == i) / 2))
+  }
+  return(cumsum(num[1:(n_c)]) + ticks)
 }
 
 bisil_plot <- function(data, rows, cols, filename = NULL) {

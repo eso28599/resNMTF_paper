@@ -19,7 +19,7 @@ cart_prod <- function(a, b) {
   if (length(a) == 0 || length(b) == 0) {
     return(NULL)
   } else {
-    for (k in 1:length(a)) {
+    for (k in seq_len(length(a))) {
       prod <- c(prod, paste(a[k], b))
     }
     return(prod)
@@ -38,10 +38,12 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
     if (stability) {
       return(0)
     } else {
-      return(list("rec" = rep(0, 2),
-                  "rel" = rep(0, 2),
-                  "f_score" = rep(0, 2),
-                  "relations" = rep(0, n)))
+      return(list(
+        "rec" = rep(0, 2),
+        "rel" = rep(0, 2),
+        "f_score" = rep(0, 2),
+        "relations" = rep(0, n)
+      ))
     }
   }
   # if no biclusters present and none detected - score of 1
@@ -49,14 +51,16 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
     if (stability) {
       return(1)
     } else {
-      return(list("rec" = rep(1, 2),
-                  "rel" = rep(1, 2),
-                  "f_score" = rep(1, 2),
-                  "relations" = rep(0, n)))
+      return(list(
+        "rec" = rep(1, 2),
+        "rel" = rep(1, 2),
+        "f_score" = rep(1, 2),
+        "relations" = rep(0, n)
+      ))
     }
   }
-  samps <- seq_along(nrow(row_c))
-  feats <- seq_along(nrow(col_c))
+  samps <- seq_len(nrow(row_c))
+  feats <- seq_len(nrow(col_c))
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
@@ -81,14 +85,17 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
   )
   f <- ifelse(rel * rev == 0, 0, 2 * rel * rev / (rel + rev))
   relations <- apply(jac_mat, 2, which.max)
-  return(list("rec" = rep(rev, 2),
-              "rel" = rep(rel, 2),
-              "f_score" = rep(f, 2),
-              "relations" = relations))
+  return(list(
+    "rec" = rep(rev, 2),
+    "rel" = rep(rel, 2),
+    "f_score" = rep(f, 2),
+    "relations" = relations
+  ))
 }
 
 
-csr <- function(row_clustering, col_clustering, true_row_clustering, true_col_clustering) {
+csr <- function(row_clustering, col_clustering,
+                true_row_clustering, true_col_clustering) {
   n_row_cl <- sum(colSums(row_clustering) > 0)
   n_col_cl <- sum(colSums(col_clustering) > 0)
   true_row_cl <- sum(colSums(true_row_clustering) > 0)
@@ -100,9 +107,14 @@ csr <- function(row_clustering, col_clustering, true_row_clustering, true_col_cl
   return(c(row_csr, col_csr))
 }
 
-evaluate_simulation_comp <- function(row_clustering, col_clustering, true_row_clustering, true_col_clustering, data_views, index = 2) {
-  #' row_clust/col_clust: list of the clustering for each view of the rows/columns given by a method
-  #' true_row/col_clustering: list of the true clustering for each view of the rows/columns
+evaluate_simulation_comp <- function(row_clustering, col_clustering,
+                                     true_row_clustering,
+                                     true_col_clustering,
+                                     data_views, index = 2) {
+  #' row_clust/col_clust: list of the clustering for each view of the
+  #' rows/columns given by a method
+  #' true_row/col_clustering: list of the true clustering for each
+  #'  view of the rows/columns
   n_views <- length(row_clustering)
   # accuracy table for each view - 1st row is row-clustering, second is column
   csr <- matrix(0, nrow = 2, ncol = n_views)
@@ -149,7 +161,8 @@ evaluate_simulation_comp <- function(row_clustering, col_clustering, true_row_cl
   for (i in 1:n_views) {
     score <- 0
     for (j in 1:n_views) {
-      score <- score + as.numeric(all(relations_list[[i]] == relations_list[[j]]))
+      score <- score +
+        as.numeric(all(relations_list[[i]] == relations_list[[j]]))
     }
     relations_mat[, i] <- (score - 1) / max(n_views - 1, 1)
   }
@@ -163,7 +176,9 @@ evaluate_simulation_comp <- function(row_clustering, col_clustering, true_row_cl
   ))
 }
 
-eval_method <- function(data_name, file_path, true_rows, true_cols, data_views) {
+eval_method <- function(data_name, file_path,
+                        true_rows, true_cols,
+                        data_views) {
   # now apply to gfa
   file_path <- paste0(data_name, file_path)
   row_filename <- paste0(file_path, "/row_clusts.xlsx")
@@ -187,13 +202,23 @@ jaccard_row <- function(row_c, true_r, print = FALSE) {
   m_0 <- sum(colSums(row_c) != 0) # no of clusters actually detected
   n_0 <- sum(colSums(true_r) != 0) # no of true clusters
   if ((m_0 == 0 && n_0 != 0) || (n_0 == 0 && m_0 != 0)) {
-    return(list("rec" = rep(0, 2), "rel" = rep(0, 2), "f_score" = rep(0, 2), "relations" = rep(0, n)))
+    return(list(
+      "rec" = rep(0, 2),
+      "rel" = rep(0, 2),
+      "f_score" = rep(0, 2),
+      "relations" = rep(0, n)
+    ))
   }
   # if no biclusters present and none detected - score of 1
   if (m_0 == 0 && n_0 == 0) {
-    return(list("rec" = rep(1, 2), "rel" = rep(1, 2), "f_score" = rep(1, 2), "relations" = rep(0, n)))
+    return(list(
+      "rec" = rep(1, 2),
+      "rel" = rep(1, 2),
+      "f_score" = rep(1, 2),
+      "relations" = rep(0, n)
+    ))
   }
-  rows <- 1:nrow(row_c)
+  rows <- seq_len(row_c)
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
@@ -216,7 +241,12 @@ jaccard_row <- function(row_c, true_r, print = FALSE) {
   )
   f <- ifelse(rel * rev == 0, 0, 2 * rel * rev / (rel + rev))
   relations <- apply(jac_mat, 2, which.max)
-  return(list("rec" = rep(rev, 2), "rel" = rep(rel, 2), "f_score" = rep(f, 2), "relations" = relations))
+  return(list(
+    "rec" = rep(rev, 2),
+    "rel" = rep(rel, 2),
+    "f_score" = rep(f, 2),
+    "relations" = relations
+  ))
 }
 
 get_sil_mean <- function(vec) {
@@ -231,15 +261,27 @@ calc_all_sils <- function(data, res) {
   for (i in 1:n_views) {
     bisils_euc <- c(
       bisils_euc,
-      bisilhouette(data[[i]], res$row_clusters[[i]], res$col_clusters[[i]])$bisil
+      bisilhouette(
+        data[[i]],
+        res$row_clusters[[i]],
+        res$col_clusters[[i]]
+      )$bisil
     )
     bisils_man <- c(
       bisils_man,
-      bisilhouette(data[[i]], res$row_clusters[[i]], res$col_clusters[[i]], method = "manhattan")$bisil
+      bisilhouette(data[[i]],
+        res$row_clusters[[i]],
+        res$col_clusters[[i]],
+        method = "manhattan"
+      )$bisil
     )
     bisils_cosine <- c(
       bisils_cosine,
-      bisilhouette(data[[i]], res$row_clusters[[i]], res$col_clusters[[i]], method = "cosine")$bisil
+      bisilhouette(data[[i]],
+        res$row_clusters[[i]],
+        res$col_clusters[[i]],
+        method = "cosine"
+      )$bisil
     )
   }
   bisils_euc <- c(bisils_euc, get_sil_mean(bisils_euc))

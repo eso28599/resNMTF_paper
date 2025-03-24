@@ -1,4 +1,5 @@
-library(docstring)
+suppressPackageStartupMessages((library(docstring)))
+library(ggplot2)
 
 check_unique <- function(row_clustering) {
   #' Check if there are at least two unique row clusters.
@@ -26,13 +27,14 @@ check_unique <- function(row_clustering) {
 
 calculate_scores <- function(distances, indices, k, n_clusts_row, clust_two) {
   #' Calculate the a and b values for the bisilhouette score.
-  #' Args:
-  #'  distances: distance (over the columns in question) matrix, shape (N, N).
-  #'  indices: binary vector indicating row cluster, shape (N, ).
-  #'  k: current row cluster index, int.
-  #'  n_clusts_row: number of row clusters, int.
-  #'  clust_two: binary matrix indicating row clustering,
-  #'             shape(N, n_clusts_row).
+  #'
+  #' @param distances: distance (over the columns in question) matrix,
+  #'                   shape (N, N).
+  #' @param indices: binary vector indicating row cluster, shape (N, ).
+  #' @param k: current row cluster index, int.
+  #' @param n_clusts_row: number of row clusters, int.
+  #' @param clust_two: binary matrix indicating row clustering,
+  #'                   shape(N, n_clusts_row).
   #'
   #' @return bisil: bisilhouette score, float.
   b_vec <- c()
@@ -81,7 +83,7 @@ calculate_scores <- function(distances, indices, k, n_clusts_row, clust_two) {
     bisil_score <- 0
   } else {
     bis_vals <- (b_vals - a_vals) / apply(rbind(b_vals, a_vals), 2, max)
-    bisil_score <-  mean(bis_vals)
+    bisil_score <- mean(bis_vals)
   }
   return(list("bisil" = bisil_score, "bis_vals" = bis_vals))
 }
@@ -91,25 +93,29 @@ calculate_bis <- function(data, row_clustering,
                           method = "euclidean") {
   #' Calculate the bisilhouette score without repeats
   #'
-  #' Args:
-  #'  data: data matrix, shape (N, p).
-  #'  row_clustering: binary matrix indicating row clustering, shape(N, K).
-  #'  col_clustering: binary matrix indicating column clustering, shape(p, K).
-  #'  method: distance metric to use, str. Default is "euclidean".
+  #' @param data: data matrix, shape (N, p).
+  #' @param row_clustering: binary matrix indicating row clustering,
+  #'                        shape(N, K).
+  #' @param col_clustering: binary matrix indicating column clustering,
+  #'                        shape(p, K).
+  #' @param method: distance metric to use, str. Default is "euclidean".
   #'
   #'
-  #' @return bisil: bisilhouette score, float.
-  #' @return vals: individual sample scores, shape (N, ).
-  #' @return repeat: if TRUE, a random row cluster has been added
-  #'          and repeats are needed, bool.
+  #' @return list containing;
+  #'             - bisil: bisilhouette score, float.
+  #'             - vals: individual sample scores, shape (N, ).
+  #'             - repeat: if TRUE, a random row cluster has been added
+  #'                      and repeats are needed, bool.
 
   n_clusts <- ncol(row_clustering)
   bisil_score <- rep(0, length = n_clusts)
 
   # ensure there are at least three unique row clusters
   while (check_unique(row_clustering)) {
-    row_clustering <- cbind(row_clustering,
-                            rbinom(nrow(row_clustering), 1, 0.1))
+    row_clustering <- cbind(
+      row_clustering,
+      rbinom(nrow(row_clustering), 1, 0.1)
+    )
   }
   n_clusts_row <- ncol(row_clustering)
   rep <- ifelse(n_clusts_row == n_clusts, FALSE, TRUE)
@@ -126,8 +132,10 @@ calculate_bis <- function(data, row_clustering,
       new_data <- data[, (col_clustering[, k] == 1)]
       distances <- as.matrix(stats::dist(new_data, method))
       # calculate scores
-      scores <- calculate_scores(distances, indices, k,
-                                 n_clusts_row, row_clustering)
+      scores <- calculate_scores(
+        distances, indices, k,
+        n_clusts_row, row_clustering
+      )
       bisil_score[k] <- bisil_score[k] + scores$bisil
       bis_vals[[k]] <- scores$bis_vals
     }
@@ -151,8 +159,9 @@ bisilhouette <- function(data, row_clustering, col_clustering,
   #'                        shape(p, k).
   #' @param method: distance metric to use, str. Default is "euclidean".
   #'
-  #' @return bisil: bisilhouette score, float.
-  #' @return vals: individual sample scores, shape (N, ).
+  #' @return list containing;
+  #'              - bisil: bisilhouette score, float.
+  #'              - vals: individual sample scores, shape (N, ).
 
   # Error handling
   if (any(dim(data) != c(nrow(row_clustering), nrow(col_clustering)))) {
@@ -174,14 +183,88 @@ bisilhouette <- function(data, row_clustering, col_clustering,
   # repeat if necessary
   if (results$rep) {
     for (i in 1:(n_reps - 1)) {
-      res_rep <- calculate_bis(data, row_clustering,
-                               col_clustering, method)
+      res_rep <- calculate_bis(
+        data, row_clustering,
+        col_clustering, method
+      )
       bisil <- bisil + res_rep$bisil
-      vals <- lapply(seq_along(length(vals)),
-                     function(k) vals[[k]] + res_rep$vals[[k]])
+      vals <- lapply(
+        seq_len(length(vals)),
+        function(k) vals[[k]] + res_rep$vals[[k]]
+      )
     }
     bisil <- bisil / n_reps
     vals <- lapply(vals, function(x) x / 10)
   }
   return(list("bisil" = bisil, "vals" = vals))
+}
+
+# ---------------------------------
+# functions for visualisation
+break_func <- function(lower) {
+  if (min(lower) < 0) {
+    return(seq(-1, 1, 0.2)[seq(-1, 1, 0.2) > (min(lower) - 0.2)])
+  } else {
+    return(seq(0, 1, 0.2))
+  }
+}
+
+df_plot <- function(values) {
+  x <- c()
+  y <- c()
+  cluster <- c()
+  for (i in seq_along(length(values))) {
+    x <- c(x, seq_along(length(values[[i]])))
+    y <- c(y, sort(values[[i]]))
+    cluster <- c(cluster, rep(i, length(values[[i]])))
+  }
+  x <- seq_along(length(x))
+  return(data.frame(x = x, y = y, clust = cluster))
+}
+
+x_breaks <- function(df) {
+  n_c <- length(unique(df$clust))
+  ticks <- c()
+  num <- c(0)
+  for (i in 1:n_c) {
+    num <- c(num, sum(df$clust == i))
+    ticks <- c(ticks, floor(sum(df$clust == i) / 2))
+  }
+  return(cumsum(num[1:(n_c)]) + ticks)
+}
+
+bisil_plot <- function(data, rows, cols, filename = NULL) {
+  #'
+  scores <- calculate_bis(data, rows, cols)
+  df <- df_plot(scores$vals)
+  break_vals <- break_func(df$y)
+  breaks_x <- x_breaks(df)
+  bis_val <- scores$sil
+  p <- ggplot(df) +
+    geom_col(aes(x = x, y = y, group = clust, color = clust, fill = clust),
+      width = 1, position = position_dodge()
+    ) +
+    scale_y_continuous(breaks = break_vals, limits = c(
+      min(break_vals),
+      max(break_vals)
+    )) +
+    scale_x_continuous(breaks = breaks_x, labels = 1:(dim(rows)[2])) +
+    scale_color_viridis_c() +
+    scale_fill_viridis_c() +
+    ylab("Bisilhouette score") +
+    xlab("Bicluster") +
+    geom_hline(yintercept = bis_val, linetype = "dashed", color = "black") +
+    coord_flip() +
+    theme_minimal() +
+    theme(
+      legend.position = "none", axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14),
+      axis.ticks = element_line(size = 0.4),
+      axis.line = element_line(size = 0.4)
+    )
+
+  if (!is.null(filename)) {
+    ggsave(filename, p)
+  }
+  return(p)
 }

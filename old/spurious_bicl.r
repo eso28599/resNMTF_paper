@@ -1,5 +1,4 @@
 # removal of spurious biclusters
-# source("utils.r")
 # Libraries
 library(philentropy)
 library("Matrix")
@@ -22,46 +21,46 @@ jsd_calc <- function(x1, x2) {
   d1$y[d1$x > max(x1)] <- 0
   d2$y[d2$x > max(x2)] <- 0
   return(suppressMessages(JSD(rbind(d1$y, d2$y),
-    unit = "log2",
-    est.prob = "empirical"
-  )))
+           unit = "log2",
+           est.prob = "empirical"
+         )))
 }
 
 
-get_thresholds <- function(Xinput, Foutput, repeats) {
+get_thresholds <- function(data, output_f, repeats) {
   # Finds the threshold for removal of spurious biclusters.
   # Args:
-  #  Xinput: list of matrices
-  #  Foutput: list of matrices
+  #  data: list of matrices
+  #  output_f: list of matrices
   #  repeats: minimum value of 2
   # Returns:
   #  list of thresholds
-  n_views <- length(Xinput)
-  n_clusts <- dim(Foutput[[1]])[2]
+  n_views <- length(data)
+  n_clusts <- dim(output_f[[1]])[2]
   k_input <- n_clusts * rep(1, length = n_views)
   x_mess <- vector(mode = "list", length = repeats)
   for (n in 1:repeats) {
     data_messed <- vector(mode = "list", length = n_views)
     for (i in 1:n_views) {
       # correct shuffling
-      dims <- dim(Xinput[[i]])
+      dims <- dim(data[[i]])
       data_messed[[i]] <- matrix(
-        sample(Xinput[[i]]),
+        sample(data[[i]]),
         dims[1], dims[2]
       )
-      while (any(colSums(data_messed[[i]]) == 0) |
-        any(rowSums(data_messed[[i]]) == 0)) {
+      while (any(colSums(data_messed[[i]]) == 0) ||
+               any(rowSums(data_messed[[i]]) == 0)) {
         data_messed[[i]] <- matrix(
-          sample(Xinput[[i]]),
+          sample(data[[i]]),
           dims[1], dims[2]
         )
       }
     }
     results <- restMultiNMTF_run(
-      Xinput = data_messed,
+      data = data_messed,
       KK = k_input, no_clusts = TRUE, stability = FALSE
     )
-    x_mess[[n]] <- results$Foutput
+    x_mess[[n]] <- results$output_f
   }
   avg_score <- c()
   max_score <- c()
@@ -107,18 +106,18 @@ get_thresholds <- function(Xinput, Foutput, repeats) {
   ))
 }
 
-check_biclusters <- function(Xinput, Foutput, repeats) {
+check_biclusters <- function(data, output_f, repeats) {
   # calculate JSD between returned F and noise
   # returns scores, avg score and max score
-  n_views <- length(Xinput)
-  n_clusts <- dim(Foutput[[1]])[2]
+  n_views <- length(data)
+  n_clusts <- dim(output_f[[1]])[2]
   # updated results
   scores <- matrix(0, nrow = n_views, ncol = n_clusts)
-  thresholds <- get_thresholds(Xinput, Foutput, repeats)
+  thresholds <- get_thresholds(data, output_f, repeats)
   for (i in 1:n_views) {
     x_noise <- thresholds$data[[i]]
     for (k in 1:n_clusts) {
-      x <- Foutput[[i]][, k]
+      x <- output_f[[i]][, k]
       scores[i, k] <- mean(apply(
         x_noise, 2,
         function(y) jsd_calc(x, y)

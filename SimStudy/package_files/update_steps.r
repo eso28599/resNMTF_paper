@@ -1,13 +1,3 @@
-library(philentropy)
-library("Matrix")
-library("clue")
-library("aricode")
-library("rio")
-library("eList")
-library(foreach)
-library(doParallel)
-library(doSNOW)
-library(MASS)
 ## Initialisation functions
 init_rest_mats <- function(mat, n_v) {
   # inititialise phi/psi/xi matrices
@@ -22,7 +12,7 @@ init_rest_mats <- function(mat, n_v) {
   }
 }
 
-init_mats <- function(X, KK, sigma_I = 0.05) {
+init_mats <- function(X, k_vec, sigma = 0.05) {
   #' X: list of input data
   # Initialisation of F, S, G lists
   n_views <- length(X)
@@ -33,21 +23,21 @@ init_mats <- function(X, KK, sigma_I = 0.05) {
   init_mu <- vector("list", length = n_views)
   # initialise based on svd
   for (i in 1:n_views) {
-    K <- KK[i]
+    K <- k_vec[i]
     vals <- 1:K
     ss <- svd(X[[i]])
     init_f[[i]] <- abs(ss$u[, vals])
-    normal_f <- single_alt_l1_normalisation(init_f[[i]])
-    init_f[[i]] <- normal_f$newMatrix
+    normal_f <- matrix_normalisation(init_f[[i]])
+    init_f[[i]] <- normal_f$normalised_matrix
     init_s[[i]] <- abs(diag(ss$d)[vals, vals])
     init_s[[i]] <- init_s[[i]] + abs(mvrnorm(
       n = K,
-      mu = rep(0, K), Sigma = sigma_I * diag(K)
+      mu = rep(0, K), Sigma = sigma * diag(K)
     )[vals, vals])
     init_g[[i]] <- abs(ss$v[, vals])
-    G_normal <- single_alt_l1_normalisation(init_g[[i]])
-    init_g[[i]] <- G_normal$newMatrix
-    init_s[[i]] <- (normal_f$Q) %*% init_s[[i]] %*% G_normal$Q
+    normal_g <- matrix_normalisation(init_g[[i]])
+    init_g[[i]] <- normal_g$normalised_matrix
+    init_s[[i]] <- (normal_f$normaliser) %*% init_s[[i]] %*% normal_g$normaliser
     init_lambda[[i]] <- colSums(init_f[[i]])
     init_mu[[i]] <- colSums(init_g[[i]])
   }
@@ -58,44 +48,6 @@ init_mats <- function(X, KK, sigma_I = 0.05) {
   ))
 }
 
-init_mats_random <- function(X, K) {
-  #' X: list of input data
-  # Initialisation of F, S, G lists
-  n_views <- length(X)
-  init_f <- vector("list", length = n_views)
-  init_s <- vector("list", length = n_views)
-  init_g <- vector("list", length = n_views)
-  init_lambda <- vector("list", length = n_views)
-  init_mu <- vector("list", length = n_views)
-  # initialise based on svd
-  for (i in 1:n_views) {
-    # ss <- svd(X[[i]])
-    init_f[[i]] <- abs(mvrnorm(
-      n = nrow(X[[i]]),
-      mu = rep(0, K), Sigma = diag(K)
-    ))
-    normal_f <- single_alt_l1_normalisation(init_f[[i]])
-    init_f[[i]] <- normal_f$newMatrix
-    init_s[[i]] <- abs(mvrnorm(
-      n = K,
-      mu = rep(0, K), Sigma = diag(K)
-    ))
-    init_g[[i]] <- abs(mvrnorm(
-      n = ncol(X[[i]]),
-      mu = rep(0, K), Sigma = diag(K)
-    ))
-    G_normal <- single_alt_l1_normalisation(init_g[[i]])
-    init_g[[i]] <- G_normal$newMatrix
-    # init_s[[i]]  <- (normal_f$Q) %*% init_s[[i]] %*% G_normal$Q
-    init_lambda[[i]] <- colSums(init_f[[i]])
-    init_mu[[i]] <- colSums(init_g[[i]])
-  }
-
-  return(list(
-    "init_f" = init_f, "init_g" = init_g, "init_s" = init_s,
-    "init_lambda" = init_lambda, "init_mu" = init_mu
-  ))
-}
 
 ## Udate functions
 update_F <- function(Xinput, Finput, Sinput, Ginput, lambda_in, phi, k) {
@@ -135,20 +87,20 @@ update_G <- function(Xinput, Finput, Sinput, Ginput, mu_in, psi, k) {
   #' Output: An update for Ginput[[k]]
 
   # Find numerator
-  currentG <- Ginput[[k]]
+  current_g <- Ginput[[k]]
   numerator_matrix <- t(Xinput) %*% Finput %*% Sinput
-  denominator_matrix <- currentG %*% t(Sinput) %*% t(Finput) %*% Finput %*% Sinput
-  mu_mat <- 0.5 * t(matrix(mu_in, length(mu_in), nrow(currentG)))
+  denominator_matrix <- current_g %*% t(Sinput) %*% t(Finput) %*% Finput %*% Sinput
+  mu_mat <- 0.5 * t(matrix(mu_in, length(mu_in), nrow(current_g)))
   # check if they are all the same size
 
   # calculate the column vector based on phi that is needed
   if (sum(psi) == 0) {
-    outputG <- currentG * (numerator_matrix / (denominator_matrix + mu_mat))
+    outputG <- current_g * (numerator_matrix / (denominator_matrix + mu_mat))
   } else {
     psi_vec <- (psi + t(psi))[, k]
     num_mat_prod <- star_prod(psi_vec, Ginput)
-    denom_mat_prod <- sum(psi_vec) * currentG
-    outputG <- currentG * ((numerator_matrix + num_mat_prod) / (denominator_matrix + denom_mat_prod + mu_mat))
+    denom_mat_prod <- sum(psi_vec) * current_g
+    outputG <- current_g * ((numerator_matrix + num_mat_prod) / (denominator_matrix + denom_mat_prod + mu_mat))
   }
   return(abs(outputG))
 }
