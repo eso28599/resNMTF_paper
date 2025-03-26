@@ -9,17 +9,19 @@ library(foreach)
 library(doParallel)
 library(doSNOW)
 library(MASS)
-# load bisilhouette score somehow
-
-
+library(bisilhouette)
 
 
 # Application of ResNMTF to data!
+#'
+#' @param
 rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
-                                  init_g = NULL, KK = NULL,
+                                  init_g = NULL, k_vec = NULL,
                                   phi = NULL, xi = NULL, psi = NULL,
-                                  nIter = NULL,
-                                  repeats = 5, distance = "euclidean", no_clusts = FALSE) {
+                                  n_iters = NULL,
+                                  repeats = 5,
+                                  distance = "euclidean",
+                                  no_clusts = FALSE) {
   #' Run Restrictive-Multi NMTF, following the above algorithm
   #'
   #' 1. Normalise X^v s.t ||X||_1 = 1
@@ -33,7 +35,7 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
 
   # initialise F, S and G based on svd decomposition if not given
   if (is.null(init_f) | is.null(init_g) | is.null(init_s)) {
-    inits <- init_mats(data, KK)
+    inits <- init_mats(data, k_vec)
     current_f <- inits$init_f
     current_s <- inits$init_s
     current_g <- inits$init_g
@@ -48,9 +50,9 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
     currentmu <- lapply(current_g, colSums)
   }
   # Initialising additional parameters
-  Xhat <- vector("list", length = n_v)
-  # Update until convergence, or for nIter times
-  if (is.null(nIter)) {
+  x_hat <- vector("list", length = n_v)
+  # Update until convergence, or for n_iters times
+  if (is.null(n_iters)) {
     total_err <- c()
     # Run while-loop until convergence
     err_diff <- 1
@@ -74,8 +76,8 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
       for (v in 1:n_v) {
-        Xhat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
-        err[v] <- sum((data[[v]] - Xhat[[v]])**2) / sum((data[[v]])**2)
+        x_hat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
+        err[v] <- sum((data[[v]] - x_hat[[v]])**2) / sum((data[[v]])**2)
       }
       mean_err <- mean(err)
       total_err <- c(total_err, mean_err)
@@ -83,8 +85,8 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
       err_temp <- tail(total_err, n = 1)
     }
   } else {
-    total_err <- numeric(length = nIter)
-    for (t in 1:nIter) {
+    total_err <- numeric(length = n_iters)
+    for (t in 1:n_iters) {
       err <- numeric(length = length(current_f))
       new_parameters <- update_matrices(
         X = data,
@@ -103,19 +105,19 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
       for (v in 1:n_v) {
-        Xhat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
-        err[v] <- sum((data[[v]] - Xhat[[v]])**2) / sum((data[[v]])**2)
+        x_hat[[v]] <- current_f[[v]] %*% current_s[[v]] %*% t(current_g[[v]])
+        err[v] <- sum((data[[v]] - x_hat[[v]])**2) / sum((data[[v]])**2)
       }
       total_err[t] <- mean(err)
     }
   }
   for (v in 1:n_v) {
-    F_normal <- matrix_normalisation(current_f[[v]])
-    current_f[[v]] <- F_normal$normalised_matrix
-    G_normal <- matrix_normalisation(current_g[[v]])
-    current_g[[v]] <- G_normal$normalised_matrix
-    current_s[[v]] <- (F_normal$normaliser) %*% current_s[[v]] %*%
-      G_normal$normaliser
+    normal_f <- matrix_normalisation(current_f[[v]])
+    current_f[[v]] <- normal_f$normalised_matrix
+    normal_g <- matrix_normalisation(current_g[[v]])
+    current_g[[v]] <- normal_g$normalised_matrix
+    current_s[[v]] <- (normal_f$normaliser) %*% current_s[[v]] %*%
+      normal_g$normaliser
   }
   # if only need to obtain factorisation, return values now
   if (no_clusts) {
@@ -126,10 +128,10 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
   }
   # find clustering results and bisilhouette score
   clusters <- obtain_biclusters(
-    data, output_f,
-    output_g, output_s, repeats, distance
+    data, current_f,
+    current_g, current_s, repeats, distance
   )
-  if (is.null(nIter)) {
+  if (is.null(n_iters)) {
     error <- mean(tail(total_err, n = 10))
   } else {
     error <- tail(total_err, n = 1)
@@ -145,213 +147,44 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
   ))
 }
 
-
-## functions for stability selection
-
-jaccard <- function(a, b) {
-  # calculate jaccard between two vectors
-  intersection <- length(intersect(a, b))
-  union <- length(a) + length(b) - intersection
-  if (union == 0) {
-    return(0)
-  } else {
-    return(intersection / union)
-  }
-}
-
-cart_prod <- function(a, b) {
-  # returns cartesian product of two sets
-  prod <- c()
-  # check a or b are not empty sets
-  if (length(a) == 0 || length(b) == 0) {
-    return(NULL)
-  } else {
-    for (k in 1:length(a)) {
-      prod <- c(prod, paste(a[k], b))
-    }
-    return(prod)
-  }
-}
-jaccard_results <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
-  m <- ncol(row_c)
-  n <- ncol(true_r)
-  # if no biclusters detected but some are present
-  # return 0
-  # if no biclusters present but some are detected - score of 0
-  m_0 <- sum(colSums(row_c) != 0) # no of clusters actually detected
-  n_0 <- sum(colSums(true_r) != 0) # no of true clusters
-  if ((m_0 == 0 && n_0 != 0) || (n_0 == 0 && m_0 != 0)) {
-    if (stability) {
-      return(0)
-    } else {
-      return(list("rec" = rep(0, 2), "rel" = rep(0, 2), "f_score" = rep(0, 2)))
-    }
-  }
-  # if no biclusters present and none detected - score of 1
-  if (m_0 == 0 && n_0 == 0) {
-    if (stability) {
-      return(1)
-    } else {
-      return(list("rec" = rep(1, 2), "rel" = rep(1, 2), "f_score" = rep(1, 2)))
-    }
-  }
-  samps <- 1:nrow(row_c)
-  feats <- 1:nrow(col_c)
-  # initialise storage of jaccard index between pairs
-  jac_mat <- matrix(0, nrow = m, ncol = n)
-  for (i in 1:m) {
-    r_i <- samps[row_c[, i] == 1]
-    c_i <- feats[col_c[, i] == 1]
-    m_i <- cart_prod(r_i, c_i)
-    for (j in 1:n) {
-      tr_i <- samps[true_r[, j] == 1]
-      tc_i <- feats[true_c[, j] == 1]
-      m_j <- cart_prod(tr_i, tc_i)
-      jac_mat[i, j] <- jaccard(m_i, m_j)
-    }
-  }
-  if (stability) {
-    return(apply(jac_mat, 2, max))
-  }
-  rel <- ifelse(sum(apply(jac_mat, 1, max) != 0) == 0, 0,
-    sum(apply(jac_mat, 1, max)) / m_0
-  )
-  rec <- ifelse(sum(apply(jac_mat, 2, max) != 0) == 0, 0,
-    sum(apply(jac_mat, 2, max)) / n_0
-  )
-  f <- ifelse(rel * rec == 0, 0, 2 * rel * rec / (rel + rec))
-  return(list("rec" = rep(rec, 2), "rel" = rep(rel, 2), "f_score" = rep(f, 2)))
-}
-
-test_cond <- function(data, attempt) {
-  if (attempt == 1) {
-    return(TRUE)
-  }
-  return(any(unlist(lapply(data, function(x) any(colSums(x) == 0) | any(rowSums(x) == 0)))))
-}
-
-
-stability_check <- function(data, init_s, results,
-                            k, phi, xi, psi, nIter,
-                            repeats, no_clusts, distance, sample_rate = 0.9,
-                            n_stability = 5, stab_thres = 0.6, stab_test = FALSE) {
-  # check whether stability check even needs to be done
-  # no_clusts_detected
-  n_c <- sum(as.numeric(lapply(
-    results$row_clusters,
-    function(x) sum(colSums(x))
-  )))
-  if (n_c == 0) {
-    print("No biclusters detected!")
-    return(results)
-  }
-  n_views <- length(data)
-  # initialise storage of results
-  jacc <- matrix(0, nrow = n_views, ncol = k[1])
-  jacc_rand <- matrix(0, nrow = n_views, ncol = k[1])
-  for (t in 1:n_stability) {
-    new_data <- vector(mode = "list", length = n_views)
-    row_samples <- vector(mode = "list", length = n_views)
-    col_samples <- vector(mode = "list", length = n_views)
-    # turn this into a function to be used with lapply
-
-    dim <- dim(data[[1]])
-    attempt <- 1
-    while (test_cond(new_data, attempt)) {
-      if (attempt == 20) {
-        print("Unable to perform stability analysis due to sparsity of data.")
-        return(results)
-      }
-      row_samples[[1]] <- sample(dim[1], (dim[1] * sample_rate))
-      col_samples[[1]] <- sample(dim[2], (dim[2] * sample_rate))
-      new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
-      if (any(colSums(new_data[[1]]) == 0) | any(rowSums(new_data[[1]]) == 0)) {
-        zeros_cols <- colSums(new_data[[1]]) != 0
-        zeros_rows <- rowSums(new_data[[1]]) != 0
-        row_samples[[1]] <- row_samples[[1]][zeros_rows]
-        col_samples[[1]] <- col_samples[[1]][zeros_cols]
-        new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
-      }
-      if (n_views > 1) {
-        for (i in 2:n_views) {
-          dims <- dim(data[[i]])
-          if ((dims[1]) == dim[1]) {
-            row_samples[[i]] <- row_samples[[1]]
-          } else {
-            row_samples[[i]] <- sample(dims[1], (dims[1] * sample_rate))
-          }
-          if ((dims[2]) == dim[2]) {
-            col_samples[[i]] <- col_samples[[1]]
-          } else {
-            col_samples[[i]] <- sample(dims[2], (dims[2] * sample_rate))
-          }
-          new_data[[i]] <- data[[i]][row_samples[[i]], col_samples[[i]]]
-          if (any(colSums(new_data[[i]]) == 0) | any(rowSums(new_data[[i]]) == 0)) {
-            zeros_cols <- colSums(new_data[[i]]) != 0
-            zeros_rows <- rowSums(new_data[[i]]) != 0
-            if ((dims[1]) == dim[1]) {
-              for (p in 1:i) {
-                row_samples[[p]] <- row_samples[[p]][zeros_rows]
-              }
-            } else {
-              row_samples[[i]] <- row_samples[[i]][zeros_rows]
-            }
-            if ((dims[2]) == dim[2]) {
-              for (p in 1:i) {
-                col_samples[[p]] <- col_samples[[p]][zeros_cols]
-              }
-            } else {
-              col_samples[[i]] <- col_samples[[i]][zeros_cols]
-            }
-            for (p in 1:i) {
-              new_data[[p]] <- data[[p]][row_samples[[p]], col_samples[[p]]]
-            }
-          }
-        }
-      }
-      attempt <- attempt + 1
-    }
-    new_results <- rest_multi_nmtf_inner(new_data,
-      init_f = NULL, init_s = NULL,
-      init_g = NULL, k,
-      phi, xi, psi, nIter, repeats, distance
-    )
-    # compare results
-    # extract results
-    for (i in 1:n_views) {
-      jacc[i, ] <- jacc[i, ] + jaccard_results(
-        new_results$row_clusters[[i]],
-        new_results$col_clusters[[i]],
-        results$row_clusters[[i]][row_samples[[i]], ],
-        results$col_clusters[[i]][col_samples[[i]], ], TRUE
-      )
-    }
-  }
-  jacc <- jacc / n_stability
-  # jacc_rand <- jacc_rand / n_stability
-  if (stab_test) {
-    return(list("res" = results, "jacc" = jacc))
-  } else {
-    for (i in 1:n_views) {
-      # set clusters not deemed stable to have 0 members
-      results$row_clusters[[i]][, jacc[i, ] < stab_thres] <- 0
-      results$col_clusters[[i]][, jacc[i, ] < stab_thres] <- 0
-    }
-    # results$Sil_score <- sil_score(data,
-    #               results$row_clusters, results$col_clusters, distance, TRUE)$overall
-    # results$Sil_score <- sil_score(data,
-    #               results$row_clusters, results$col_clusters, distance, TRUE)$sil
-    return(results)
-  }
-}
-
-
+#' @param k_max integer, default is 6, must be greater than 2, largest value of k to be considered initially,
+#' @param k_min integer, default is 3, must be greater than 1, smallest value of k to be considered initially,
+#' @param distance string, default is "euclidean", distance metric to use for clustering,
+#' @param repeats integer, default is 5, minimum value of 2, number of repeats to use for clustering,
+#' @param no_clusts boolean, default is FALSE, whether to return only the factorisation or not,
+#' @param sample_rate numeric, default is 0.9, proportion of data to sample for stability analysis,
+#' @param n_stability integer, default is 5, number of times to repeat stability analysis,
+#' @param stability boolean, default is TRUE, whether to perform stability analysis or not,
+#' @param stab_thres numeric, default is 0.4, threshold for stability analysis,
+#' @param stab_test boolean, default is FALSE, whether to perform stability test or not,
+#' @param data list of matrices, data to be factorised,
+#' @param init_f list of matrices, initialisation for F matrices,
+#' @param init_s list of matrices, initialisation for S matrices,
+#' @param init_g list of matrices, initialisation for G matrices,
+#' @param k_vec integer, vector of integers, number of clusters to consider,
+#' @param phi list of matrices, default is NULL, restriction matrices for F,
+#' @param xi list of matrices, default is NULL, restriction matrices for S,
+#' @param psi list of matrices, default is NULL, restriction matrices for G,
+#' @param n_iters integer, default is NULL, number of iterations to run for,
+#' @return list of results from ResNMTF
+#' @export
+#' @examples
+#' data <- list(matrix(rnorm(100), nrow = 10), matrix(rnorm(100), nrow = 10))
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100)
+#' restMultiNMTF_run(
+#'   data = data, k_vec = c(3, 3), n_iters = 100,
+#'   stability = FALSE
+#' )
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100, no_clusts = TRUE)
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100, k_min = 3, k_max = 8)
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100, k_min = 3, k_max = 8, distance = "euclidean")
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100, k_min = 3, k_max = 8, distance = "euclidean", repeats = 5)
+#' restMultiNMTF_run(data = data, k_vec = c(3, 3), n_iters = 100, k_min = 3, k_max = 8, distance = "euclidean", repeats = 5, no_clusts = FALSE)
 restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
-                              init_g = NULL, KK = NULL,
+                              init_g = NULL, k_vec = NULL,
                               phi = NULL, xi = NULL, psi = NULL,
-                              nIter = NULL, k_min = 3, k_max = 8, distance = "euclidean", repeats = 5, no_clusts = FALSE,
+                              n_iters = NULL, k_min = 3, k_max = 8, distance = "euclidean", repeats = 5, no_clusts = FALSE,
                               sample_rate = 0.9, n_stability = 5, stability = TRUE, stab_thres = 0.4, stab_test = FALSE) {
-  #' @param k_max integer, default is 6, must be greater than 2, largest value of k to be considered initially,
   # initialise phi etc matrices as zeros if not specified
   # otherwise multiply by given parameter
   n_v <- length(data)
@@ -367,10 +200,10 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
   psi <- init_rest_mats(psi, n_v)
   xi <- init_rest_mats(xi, n_v)
   # if number of clusters has been specified method can be applied straight away
-  if ((!is.null(KK))) {
+  if ((!is.null(k_vec))) {
     results <- rest_multi_nmtf_inner(
       data, init_f, init_s, init_g,
-      KK, phi, xi, psi, nIter,
+      k_vec, phi, xi, psi, n_iters,
       repeats, distance, no_clusts
     )
     # if using the original data, we want to perform stability analysis
@@ -378,7 +211,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     if (stability) {
       return(stability_check(
         data, init_s, results,
-        KK, phi, xi, psi, nIter,
+        k_vec, phi, xi, psi, n_iters,
         repeats, no_clusts, distance, sample_rate,
         n_stability, stab_thres
       ))
@@ -387,9 +220,9 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     }
   }
   # define set of k_s to consider
-  KK <- k_min:k_max
+  k_vec <- k_min:k_max
   k_vec <- rep(1, n_v)
-  n_k <- length(KK)
+  n_k <- length(k_vec)
   # initialise storage of results
   # apply method for each k to be considered
   # how many jobs you want the computer to run at the same time
@@ -399,7 +232,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     for (i in 1:n_k) {
       res_list[[i]] <- rest_multi_nmtf_inner(
         data, init_f, init_s, init_g,
-        KK[i] * k_vec, phi, xi, psi, nIter,
+        k_vec[i] * k_vec, phi, xi, psi, n_iters,
         repeats, distance, no_clusts
       )
     }
@@ -407,49 +240,50 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     # Get the total number of cores
     numberOfCores <- detectCores()
     # Register all the cores
-    registerDoParallel(min(numberOfCores, length(KK)))
-    res_list <- foreach(i = 1:length(KK)) %dopar% {
+    registerDoParallel(min(numberOfCores, length(k_vec)))
+    res_list <- foreach(i = 1:length(k_vec)) %dopar% {
       rest_multi_nmtf_inner(
         data, init_f, init_s, init_g,
-        KK[i] * k_vec, phi, xi, psi, nIter,
+        k_vec[i] * k_vec, phi, xi, psi, n_iters,
         repeats, distance, no_clusts
       )
     }
   }
   # extract scores
-  err_list <- rep(0, length(KK))
-  for (i in 1:length(KK)) {
+  err_list <- rep(0, length(k_vec))
+  for (i in 1:length(k_vec)) {
     err_list[i] <- res_list[[i]][["Sil_score"]][1]
   }
   # find value of k of lowest error
-  test <- KK[which.max(err_list)]
+  test <- k_vec[which.max(err_list)]
   max_i <- k_max
   # if best performing k is the largest k considered
   # apply method to k + 1 until this is no longer the case
   if (k_min != k_max) {
     while (test == max_i) {
       max_i <- max_i + 1
-      KK <- c(KK, max_i)
+      k_vec <- c(k_vec, max_i)
       k <- max_i * k_vec
-      new_l <- length(KK)
+      new_l <- length(k_vec)
       res_list[[new_l]] <- rest_multi_nmtf_inner(
         data, init_f, init_s, init_g,
-        k, phi, xi, psi, nIter,
+        k, phi, xi, psi, n_iters,
         repeats, distance, no_clusts
       )
       err_list <- c(err_list, res_list[[new_l]][["Sil_score"]][1])
-      test <- KK[which.max(err_list)]
+      test <- k_vec[which.max(err_list)]
     }
   }
   print(err_list)
   k <- which.max(err_list)
   results <- res_list[[k]]
-  k_vec <- rep(KK[k], length = n_v)
   if (stability) {
     return(stability_check(
       data, init_s, results,
-      k_vec, phi, xi, psi, nIter,
-      repeats, no_clusts, distance, sample_rate, n_stability, stab_thres, stab_test
+      k_vec[k], phi, xi, psi, n_iters,
+      repeats, no_clusts, distance,
+      sample_rate, n_stability,
+      stab_thres, stab_test
     ))
   } else {
     return(results)

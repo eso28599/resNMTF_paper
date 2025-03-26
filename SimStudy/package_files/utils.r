@@ -50,3 +50,28 @@ jsd_calc <- function(x1, x2) {
     est.prob = "empirical"
   )))
 }
+
+jaccard <- function(a, b) {
+  # calculate jaccard between two vectors
+  intersection <- length(intersect(a, b))
+  union <- length(a) + length(b) - intersection
+  if (union == 0) {
+    return(0)
+  } else {
+    return(intersection / union)
+  }
+}
+
+cart_prod <- function(a, b) {
+  # returns cartesian product of two sets
+  prod <- c()
+  # check a or b are not empty sets
+  if (length(a) == 0 || length(b) == 0) {
+    return(NULL)
+  } else {
+    for (k in 1:length(a)) {
+      prod <- c(prod, paste(a[k], b))
+    }
+    return(prod)
+  }
+}
