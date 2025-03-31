@@ -1,0 +1,43 @@
+# Functions
+linters 
+- eval_func
+
+Comments
+- data_gen
+- eval_func
+- extra_func
+- summary_func  
+  - remove unused plotting functions
+
+#Other Methods
+linters
+-issvd_parmas_p
+-methods_p
+-python_utils
+
+Comments
+-gfa_funcs
+-issvd_parmas_p
+-methods_p
+-python_utils
+
+
+# Application
+linters
+- data_gen
+- eval
+- issvd_data_gen
+-issvd_results
+-methods_r
+-phi_results.rmd
+-results.rmd
+
+Comments
+- data_gen
+-eval_ssvd_param
+- eval
+- issvd_data_gen
+-issvd_results
+-methods_r
+-phi_results.rmd
+-results.rmd

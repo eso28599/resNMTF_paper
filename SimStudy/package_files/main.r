@@ -60,19 +60,19 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
     while ((err_diff > 1.0e-6)) {
       err <- numeric(length = n_v)
       new_parameters <- update_matrices(
-        X = data,
-        init_f = current_f,
-        init_s = current_s,
-        init_g = current_g,
+        Xinput = data,
+        Finput = current_f,
+        Sinput = current_s,
+        Ginput = current_g,
         lambda = currentlam,
         mu = currentmu,
         phi = phi,
         xi = xi,
         psi = psi
       )
-      current_f <- new_parameters$output_f
-      current_s <- new_parameters$output_s
-      current_g <- new_parameters$output_g
+      current_f <- new_parameters$Foutput
+      current_s <- new_parameters$Soutput
+      current_g <- new_parameters$Goutput
       currentlam <- new_parameters$lamoutput
       currentmu <- new_parameters$muoutput
       for (v in 1:n_v) {
@@ -89,10 +89,10 @@ rest_multi_nmtf_inner <- function(data, init_f = NULL, init_s = NULL,
     for (t in 1:n_iters) {
       err <- numeric(length = length(current_f))
       new_parameters <- update_matrices(
-        X = data,
-        init_f = current_f,
-        init_s = current_s,
-        init_g = current_g,
+        Xinput = data,
+        Finput = current_f,
+        Sinput = current_s,
+        Ginput = current_g,
         lambda = currentlam,
         mu = currentmu,
         phi = phi,
@@ -221,7 +221,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
   }
   # define set of k_s to consider
   k_vec <- k_min:k_max
-  k_vec <- rep(1, n_v)
+  one_vec <- rep(1, n_v)
   n_k <- length(k_vec)
   # initialise storage of results
   # apply method for each k to be considered
@@ -232,7 +232,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     for (i in 1:n_k) {
       res_list[[i]] <- rest_multi_nmtf_inner(
         data, init_f, init_s, init_g,
-        k_vec[i] * k_vec, phi, xi, psi, n_iters,
+        k_vec[i] * one_vec, phi, xi, psi, n_iters,
         repeats, distance, no_clusts
       )
     }
@@ -244,7 +244,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
     res_list <- foreach(i = 1:length(k_vec)) %dopar% {
       rest_multi_nmtf_inner(
         data, init_f, init_s, init_g,
-        k_vec[i] * k_vec, phi, xi, psi, n_iters,
+        k_vec[i] * one_vec, phi, xi, psi, n_iters,
         repeats, distance, no_clusts
       )
     }
@@ -280,7 +280,7 @@ restMultiNMTF_run <- function(data, init_f = NULL, init_s = NULL,
   if (stability) {
     return(stability_check(
       data, init_s, results,
-      k_vec[k], phi, xi, psi, n_iters,
+      k_vec * one_vec, phi, xi, psi, n_iters,
       repeats, no_clusts, distance,
       sample_rate, n_stability,
       stab_thres, stab_test

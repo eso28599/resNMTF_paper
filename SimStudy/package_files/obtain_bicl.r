@@ -30,7 +30,7 @@ get_thresholds <- function(data, output_f, repeats) {
     }
     results <- restMultiNMTF_run(
       data = data_messed,
-      KK = k_input, no_clusts = TRUE, stability = FALSE
+      k_vec = k_input, no_clusts = TRUE, stability = FALSE
     )
     x_mess[[n]] <- results$output_f
   }
@@ -148,7 +148,7 @@ obtain_biclusters <- function(data, output_f,
     col_clustering[[i]][, new_indices] <- 0
     bisil <- c(
       bisil,
-      BisilhouetteScore(data[[i]], row_clustering[[i]], col_clustering[[i]], method = distance)$bisil
+      bisilhouette(data[[i]], row_clustering[[i]], col_clustering[[i]], method = distance)$bisil
     )
   }
   # calculate overall bisil

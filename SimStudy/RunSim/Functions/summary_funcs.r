@@ -1,9 +1,11 @@
-suppressWarnings(suppressPackageStartupMessages(library("rio")))
+suppressWarnings(suppressPackageStartupMessages(library(rio)))
 library(ggplot2)
-library("tidyr")
-library("dplyr")
+library(tidyr)
+library(dplyr)
 library(latex2exp)
 library(viridis)
+library(kableExtra)
+library(ggpubr)
 # import as list of matrices instead of as a list
 import_matrix <- function(filename) {
   return(lapply(import_list(filename), function(x) as.matrix(x)))
@@ -322,17 +324,6 @@ all_plots <- function(plots, filename, n_col_plots, n_row_plots) {
 sd_brackets <- function(mean, sd, n, measure = "other") {
   return(paste0(paste0(mean, " ("), paste0(sd, ")")))
 }
-collapse_rows_df <- function(df, variable) {
-  group_var <- enquo(variable)
-  df %>%
-    group_by(!!group_var) %>%
-    mutate(groupRow = seq_len(len(n))) %>%
-    ungroup() %>%
-    mutate(!!quo_name(group_var) := ifelse(groupRow == 1,
-      as.character(!!group_var), ""
-    )) %>%
-    select(-c(groupRow))
-}
 
 max_index <- function(col) {
   return(which.max(as.numeric(sub(" .*", "", as.vector(col)))))
@@ -373,9 +364,11 @@ all_table <- function(df, measures, filename, repeats, col_names_list,
   vec <- c(" " = 1)
   vec[[table_head]] <- n
   df_overall2 <- kable(df_overall)
-  df_overall2 <- kbl(df_overall, booktabs = T, "latex", escape = FALSE)
+  df_overall2 <- kbl(df_overall, booktabs = TRUE, "latex", escape = FALSE)
   df_overall2 <- add_header_above(df_overall2, header = vec)
-  df_overall2 <- kable_styling(add_footnote(df_overall2, subheading, escape = FALSE))
+  df_overall2 <- kable_styling(
+    add_footnote(df_overall2, subheading, escape = FALSE)
+  )
   # save
   sink(paste0(filename, "_overall.txt"))
   print(df_overall2)
@@ -383,7 +376,7 @@ all_table <- function(df, measures, filename, repeats, col_names_list,
 
   # collapse method rows
   if (group) {
-    group_tab <- kable_styling(kbl(df_overall, booktabs = T, "latex"))
+    group_tab <- kable_styling(kbl(df_overall, booktabs = TRUE, "latex"))
     # select groups
     feats <- unique(df_overall[[feat]])
     for (i in seq_len(length(feats))) {
@@ -398,13 +391,18 @@ all_table <- function(df, measures, filename, repeats, col_names_list,
 
 
 
-measure_table <- function(df, measure_val, filename, repeats, col_names, subheading, table_head, ndig = 4) {
+measure_table <- function(
+    df, measure_val, filename, repeats,
+    col_names, subheading, table_head, ndig = 4) {
   factors <- unique(df$Factor)
   df <- subset(df, Measure == measure_val)
   df <- mutate_at(df, c("Measure"), as.factor)
   df <- pivot_wider(df, names_from = Factor, values_from = c("Mean", "S.d."))
   # round to 4 digits
-  df <- mutate_if(df, is.numeric, function(x) format(round(x, ndig), nsmall = ndig))
+  df <- mutate_if(
+    df, is.numeric,
+    function(x) format(round(x, ndig), nsmall = ndig)
+  )
   # add info in brackets
   mean_col_names <- paste0("Mean_", factors)
   sd_col_names <- paste0("S.d._", factors)
@@ -433,9 +431,11 @@ measure_table <- function(df, measure_val, filename, repeats, col_names, subhead
   vec <- c(" " = 1)
   vec[[table_head]] <- n
   df_overall2 <- kable(df_overall)
-  df_overall2 <- kbl(df_overall, booktabs = T, "latex", escape = FALSE)
+  df_overall2 <- kbl(df_overall, booktabs = TRUE, "latex", escape = FALSE)
   df_overall2 <- add_header_above(df_overall2, header = vec)
-  df_overall2 <- kable_styling(add_footnote(df_overall2, subheading, escape = FALSE))
+  df_overall2 <- kable_styling(
+    add_footnote(df_overall2, subheading, escape = FALSE)
+  )
   # save
   sink(paste0(filename, "_overall.txt"))
   print(df_overall2)
@@ -443,7 +443,9 @@ measure_table <- function(df, measure_val, filename, repeats, col_names, subhead
   return(list("table" = df_all, "latex" = df_overall2))
 }
 
-combine_tables <- function(tables, filename, measures, table_head, subheading, col_names_tables) {
+combine_tables <- function(
+    tables, filename, measures, table_head,
+    subheading, col_names_tables) {
   full_table <- rbind.data.frame(
     tables[[1]]$table, tables[[2]]$table,
     tables[[3]]$table, tables[[4]]$table, tables[[5]]$table
@@ -452,11 +454,13 @@ combine_tables <- function(tables, filename, measures, table_head, subheading, c
   n <- ncol(full_table) - 1
   n2 <- length(unique(full_table[["Method"]]))
   colnames(full_table) <- c("", col_names_tables)
-  group_tab <- kable_styling(kbl(full_table, booktabs = T, "latex"))
+  group_tab <- kable_styling(kbl(full_table, booktabs = TRUE, "latex"))
   vec <- c(" " = 1)
   vec[[table_head]] <- n
   group_tab <- add_header_above(group_tab, header = vec)
-  group_tab <- kable_styling(add_footnote(group_tab, subheading, escape = FALSE))
+  group_tab <- kable_styling(
+    add_footnote(group_tab, subheading, escape = FALSE)
+  )
   # select groups
   for (i in seq_len(length(measures))) {
     group_tab <- pack_rows(group_tab, measures[i], n2 * i - 3, n2 * i)
@@ -480,8 +484,7 @@ corr_table <- function(results, filename) {
   }
   rownames(corr_tab) <- c("F score", "Relevance", "Recovery")
   colnames(corr_tab) <- c("BiS", "CSR")
-  latex_tab <- kbl(corr_tab, booktabs = T, "latex", escape = FALSE)
-  # latex_tab <- kable_styling(add_footnote(latex_tab, subheading))
+  latex_tab <- kbl(corr_tab, booktabs = TRUE, "latex", escape = FALSE)
   # save
   sink(paste0(filename, "corr_tab.txt"))
   print(latex_tab)

@@ -150,7 +150,7 @@ stability_check <- function(data, init_s, results,
         new_results$row_clusters[[i]],
         new_results$col_clusters[[i]],
         results$row_clusters[[i]][row_samples[[i]], ],
-        results$col_clusters[[i]][col_samples[[i]], ], TRUE
+        results$col_clusters[[i]][col_samples[[i]], ]
       )
     }
   }
