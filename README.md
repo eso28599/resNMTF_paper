@@ -15,32 +15,41 @@ The repository is split into three folders; 'SimStudy' which reproduces the simu
 This folder contains scripts to reproduce the simulation study results. It is set up for use on a HPC and has the following set up:
 ```
 ├── Functions:
-│  ├── data_generation.r, synthetic data generation
-│  ├── evaluation_funcs.r, mutli-view biclustering evaluation
+│  ├── data_generation.r, functions to generate synthetic data 
+│  ├── evaluation_funcs.r, functions to evaluate mutli-view biclustering
 │  ├── extra_funcs.r, useful functions
 │  ├── summary_funcs.r, functions to process results across repetitions
 ├── Results, contains subdirectories set up to store data and results from simulations
 ├── Scripts, contains scripts to run the simulation studies and extract results
-├── NoStability:
-├── OtherMethods:
+├── NoStability, contains files to investigate the effect of stability analysis
+├── OtherMethods, contains files to implement iSSVD, GFA and ResNMTF with no restrictions
+├── data_gen.r, file to generate data
+├── eval_ssvd_param.r, file to evaluate results from iSSVD parameter investigtion
+├── eval.r, file to evaluate results
+├── issvd_data_gen.r, file to generate data as described in iSSVD paper
+├── issvd_results.rmd, file to produce results from iSSVD investigations
+├── methods_r.r, file to apply methods in r
+├── phi_results.rmd, file to produce results from phi investigations
+├── results.rmd, file to produce results
 ```
 
-For each study we have... 
-
-For example, when we investigate increasing the number of biclusters for two views of data, the following folders and files are relevant.
+Each study has corresponding scripts and folders to run and store the relevant data. For example, the following folders and files are specific to the "increasing biclusters over 2 views" study.
 ```
 ├── Results
 │  ├── bicl
 │  │  ├── bicl_2v
-│  │  │  ├── data, 
-│  │  │  ├── logs
+│  │  │  ├── data
+│  │  │  │  ├── 001, synthetic data from the 1st repetition, true and found bicluster assignments
+│  │  │  │  ├── ...
+│  │  │  │  ├── 100, synthetic data from the 100th repetition, true and found bicluster assignments
+│  │  │  ├── logs, log files for each repetition
 │  │  │  ├── sim_parameters.r, contains parameter settings for the simulation study
 ├── Scripts: 
 │  ├── bicl_2v_script_one.sh, batch file repeating experiment 100 times
 │  ├── bicl_2v_script_two.sh, combines results and produces plots
 ```
 
-In order to run the simulation study, assuming the current directory is the ResNMTF_paper folder, the following lines of code are run on an HPC: 
+Assuming the current directory is the ResNMTF_paper folder, the following lines of code are run on an HPC to run the "increasing biclusters over 2 views" simulation study: 
 ```
 cd SimStudy/Scripts
 qsub bicl_2v_script_one.sh
@@ -49,7 +58,7 @@ And once this has executed:
 ```
 qsub bicl_2v_script_two.sh
 ```
-And the results (plots and .csv files) can then be found in Results/bicl/bicl_2v
+And the results (plots and .csv files) can then be found in SimStudy/Results/bicl/bicl_2v. These include plots such as
 
 ### File names
 
@@ -58,13 +67,43 @@ And the results (plots and .csv files) can then be found in Results/bicl/bicl_2v
 │  ├── bicl_2v: 2 views
 │  ├── bicl_3v: 3 views
 │  ├── bicl_4v: 4 views
-├── exhaustive, 
-│  ├── no_overlap_3v5b,
-│  ├── overlap_3v5b
+├── exhaustive, increasing the non-exhaustivity rate 
+│  ├── no_overlap_3v5b, 3 views and 5 biclusters with no overlap
+│  ├── overlap_3v5b, 3 views and 5 biclusters with fixed overlap
 ├── indiv, increases the number of individuals present for data with
 │  ├── indiv_3v4b: 3 views and 4 biclusters
 │  ├── indiv_3v5b: 3 views and 5 biclusters
 │  ├── indiv_4v5b: 4 views and 5 biclusters
+├── issvd_data_gen, increases the number of individuals present for data with
+│  ├── case1:
+│  ├── case2:
+├── issvd_param_mean100, increases the number of individuals present for data with
+│  ├── issvd_param:
+│  ├── issvd_param3:
+│  ├── issvd_param4:
+├── issvd_param_signal5, increases the number of individuals present for data with
+│  ├── issvd_param3:
+│  ├── issvd_param4:
+│  ├── issvd_param5:
+│  ├── issvd_param6:
+├── noise, increases the level of noise present for data with
+│  ├── noise_3v4b: 3 views and 4 biclusters
+│  ├── noise_3v5b: 3 views and 5 biclusters
+│  ├── noise_4v5b: 4 views and 5 biclusters
+├── overlap, increasing the non-exhaustivity rate 
+│  ├── exhaustive_3v5b, 3 views and 5 biclusters with no overlap
+│  ├── non_exhaust_3v5b, 3 views and 5 biclusters with fixed overlap
+├── signal, increases the level of signal present for data with
+│  ├── signal3: 3 views and 4 biclusters
+│  ├── signal4: 3 views and 5 biclusters
+│  ├── signal4_all: 4 views and 5 biclusters
+│  ├── signal5: 3 views and 5 biclusters
+│  ├── signal6: 3 views and 5 biclusters
+├── views, increases the number of views present for data with
+│  ├── views_3b: 2 views
+│  ├── views_4b: 3 views
+│  ├── views_5b: 4 views
+│  ├── views_5b_nostab: 4 views
 ```
 
 ## RealData
