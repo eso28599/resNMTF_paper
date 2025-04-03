@@ -11,15 +11,15 @@ from pandas import ExcelWriter
 from python_utils import fix_row_clusts, fix_col_clusts, save_xls
 
 if investigate == "views":
-    method_idx = [2, 3, 4, 5] #only thing to change
+    method_idx = [2, 3, 4, 5]
 elif investigate == "bicl":
-    method_idx = [3, 4, 5, 6] #only thing to change
+    method_idx = [3, 4, 5, 6] 
 elif investigate == "indiv":
     method_idx = [50, 200, 300, 500, 1000]
 elif investigate == "signal":
     method_idx = list(np.arange(1,21))
 elif investigate == "noise":
-    method_idx = list(np.arange(1,11)) + list(np.arange(20,110,10))#only thing to change
+    method_idx = list(np.arange(1,11)) + list(np.arange(20,110,10))
 elif investigate == "issvd_data":
     method_idx = list(np.arange(1,11))
 elif investigate == "issvd_data1":

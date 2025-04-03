@@ -5,10 +5,10 @@ output: pdf_document
 ---
 
 ```{r, echo=FALSE}
-args = commandArgs(trailingOnly = TRUE)
-path_to_sim_folder = as.character(args[1])
-folder_list = args[2]
-plot_title = args[3]
+args <- commandArgs(trailingOnly = TRUE)
+path_to_sim_folder <- as.character(args[1])
+folder_list <- args[2]
+plot_title <- args[3]
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 ```
 
@@ -17,117 +17,156 @@ knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 source("summary_funcs.r")
 source(paste0(path_to_sim_folder, "/sim_parameters.r"))
 
-#file to extract results
-#read in folder_list
+# file to extract results
+# read in folder_list
 folder_names <- read.delim(folder_list,
-         colClasses = "character", header = FALSE)[, 1]
+  colClasses = "character", header = FALSE
+)[, 1]
 n_repeats <- length(folder_names)
 # n_repeats x 3 matrices
 measures <- c("CSR", "Rel", "Rec", "F_score", "BiS", "Restrictions")
 averages <- c("Overall")
-results <- data.frame(Method = c(), Choice = c(), Measure=c(), Mean=c(), Sd=c())
-#analyse each method#
-for (k in 1:length(file_names)){
-    avgs <- replicate(length(measures),
-                 matrix(nrow = n_repeats, ncol = length(averages)),
-                  simplify = FALSE)
-    for (i in 1:n_repeats){
-        data_name <- paste0(paste0(path_to_sim_folder, "/data/"),
-                folder_names[[i]])
-        avgs <- get_averages(avgs,
-                data_name, paste0(file_names[k], "_results"), i, measures)
-    }
-    for (i in 1:length(measures)){
-        results <- rbind(results,
-                         avg_over_repeats(avgs, i,
-                         measures[i], method_vec_res[k],
-                          factor_vec[k], averages[1]))
-    }
+results <- data.frame(Method = c(), Choice = c(),
+                      Measure = c(), Mean = c(), Sd = c())
+# analyse each method#
+for (k in seq_along(file_names)) {
+  avgs <- replicate(length(measures),
+    matrix(nrow = n_repeats, ncol = length(averages)),
+    simplify = FALSE
+  )
+  for (i in 1:n_repeats) {
+    data_name <- paste0(
+      paste0(path_to_sim_folder, "/data/"),
+      folder_names[[i]]
+    )
+    avgs <- get_averages(
+      avgs,
+      data_name, paste0(file_names[k], "_results"), i, measures
+    )
+  }
+  for (i in seq_along(measures)) {
+    results <- rbind(
+      results,
+      avg_over_repeats(
+        avgs, i,
+        measures[i], method_vec_res[k],
+        factor_vec[k], averages[1]
+      )
+    )
+  }
 }
-#change mean and sd columns to numeric
-colnames(results) <- c("Method", factor_name,
-                         "Choice", "Measure", "Mean", "S.d.")
+# change mean and sd columns to numeric
+colnames(results) <- c(
+  "Method", factor_name,
+  "Choice", "Measure", "Mean", "S.d."
+)
 results <- mutate_at(results, c("Mean", "S.d."), as.numeric)
-if(order_fac==TRUE){
-       results <- mutate_at(results, factor_name, as.numeric) 
+if (order_fac == TRUE) {
+  results <- mutate_at(results, factor_name, as.numeric)
 }
 results[["Choice"]] <- as.factor(results[["Choice"]])
-method_levels <- sort(unique(results[["Method"]]), decreasing=TRUE)
+method_levels <- sort(unique(results[["Method"]]), decreasing = TRUE)
 results[["Method"]] <- factor(results[["Method"]], levels = method_levels)
 results[[factor_name]] <- factor(results[[factor_name]],
-                                 levels = unique(results[[factor_name]]))
+  levels = unique(results[[factor_name]])
+)
 measures <- c("F_score", "Rel", "Rec", "CSR", "BiS", "Restrictions")
 results[["Measure"]] <- factor(results[["Measure"]], levels = measures)
 
 write.csv(results, paste0(path_to_sim_folder, "/all_results.csv"))
 
-#now produce plots
-#all measures, only ResNMTF
+# now produce plots
+# all measures, only ResNMTF
 colnames(results) <- c("Method", "Factor", "Choice", "Measure", "Mean", "S.d.")
 results_nmtf <- subset(results, Method == "ResNMTF")
 measures <- c("F score", "Relevance", "Recovery", "CSR", "BiS", "Restrictions")
-if(phi_constant){
-        subhead <- TeX(paste0(kept_factor,
-                 "$\\phi$", " = ", val, ", ",
-                  n_repeats, " repetitions."))
-        subhead2 <- paste0(kept_factor,
-                 "$\\phi$", " = ", val, ", ",
-                  n_repeats, " repetitions.")
-}else{
-        subhead <- TeX(paste0(kept_factor,
-                  n_repeats, " repetitions."))
-        subhead2 <- (paste0(kept_factor,
-                  n_repeats, " repetitions."))
+if (phi_constant) {
+  subhead <- TeX(paste0(
+    kept_factor,
+    "$\\phi$", " = ", val, ", ",
+    n_repeats, " repetitions."
+  ))
+  subhead2 <- paste0(
+    kept_factor,
+    "$\\phi$", " = ", val, ", ",
+    n_repeats, " repetitions."
+  )
+} else {
+  subhead <- TeX(paste0(
+    kept_factor,
+    n_repeats, " repetitions."
+  ))
+  subhead2 <- (paste0(
+    kept_factor,
+    n_repeats, " repetitions."
+  ))
 }
 
 path_to_save <- paste0(path_to_sim_folder, "/resNMTF_plot_", factor, ".pdf")
-plot_res_nmtf <- make_plot_line_phi(results_nmtf, "Overall", plot_title,
-                subhead, x_title, "Measure",
-                path_to_save, measures)
-if(phi_constant){
-        #now produce one plot for each measure
-        measures <- c("Relevance", "Recovery", "F score", "BiS", "CSR", "Restrictions")
-        n_measures <- length(measures)
-        measure_vec <-  c("Rel", "Rec", "F_score", "BiS", "CSR", "Restrictions")
-        plots <- vector("list", length = n_measures)
-        tables <- vector("list", length = n_measures)
-        for(i in 1:n_measures){
-                path_to_save_plots <-   paste0(path_to_sim_folder,
-                         "/", measure_vec[i], "_plot.pdf")
-                plots[[i]] <- make_plot_measure(results, "Overall", plot_title,
-                                subhead, x_title, measures[i],
-                                path_to_save_plots, measure_vec[i],
-                                c("GFA", "iSSVD", "NMTF", "ResNMTF"))
-                path_to_save_tables <- paste0(path_to_sim_folder,
-                         "/", measure_vec[i], "_tbl")
-                if(measures[i]== "F score"){
-                     table_sub <- paste0("F scores. ", subhead2)   
-                }else{
-                     table_sub <- paste0(measures[i], " scores. ", subhead2)   
-                }
-                tables[[i]] <- measure_table(results, measure_vec[i],
-                        path_to_save_tables, n_repeats, col_names_tables,
-                         table_sub, x_title, ndig = 4)
-        }
-        #combine plots
-        path_to_save_plot <- paste0(path_to_sim_folder, "/all_plot_", factor, ".pdf")
-        combined_plots <- all_plots(plots, path_to_save_plot, n_col_plots, n_row_plots)
-        #combine tables
-        path_to_save_table <- paste0(path_to_sim_folder, "/all_tables_", factor)
-        combined_tabs <- combine_tables(tables,
-             path_to_save_table, measures, x_title, subhead2, col_names_tables)
+plot_res_nmtf <- make_plot_line_phi(
+  results_nmtf, "Overall", plot_title,
+  subhead, x_title, "Measure",
+  path_to_save, measures
+)
+if (phi_constant) {
+  # now produce one plot for each measure
+  measures <- c("Relevance", "Recovery", "F score",
+                "BiS", "CSR", "Restrictions")
+  n_measures <- length(measures)
+  measure_vec <- c("Rel", "Rec", "F_score", "BiS", "CSR", "Restrictions")
+  plots <- vector("list", length = n_measures)
+  tables <- vector("list", length = n_measures)
+  for (i in 1:n_measures) {
+    path_to_save_plots <- paste0(
+      path_to_sim_folder,
+      "/", measure_vec[i], "_plot.pdf"
+    )
+    plots[[i]] <- make_plot_measure(
+      results, "Overall", plot_title,
+      subhead, x_title, measures[i],
+      path_to_save_plots, measure_vec[i],
+      c("GFA", "iSSVD", "NMTF", "ResNMTF")
+    )
+    path_to_save_tables <- paste0(
+      path_to_sim_folder,
+      "/", measure_vec[i], "_tbl"
+    )
+    if (measures[i] == "F score") {
+      table_sub <- paste0("F scores. ", subhead2)
+    } else {
+      table_sub <- paste0(measures[i], " scores. ", subhead2)
+    }
+    tables[[i]] <- measure_table(results, measure_vec[i],
+      path_to_save_tables, n_repeats, col_names_tables,
+      table_sub, x_title,
+      ndig = 4
+    )
+  }
+  # combine plots
+  path_to_save_plot <- paste0(path_to_sim_folder, "/all_plot_", factor, ".pdf")
+  combined_plots <- all_plots(plots, path_to_save_plot,
+                              n_col_plots, n_row_plots)
+  # combine tables
+  path_to_save_table <- paste0(path_to_sim_folder, "/all_tables_", factor)
+  combined_tabs <- combine_tables(
+    tables,
+    path_to_save_table, measures, x_title, subhead2, col_names_tables
+  )
 }
 
-#produce correlation table
+# produce correlation table
 path_to_save <- paste0(path_to_sim_folder, "/", factor)
 cor_res <- corr_table(results, path_to_save)
 
-#produce table 1 - all measures for resNMTF
+# produce table 1 - all measures for resNMTF
 path_to_save <- paste0(path_to_sim_folder, "/resNMTF_table_", factor)
-measure_labels <- c("F_score",  "Rel", "Rec", "CSR",  "BiS")
-col_names <- c("Measure", "F score", "Relevance", "Recovery", "CSR", "BiS", "Restrictions")
+measure_labels <- c("F_score", "Rel", "Rec", "CSR", "BiS")
+col_names <- c("Measure", "F score", "Relevance",
+               "Recovery", "CSR", "BiS", "Restrictions")
 res_table <- all_table(results_nmtf, measure_labels, path_to_save,
-                 n_repeats, col_names, subhead2, x_title, feat = "Factor")
+  n_repeats, col_names, subhead2, x_title,
+  feat = "Factor"
+)
 ```
 
 # ResNMTF

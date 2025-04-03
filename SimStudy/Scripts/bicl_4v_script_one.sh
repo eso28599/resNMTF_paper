@@ -2,7 +2,7 @@
 #PBS -N increasing_bicl_4v
 #PBS -m a
 #PBS -q medium
-#PBS -t  7-40
+#PBS -t 1-100
 #PBS -o ../Results/bicl/bicl_4v/logs/test_job.out
 #PBS -e ../Results/bicl/bicl_4v/logs/test_job.err
 

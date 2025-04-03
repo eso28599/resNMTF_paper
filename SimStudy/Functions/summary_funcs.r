@@ -10,6 +10,10 @@ library(ggpubr)
 import_matrix <- function(filename) {
   return(lapply(import_list(filename), function(x) as.matrix(x)))
 }
+
+# ------------------------------------
+# functions to aggregate results
+# ------------------------------------
 calc_averages <- function(mat_res) {
   return(c(rowMeans(mat_res), mean(mat_res)))
 }
@@ -25,13 +29,15 @@ get_averages <- function(list_avgs, data_name, filename, repeat_no, measure) {
   return(list_avgs)
 }
 
-
 avg_over_repeats <- function(avgs, i, measure, name1, name2, cluster) {
   rep_avgs <- colMeans(avgs[[i]])
   rep_sd <- apply(avgs[[i]], 2, sd)
   return(cbind(name1, name2, cluster, measure, rep_avgs, rep_sd))
 }
 
+# ------------------------------------
+# functions to produce plots
+# ------------------------------------
 make_plot_line <- function(data_frame, cluster, plot_title, sub_title,
                            x_title, y_title, filename, measures) {
   data_frame[["Measure"]] <- factor(data_frame[["Measure"]],
@@ -321,6 +327,9 @@ all_plots <- function(plots, filename, n_col_plots, n_row_plots) {
   return(all_plots)
 }
 
+# ------------------------------------
+# functions to obtain summary tables
+# ------------------------------------
 sd_brackets <- function(mean, sd, n, measure = "other") {
   return(paste0(paste0(mean, " ("), paste0(sd, ")")))
 }
@@ -388,8 +397,6 @@ all_table <- function(df, measures, filename, repeats, col_names_list,
   }
   return(df_overall2)
 }
-
-
 
 measure_table <- function(
     df, measure_val, filename, repeats,
