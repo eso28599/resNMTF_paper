@@ -13,47 +13,59 @@ The repository is split into three folders; 'SimStudy' which reproduces the simu
 
 ## SimStudy
 This folder contains scripts to reproduce the simulation study results. It is set up for use on a HPC and has the following set up:
-
-- Functions:
-  - data_generation.r, synthetic data generation
-  - evaluation_funcs.r, mutli-view biclustering evaluation
-  - extra_funcs.r, useful functions
-  - summary_funcs.r, functions to process results across repetitions
-- Results, contains subdirectories set up to store data and results from simulations
-- Scripts, contains scripts to run the simulation studies and extract results
-- NoStability:
-- OtherMethods:
-
+```
+├── Functions:
+│  ├── data_generation.r, synthetic data generation
+│  ├── evaluation_funcs.r, mutli-view biclustering evaluation
+│  ├── extra_funcs.r, useful functions
+│  ├── summary_funcs.r, functions to process results across repetitions
+├── Results, contains subdirectories set up to store data and results from simulations
+├── Scripts, contains scripts to run the simulation studies and extract results
+├── NoStability:
+├── OtherMethods:
+```
 
 For each study we have... 
 
 For example, when we investigate increasing the number of biclusters for two views of data, the following folders and files are relevant.
-- Results
-    - bicl
-       - bicl_2v
-          - data, 
-          - logs
-          - sim_parameters.r, contains parameter settings for the simulation study
-- Scripts: 
-    - bicl_2v_script_one.sh, batch file repeating experiment 100 times
-    - bicl_2v_script_two.sh, combines results and produces plots
+```
+├── Results
+│  ├── bicl
+│  │  ├── bicl_2v
+│  │  │  ├── data, 
+│  │  │  ├── logs
+│  │  │  ├── sim_parameters.r, contains parameter settings for the simulation study
+├── Scripts: 
+│  ├── bicl_2v_script_one.sh, batch file repeating experiment 100 times
+│  ├── bicl_2v_script_two.sh, combines results and produces plots
+```
 
-In order to  ...
+In order to run the simulation study, assuming the current directory is the ResNMTF_paper folder, the following lines of code are run on an HPC: 
+```
+cd SimStudy/Scripts
+qsub bicl_2v_script_one.sh
+```
+And once this has executed:
+```
+qsub bicl_2v_script_two.sh
+```
 And the results (plots and .csv files) can then be found in Results/bicl/bicl_2v
 
 ### File names
 
-- bicl, increases the number of biclusters present for data with
-  - bicl_2v: 2 views
-  - bicl_3v: 3 views
-  - bicl_4v: 4 views
-- exhaustive, 
-  - no_overlap_3v5b,
-  - overlap_3v5b
-- indiv, increases the number of individuals present for data with
-  - indiv_3v4b: 3 views and 4 biclusters
-  - indiv_3v5b: 3 views and 5 biclusters
-  - indiv_4v5b: 4 views and 5 biclusters
+```
+├── bicl, increases the number of biclusters present for data with
+│  ├── bicl_2v: 2 views
+│  ├── bicl_3v: 3 views
+│  ├── bicl_4v: 4 views
+├── exhaustive, 
+│  ├── no_overlap_3v5b,
+│  ├── overlap_3v5b
+├── indiv, increases the number of individuals present for data with
+│  ├── indiv_3v4b: 3 views and 4 biclusters
+│  ├── indiv_3v5b: 3 views and 5 biclusters
+│  ├── indiv_4v5b: 4 views and 5 biclusters
+```
 
 ## RealData
  - contains datasets used in the paper, their processing and analysis.
