@@ -9,10 +9,10 @@ devtools::install_github("eso28599/resnmtf")
 ```
 If you want to use the ResNMTF rather than recreate the results, the `resnmtf` package is more appropriate, the repository of which can be found [here](https://github.com/eso28599/resnmtf).
 
-The repository is split into three folders; 'SimStudy' which reproduces the simulation study results, 'RealData' which contains the and 'Exploration' which contains code to reproduce additional figures from the paper.
+The repository is split into three folders; 'SimStudy' which reproduces the simulation study results, 'RealData' which contains the files to apply ResNMTF and other methods to several real datasets, and 'Exploration' which contains code to reproduce additional figures from the paper.
 
 ## SimStudy
-This folder contains scripts to reproduce the simulation study results. It is set up for use on a HPC and has the following set up:
+This folder contains scripts to reproduce the simulation study results. It is set up for use on a HPC and has the following structure:
 ```
 ├── Functions:
 │  ├── data_generation.r, functions to generate synthetic data 
@@ -61,7 +61,7 @@ qsub bicl_2v_script_two.sh
 And the results (plots and .csv files) can then be found in SimStudy/Results/bicl/bicl_2v. These include plots such as
 
 ### File names
-
+The following subdirectories can be found in the SimStudy/Results folder: 
 ```
 ├── bicl, increases the number of biclusters present for data with
 │  ├── bicl_2v: 2 views
@@ -74,18 +74,18 @@ And the results (plots and .csv files) can then be found in SimStudy/Results/bic
 │  ├── indiv_3v4b: 3 views and 4 biclusters
 │  ├── indiv_3v5b: 3 views and 5 biclusters
 │  ├── indiv_4v5b: 4 views and 5 biclusters
-├── issvd_data_gen, increases the number of individuals present for data with
-│  ├── case1:
-│  ├── case2:
-├── issvd_param_mean100, increases the number of individuals present for data with
-│  ├── issvd_param:
-│  ├── issvd_param3:
-│  ├── issvd_param4:
-├── issvd_param_signal5, increases the number of individuals present for data with
-│  ├── issvd_param3:
-│  ├── issvd_param4:
-│  ├── issvd_param5:
-│  ├── issvd_param6:
+├── issvd_data_gen, increases the number of individuals present for data 
+│  ├── case1: ??
+│  ├── case2: ??
+├── issvd_param_mean100, investigates the effect of a hyperparameter on iSSVD performance for data with strong signal ($\mu=100$) and
+│  ├── issvd_param3: 3 views and 3 biclusters
+│  ├── issvd_param4: 3 views and 4 biclusters
+│  ├── issvd_param: 3 views and 5 biclusters
+├── issvd_param_signal5, investigates the effect of a hyperparameter on iSSVD performance for data with strong signal ($\mu=100$) and
+│  ├── issvd_param3: 3 views and 3 biclusters
+│  ├── issvd_param4: 3 views and 4 biclusters
+│  ├── issvd_param5: 3 views and 5 biclusters
+│  ├── issvd_param6: 3 views and 6 biclusters
 ├── noise, increases the level of noise present for data with
 │  ├── noise_3v4b: 3 views and 4 biclusters
 │  ├── noise_3v5b: 3 views and 5 biclusters
@@ -107,10 +107,10 @@ And the results (plots and .csv files) can then be found in SimStudy/Results/bic
 ```
 
 ## RealData
- - contains datasets used in the paper, their processing and analysis.
+Contains datasets used in the paper, their processing and analysis.
 
 ## Exploration
-- files to replicate convergence, correlation and JSD related figures.
+Contains files to replicate convergence, correlation and JSD related figures.
 
 
 # Citation
