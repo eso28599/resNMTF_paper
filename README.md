@@ -61,7 +61,7 @@ qsub bicl_2v_script_two.sh
 And the results (plots and .csv files) can then be found in SimStudy/Results/bicl/bicl_2v. These include plots such as the F-score for all methods across the study (Plot found at SimStudy/Results/bicl/bicl_2v/F_score_plot.pdf)
 
 <p align="center">
-<img src="SimStudy/Results/bicl/bicl_2v/F_score_plot.png" alt="Plot found at SimStudy/Results/bicl/bicl_2v/F_score_plot.pdf" width="500">
+<img src="SimStudy/Results/bicl/bicl_2v/F_score_plot.png" alt="Plot found at SimStudy/Results/bicl/bicl_2v/F_score_plot.pdf" width="700">
 </p>
 
 as well as the results in tabular form (for use in LaTeX), which can be found at e.g. SimStudy/Results/bicl/bicl_2v/F_score_tbl_overall.txt. The same plots and tables are produced for the following extrinsic and intrinsic measures; recovery, relevance, CSR (correct selection rate) and the bisilhouette score. 
