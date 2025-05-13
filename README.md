@@ -1,6 +1,6 @@
 # ResNMTF
  
-> [!INFO]
+> [!NOTE]
 > To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the Bioinference conference reproductibility pirze) please run the `reproduce_results.rmd` file. 
 
 This repository contains the files needed to recreate the results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation".

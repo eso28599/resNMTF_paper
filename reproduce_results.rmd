@@ -113,7 +113,7 @@ The remaining experiments can be reproduced by:
   - (E-F) Increasing number of individuals: `50 200 300 500 1000`
   - (G-H) Increasing level of noise: `1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100`
 
-> [!info] The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
+> [!INFO] The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
 
 # Real data
 
