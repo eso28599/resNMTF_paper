@@ -4,7 +4,13 @@ library(Matrix)
 
 
 obtain_cols <- function(col_e, k, n_c) {
-  #' row_e portion of rows in biclusters
+  #' Arguments:
+  #'  col_e portion of columns in biclusters
+  #'  k: number of clusters
+  #'  n_c: number of columns in the data
+  #' Returns:
+  #'  cols: vector of numbers of columns in each bicluster
+  #'  part_c: part_c: column portion
   part_c <- floor((col_e * n_c) / 7)
   if (col_e == 1) {
     if (k == 2) {
@@ -36,7 +42,12 @@ obtain_cols <- function(col_e, k, n_c) {
 }
 
 obtain_rows <- function(row_e, k, n_r) {
-  #' row_e portion of rows in biclusters
+  #' Arguments:
+  #'  row_e portion of rows in biclusters
+  #'   k: number of clusters
+  #'  n_r: number of rows in the data
+  #' Returns:
+  #'  rows: vector of numbers of rows in each bicluster
   part_r <- floor((row_e * n_r) / 7)
   if (row_e == 1) {
     if (k == 2) {
@@ -66,9 +77,27 @@ obtain_rows <- function(row_e, k, n_r) {
   rows <- sort(rows, decreasing = TRUE)
   return(list("rows" = rows, "part_r" = part_r))
 }
+
 # toy examples
 get_dims <- function(n_r, n_c, k, row_e = 1, col_e = 1, row_o = 0, col_o = 0) {
-  #' row_e portion of rows in biclusters
+  #' Description:
+  #'  Generate the indices of rows and columns in each bicluster
+  #' Arguments:
+  #'  n_r: number of rows in the data
+  #'  n_c: number of columns in the data
+  #'  k: number of clusters
+  #'  row_e: portion of rows in biclusters
+  #'  col_e: portion of columns in biclusters
+  #'  row_o: portion of overlap in rows
+  #'  col_o: portion of overlap in columns
+  #' Returns:
+  #'  rows: vector of numbers of rows in each bicluster
+  #'  cols: vector of numbers of columns in each bicluster
+  #'  row_start: vector of starting indices of rows in each bicluster
+  #'  row_end: vector of ending indices of rows in each bicluster
+  #'  col_start: vector of starting indices of columns in each bicluster
+  #'  col_end: vector of ending indices of columns in each bicluster
+  #'  part_r: portion of rows in biclusters
   rows_list <- obtain_rows(row_e, k, n_r)
   cols_list <- obtain_rows(col_e, k, n_c)
   rows <- rows_list$rows
@@ -101,13 +130,22 @@ get_dims <- function(n_r, n_c, k, row_e = 1, col_e = 1, row_o = 0, col_o = 0) {
 one_view_adv <- function(
     row_dims, col_dims, k, noise, signal,
     row_e = 1, col_e = 1, row_o = 0, col_o = 0) {
-  #' row_dims: vector of sizes of each row cluster in this view
-  #' col_dims: vector of sizes of each row cluster in this view
-  #' noise: variance of the noise added to views
-  #'
-  #' view: matrix of this dataview
-  #' truth_row: vector indicating membership of row clusters
-  #' truth_col: vector indicating membership of col clusters
+  #' Description:
+  #'  Generate a single view of the data
+  #' Arguments:
+  #' row_dims: number of rows in this view
+  #'  col_dims: number of columns in this view
+  #'  k: number of clusters
+  #'  row_e: portion of rows in biclusters
+  #'  col_e: portion of columns in biclusters
+  #'  row_o: portion of overlap in rows
+  #'  col_o: portion of overlap in columns
+  #'  signal: mean of the signal in this view
+  #'  noise: variance of the noise added to views
+  #' Returns:
+  #'  view: matrix of this dataview
+  #'  truth_row: vector indicating membership of row clusters
+  #'  truth_col: vector indicating membership of col clusters
 
   # generate noise
   x_noise <- mvrnorm(
@@ -148,6 +186,7 @@ one_view_adv <- function(
 }
 
 make_longer <- function(vec, n) {
+  #' Repeat the element of a vector to specified length if required
   if (length(vec) == 1) {
     vec <- rep(vec, n)
   }
@@ -159,9 +198,32 @@ multi_view <- function(
     row_e = 1, col_e = 1, row_o = 0, col_o = 0,
     row_same_shuffle = TRUE, col_same_shuffle = TRUE,
     seed = FALSE, file_path = NA) {
+  #' Description:
+  #'  Generate multiple views of the data
+  #' Arguments:
+  #'  row_dims: vector of number of rows in each view
+  #'  col_dims: vector of number of columns in each view
+  #'
+  #'  k: number of clusters
+  #'  row_e: portion of rows in biclusters
+  #'  col_e: portion of columns in biclusters
+  #'  row_o: portion of overlap in rows
+  #'  col_o: portion of overlap in columns
+  #'  signal: mean of the signal in this view
+  #'  noise: variance of the noise added to views
+  #'  file_path: path to save the data
+  #'  seed: seed for random number generation
+  #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
+  #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
+  #'                    same way
+  #' Returns:
+  #'  data_views: list of data views
+  #'  truth_rows: list of true row clusterings
+  #'  truth_cols: list of true column clusterings
   if (is.numeric(seed)) {
     set.seed(seed)
   }
+
   n_views <- length(row_dims)
   # Introduce simulated data-views- where we store the views
   x_trial <- vector("list", length = n_views)
@@ -214,6 +276,22 @@ save_data <- function(
     row_dims, col_dims, k, file_path, noise,
     row_e = 1, col_e = 1, row_o = 0, col_o = 0,
     row_same_shuffle = TRUE, col_same_shuffle = TRUE, signal = 5) {
+  #' Description:
+  #'  Generate and save data
+  #' Arguments:
+  #'  row_dims: vector of number of rows in each view
+  #'  col_dims: vector of number of columns in each view
+  #'  k: number of clusters
+  #'  row_e: portion of rows in biclusters
+  #'  col_e: portion of columns in biclusters
+  #'  row_o: portion of overlap in rows
+  #'  col_o: portion of overlap in columns
+  #'  signal: mean of the signal in this view
+  #'  noise: variance of the noise added to views
+  #'  file_path: path to save the data
+  #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
+  #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
+  #'                    same way
   # can change the noise parameter here for level of noise in views
   data <- multi_view(
     row_dims, col_dims, k, noise, signal,
@@ -229,6 +307,18 @@ save_data <- function(
 save_data_noise <- function(
     row_dims, col_dims, k, file_path,
     method_vec, noise_vec, row_same_shuffle = TRUE, col_same_shuffle = TRUE) {
+  #' Description:
+  #'  Generate and save data with different noise levels
+  #' Arguments:
+  #'  row_dims: vector of number of rows in each view
+  #'  col_dims: vector of number of columns in each view
+  #'  k: number of clusters
+  #'  method_vec: vector of methods to be used
+  #'  noise_vec: vector of noise levels to be used
+  #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
+  #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
+  #'                    same way
+  #'  file_path: path to save the data
   # can change the noise parameter here for level of noise in views
   data <- multi_view(row_dims, col_dims, k, 0, 5,
     row_same_shuffle = row_same_shuffle, col_same_shuffle = col_same_shuffle

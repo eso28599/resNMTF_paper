@@ -4,7 +4,13 @@ library(aricode)
 library(cluster)
 suppressPackageStartupMessages(library(proxy))
 
+
 jaccard <- function(a, b) {
+  # Arguments:
+  #  a: vector of elements
+  #  b: vector of elements
+  # Returns:
+  #  Jaccard index between a and b
   intersection <- length(intersect(a, b))
   union <- length(a) + length(b) - intersection
   if (union == 0) {
@@ -14,6 +20,11 @@ jaccard <- function(a, b) {
   }
 }
 cart_prod <- function(a, b) {
+  # Arguments:
+  #  a: vector of elements
+  #  b: vector of elements
+  # Returns:
+  #  Cartesian product of a and b as a vector of strings
   prod <- c()
   # check a or b are not empty sets
   if (length(a) == 0 || length(b) == 0) {
@@ -26,38 +37,38 @@ cart_prod <- function(a, b) {
   }
 }
 
-jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
+jaccard_res <- function(row_c, col_c, true_r, true_c) {
+  # Arguments:
+  #  row_c: clustering of rows
+  #  col_c: clustering of columns
+  #  true_r: true clustering of rows
+  #  true_c: true clustering of columns
+  # Returns:
+  #  F score, recovery and relevance between found and true biclusters
   m <- ncol(row_c)
   n <- ncol(true_r)
-  # if no biclusters detected but some are present
-  # return 0
-  # if no biclusters present but some are detected - score of 0
   m_0 <- sum(colSums(row_c) != 0) # no of clusters actually detected
   n_0 <- sum(colSums(true_r) != 0) # no of true clusters
+
+  # if no biclusters detected but some are present or
+  # if no biclusters present but some are detected
+  # return 0
   if ((m_0 == 0 && n_0 != 0) || (n_0 == 0 && m_0 != 0)) {
-    if (stability) {
-      return(0)
-    } else {
-      return(list(
-        "rec" = rep(0, 2),
-        "rel" = rep(0, 2),
-        "f_score" = rep(0, 2),
-        "relations" = rep(0, n)
-      ))
-    }
+    return(list(
+      "rec" = rep(0, 2),
+      "rel" = rep(0, 2),
+      "f_score" = rep(0, 2),
+      "relations" = rep(0, n)
+    ))
   }
   # if no biclusters present and none detected - score of 1
   if (m_0 == 0 && n_0 == 0) {
-    if (stability) {
-      return(1)
-    } else {
-      return(list(
-        "rec" = rep(1, 2),
-        "rel" = rep(1, 2),
-        "f_score" = rep(1, 2),
-        "relations" = rep(0, n)
-      ))
-    }
+    return(list(
+      "rec" = rep(1, 2),
+      "rel" = rep(1, 2),
+      "f_score" = rep(1, 2),
+      "relations" = rep(0, n)
+    ))
   }
   samps <- seq_len(nrow(row_c))
   feats <- seq_len(nrow(col_c))
@@ -73,9 +84,6 @@ jaccard_res <- function(row_c, col_c, true_r, true_c, stability = FALSE) {
       m_j <- cart_prod(tr_i, tc_i)
       jac_mat[i, j] <- jaccard(m_i, m_j)
     }
-  }
-  if (stability) {
-    return(apply(jac_mat, 2, max))
   }
   rel <- ifelse(sum(apply(jac_mat, 1, max) != 0) == 0, 0,
     sum(apply(jac_mat, 1, max)) / m_0
@@ -110,11 +118,18 @@ csr <- function(row_clustering, col_clustering,
 evaluate_simulation_comp <- function(row_clustering, col_clustering,
                                      true_row_clustering,
                                      true_col_clustering,
-                                     data_views, index = 2) {
-  #' row_clust/col_clust: list of the clustering for each view of the
-  #' rows/columns given by a method
-  #' true_row/col_clustering: list of the true clustering for each
-  #'  view of the rows/columns
+                                     data_views) {
+  # Arguments:
+  #  row_clustering: clustering of rows
+  #  col_clustering: clustering of columns
+  #  true_row_clustering: true clustering of rows
+  #  true_col_clustering: true clustering of columns
+  #  data_views: list of data views
+  # Returns:
+  #  CSR, relevance, recovery and F score between found and true biclusters
+  #  for each view
+  #  bisilhouette for each view
+  #  relations matrix for each view
   n_views <- length(row_clustering)
   # accuracy table for each view - 1st row is row-clustering, second is column
   csr <- matrix(0, nrow = 2, ncol = n_views)

@@ -1,0 +1,132 @@
+---
+title: "Reproducing Results"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+This document provides a step-by-step guide to reproduce the results of the paper ["Multi-view biclustering via non-negative matrix tri-factorisation"]{https://arxiv.org/abs/2502.13698}. The code requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here]{https://eso28599.github.io/resnmtf/} and [here]{https://eso28599.github.io/bisilhouette/}respectively.
+
+```{r, include=FALSE}
+# Install and load required packages
+if (!require(devtools)) {
+  install.packages("devtools")
+  library(devtools)
+}
+devtools::install_github("eso28599/resnmtf")
+devtools::install_github("eso28599/bisilhouette")
+library(resnmtf)
+library(bisilhouette)
+library(knitr)
+```
+
+In order to run this document, you need fork the github repository to your local machine. The repository can be found [here]{https://github.com/eso28599/resNMTF_paper}. 
+
+> [!IMPORTANT]  The following assumes:
+> -  you are using a `bash` shell. If you are using a different shell, please adjust the commands in the code chunks accordingly.
+> - you are in the root directory of the repository. If you are not, please adjust the paths in the code chunks accordingly.
+
+Due to the extensive number of simulation studies, real data applications and illustrative figures, we have only included the code to reproduce the results for those in the main body of the text. Further instructions to reproduce the results for those in the supplementary material are detailed at relevant points in the document. All figures included in the poster for the **Bioinference 2025 conference** are from the main body of the paper and as such are reproduced here.
+
+Any figures from the paper that are not produced by code (i.e. illustrations) are not included in this document. 
+
+Code to reproduce the results is structured as follows:
+- Simulation studies
+  - Figure 5
+- Real data applications
+  - Table 2
+  - Figure 6
+  - Figure 7
+- Additional figures
+  - Figure 3
+
+Lastly, due to long run times several modifications have been made:
+1. The simulation studies were run with 100 repetitions, this has been changed to 5 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
+2. The code chunks to reproduce the results on the real data (which take substantially longer to run than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running and the output from being displayed. To run the code, simply remove these two arguments.
+ 
+# Simulation studies
+
+## Figure 5
+### (A-B) Increasing number of biclusters
+```{bash, engine.opts='-l'}
+export sim="bicl" #change 
+export sim_folder_name="bicl_3v" # change
+export n_reps=5 # change to 100 for full results
+cd SimStudy/Results/${sim}/${sim_folder_name}/data 
+for I in {1..$n_reps}
+do
+  if [ ! -d "$I" ]; then
+    mkdir $I
+    cd $I
+    for i in {3..6} # change here 
+    do
+      mkdir res_nmtf_$i
+      mkdir gfa_$i
+      mkdir issvd_$i
+      mkdir nmtf_$i
+    done
+  fi
+
+  # move back into SimStudy
+  cd ../../../../
+
+  # generate data
+  Rscript --vanilla data_gen.r  ${sim_folder_name} $I
+
+  # now analyse in R
+  Rscript --vanilla methods_r.r  ${sim_folder_name} $I
+
+  # analyse in python
+  python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
+
+  # evaluate results in R
+  Rscript --vanilla eval.r  ${sim_folder_name} $I
+
+done
+
+# combine results
+cd Results/${sim}/${sim_folder_name}
+ls data/ > repeat_folders.txt
+# move back into SimStudy
+cd ../../../ 
+
+#compile results
+Rscript -e "rmarkdown::render('results.rmd')" ${sim_folder_name}  ${sim_folder_name}/repeat_folders.txt
+
+mv results.pdf Results/${sim}/${sim_folder_name}
+```
+
+This produces the following figures:
+```{r, include=FALSE}
+knitr::include_graphics("SimStudy/Results/bicl_3v/F_score_plot.pdf")
+knitr::include_graphics("SimStudy/Results/bicl_3v/BiS_plot.pdf")
+```
+
+The remaining experiments can be reproduced by:
+- setting the `sim` and `sim_folder_name` variables to the relevant names. The variable names for remaining experiments are detailed in the readme file whilst  the variable names for Figure 6 are:
+  - (C-D) Increasing number of views: `views` and `views_5b`
+  - (E-F) Increasing number of individuals: `indiv` and `indiv_3v5b` 
+  - (G-H) Increasing level of noise: `noise` and `noise_3v5b`
+- changing the `for i in {3..6}` command to the relevant iterate over the relevant sequence. For a specific simulation, the sequence to iterate through is found in the corresponding `SimStudy/Scripts/[sim_study]_script_one.sh` file. The sequences for Figure 5 are:
+  - (C-D) Increasing number of views: `{3..6}`
+  - (E-F) Increasing number of individuals: `50 200 300 500 1000`
+  - (G-H) Increasing level of noise: `1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100`
+
+> [!info] The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
+
+# Real data
+
+## Table 2: Table of results
+
+## Figure 6
+### (A) Relvance against increasing $\omega$
+### (B) Correlation of F score and the bisilhouette score
+
+# Paper figures
+## Figure 3 -  spurious biclusters illustrations
+The following code chunk creates and save the two subfigures in Figure 3. These are saved to `Exploration/f_data_dists.pdf' and 'Exploration/shuffled_data_dists.pdf'.
+```{r}
+source("Exploration/JSD_diff_dists.r")
+```
+

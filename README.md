@@ -1,13 +1,20 @@
 # ResNMTF
  
+> [!info]
+> To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the Bioinference conference reproductibility pirze) please run the `reproduce_results.rmd` file. 
+
 This repository contains the files needed to recreate the results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation".
 
 It utilises our R packages `resnmtf` and `bisilhouette` which can be installed via:
 ```{r}
-devtools::install_github("eso28599/bisilhouette") # requires devtools package to be installed
+if (!require(devtools)) {
+  install.packages("devtools")
+  library(devtools)
+}
+devtools::install_github("eso28599/bisilhouette")
 devtools::install_github("eso28599/resnmtf") 
 ```
-If you want to use the ResNMTF rather than recreate the results, the `resnmtf` package is more appropriate, the repository of which can be found [here](https://github.com/eso28599/resnmtf).
+If you want to use the ResNMTF method rather than recreate the results, the `resnmtf` package may be more appropriate, the repository of which can be found [here](https://github.com/eso28599/resnmtf).
 
 The repository is split into three folders; 'SimStudy' which reproduces the simulation study results, 'RealData' which contains the files to apply ResNMTF and other methods to several real datasets, and 'Exploration' which contains code to reproduce additional figures from the paper.
 
