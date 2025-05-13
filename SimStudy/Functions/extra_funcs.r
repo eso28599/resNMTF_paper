@@ -1,12 +1,11 @@
-# additional functions and packages
-library(curl)
-library(readxl)
+if (!requireNamespace("openxlsx", quietly = TRUE)) {
+  install.packages("openxlsx")
+}
+if (!requireNamespace("rio", quietly = TRUE)) {
+  install.packages("rio")
+}
+library(openxlsx)
 library(rio)
-library(dplyr)
-library(kableExtra)
-library(latex2exp)
-library(ggpubr)
-library(philentropy)
 
 # import as list of matrices instead of as a list
 import_matrix <- function(filename, col_n = TRUE) {

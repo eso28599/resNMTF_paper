@@ -2,7 +2,6 @@
 title: "Reproducing Results"
 output:
   html_document:
-    toc: true
     theme: united
 ---
 
@@ -121,7 +120,39 @@ The remaining experiments can be reproduced by:
 
 ## Figure 6
 ### (A) Relvance against increasing $\omega$
+```{bash, engine.opts='-l', eval=FALSE}
+Rscript --vanilla RealData/3sources/3s_stab.r  "resnmtf" "3sources" 
+# combine results
+Rscript --vanilla RealData/combine_stab_metrics.r  "3sources" 3 
+```
+This produces the following figure:
+```{r}
+knitr::include_graphics("RealData/3sources/stab_plot_bis.pdf")
+```
+
 ### (B) Correlation of F score and the bisilhouette score
+```{bash, engine.opts='-l', eval=FALSE}
+Rscript --vanilla RealData/single_cell/phi_investigate.r  "euclidean" "3sources" 
+Rscript --vanilla RealData/combine_phi_metrics.r  "single_cell" 2
+```
+This produces the following figure:
+```{r}
+knitr::include_graphics("RealData/single_cell/single_cell_f_score_bis_psi.pdf")
+```
+
+## Figure 7 - bisilhouette plots
+### (A) Shuffled synthetic data
+The following code chunk creates and save the bisilhouette plot for the shuffled synthetic data. This is saved to `Exploration/visual_data/shuffled_bisil_plot.pdf`.
+```{r}
+source("Exploration/visualisation_ex.r")
+knitr::include_graphics("Exploration/visual_data/shuffled_bisil_plot.pdf")
+```
+
+### (B) Real data - A549 dataset
+The code chunk for Figure 6B also creates and save the bisilhouette plot for the A549 dataset. This is saved to `RealData/single_cell/sc_bisil_plot.pdf`.
+```{r}
+knitr::include_graphics("RealData/single_cell/sc_bisil_plot.pdf")
+```
 
 # Paper figures
 ## Figure 3 -  spurious biclusters illustrations

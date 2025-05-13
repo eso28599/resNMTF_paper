@@ -1,3 +1,27 @@
+if (!requireNamespace("rio", quietly = TRUE)) {
+  install.packages("rio")
+}
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+if (!requireNamespace("tidyr", quietly = TRUE)) {
+  install.packages("tidyr")
+}
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+if (!requireNamespace("latex2exp", quietly = TRUE)) {
+  install.packages("latex2exp")
+}
+if (!requireNamespace("viridis", quietly = TRUE)) {
+  install.packages("viridis")
+}
+if (!requireNamespace("kableExtra", quietly = TRUE)) {
+  install.packages("kableExtra")
+}
+if (!requireNamespace("ggpubr", quietly = TRUE)) {
+  install.packages("ggpubr")
+}
 suppressWarnings(suppressPackageStartupMessages(library(rio)))
 library(ggplot2)
 library(tidyr)
