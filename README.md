@@ -65,7 +65,17 @@ And once this has executed:
 ```
 qsub bicl_2v_script_two.sh
 ```
-And the results (plots and .csv files) can then be found in SimStudy/Results/bicl/bicl_2v. These include plots such as
+And the results (plots and .csv files) can then be found in SimStudy/Results/bicl/bicl_2v. These include plots such as the F-score for all methods across the study (Plot found at SimStudy/Results/bicl/bicl_2v/F_score_plot.pdf)
+
+<p align="center">
+<img src="SimStudy/Results/bicl/bicl_2v/F_score_plot.png" alt="Plot found at SimStudy/Results/bicl/bicl_2v/F_score_plot.pdf">
+</p>
+
+as well as the results in tabular form (for use in LaTeX), which can be found at e.g. SimStudy/Results/bicl/bicl_2v/F_score_tbl_overall.txt. The same plots and tables are produced for the following extrinsic and intrinsic measures; recovery, relevance, CSR (correct selection rate) and the bisilhouette score. 
+
+Further:
+- The files `all_results.csv` and `all_tables_bicl_all.txt` contain all results for a specific study. The figure `all_plot_bicl.pdf` contains plots for the four extrinsic measures.
+- The file `resNMTF_table_bicl_overall.txt` contains all results for ResNMTF for a specific study. The figure `resNMTF_plot_bicl.pdf`shows a plot of all results for ResNMTF. 
 
 ### File names
 The following subdirectories can be found in the SimStudy/Results folder: 
@@ -81,14 +91,12 @@ The following subdirectories can be found in the SimStudy/Results folder:
 │  ├── indiv_3v4b: 3 views and 4 biclusters
 │  ├── indiv_3v5b: 3 views and 5 biclusters
 │  ├── indiv_4v5b: 4 views and 5 biclusters
-├── issvd_data_gen, increases the number of individuals present for data 
-│  ├── case1: ??
-│  ├── case2: ??
-├── issvd_param_mean100, investigates the effect of a hyperparameter on iSSVD performance for data with strong signal ($\mu=100$) and
+├── issvd_data_gen/case1: increases the scale of view 2 relative to view 1
+├── issvd_param_mean100, investigates the effect of a hyperparameter on iSSVD performance for data with strong signal (mu=100) and
 │  ├── issvd_param3: 3 views and 3 biclusters
 │  ├── issvd_param4: 3 views and 4 biclusters
 │  ├── issvd_param: 3 views and 5 biclusters
-├── issvd_param_signal5, investigates the effect of a hyperparameter on iSSVD performance for data with strong signal ($\mu=100$) and
+├── issvd_param_signal5, investigates the effect of a hyperparameter on iSSVD performance for data with
 │  ├── issvd_param3: 3 views and 3 biclusters
 │  ├── issvd_param4: 3 views and 4 biclusters
 │  ├── issvd_param5: 3 views and 5 biclusters
@@ -110,7 +118,7 @@ The following subdirectories can be found in the SimStudy/Results folder:
 │  ├── views_3b: 2 views
 │  ├── views_4b: 3 views
 │  ├── views_5b: 4 views
-│  ├── views_5b_nostab: 4 views
+│  ├── views_5b_nostab: 4 views with no stability analysis applied.
 ```
 
 ## RealData
