@@ -7,7 +7,7 @@ output:
 
 This document provides a step-by-step guide to reproduce the results of the paper ["Multi-view biclustering via non-negative matrix tri-factorisation"]{https://arxiv.org/abs/2502.13698}. The code requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here]{https://eso28599.github.io/resnmtf/} and [here]{https://eso28599.github.io/bisilhouette/}respectively.
 
-```{r, include=FALSE}
+```{r}
 # Install and load required packages
 if (!require(devtools)) {
   install.packages("devtools")
@@ -97,7 +97,7 @@ mv results.pdf Results/${sim}/${sim_folder_name}
 ```
 
 This produces the following figures:
-```{r, include=FALSE}
+```{r}
 knitr::include_graphics("SimStudy/Results/bicl_3v/F_score_plot.pdf")
 knitr::include_graphics("SimStudy/Results/bicl_3v/BiS_plot.pdf")
 ```
