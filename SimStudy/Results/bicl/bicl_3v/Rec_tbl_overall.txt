@@ -6,11 +6,11 @@
 \cmidrule(l{3pt}r{3pt}){2-5}
  & 3 & 4 & 5 & 6\\
 \midrule
-ResNMTF & \textbf{1.0000 (0.0000)} & \textbf{0.9385 (0.0208)} & \textbf{0.8704 (0.0909)} & \textbf{0.8485 (0.0831)}\\
-GFA & 0.2252 (0.0382) & 0.2202 (0.0486) & 0.2094 (0.0402) & 0.2018 (0.0411)\\
-iSSVD & 0.0000 (0.0000) & 0.6190 (0.0066) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
-NMTF & 0.9993 (0.0025) & 0.8515 (0.0476) & 0.7076 (0.0679) & 0.7685 (0.0710)\\
+ResNMTF & \textbf{1.0000 (NA)} & \textbf{0.9238 (NA)} & \textbf{0.9406 (NA)} & \textbf{0.8871 (NA)}\\
+GFA & 0.0973 (NA) & 0.0754 (NA) & 0.0419 (NA) & 0.0332 (NA)\\
+iSSVD & 0.0000 (NA) & 0.0534 (NA) & 0.0000 (NA) & 0.0000 (NA)\\
+NMTF & 0.0756 (NA) & 0.0506 (NA) & 0.0412 (NA) & 0.0324 (NA)\\
 \bottomrule
-\multicolumn{5}{l}{\textsuperscript{a} Recovery scores. 3 views, $\phi$ = 200, 100 repetitions.}\\
+\multicolumn{5}{l}{\textsuperscript{a} Recovery scores. 3 views, $\phi$ = 200, 1 repetitions.}\\
 \end{tabular}
 \end{table}

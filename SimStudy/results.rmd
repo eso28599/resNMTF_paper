@@ -12,13 +12,15 @@ path_to_sim_folder <- as.character(args[1])
 folder_list <- args[2]
 plot_title <- args[3]
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+options(repos = c(CRAN = "https://cran.r-project.org"))
 ```
 
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE}
 source("Functions/summary_funcs.r")
 source(paste0(path_to_sim_folder, "/sim_parameters.r"))
+```
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # file to extract results
 # read in folder_list
 folder_names <- read.delim(folder_list,
@@ -46,7 +48,7 @@ for (k in seq_along(file_names)) {
       data_name, paste0(file_names[k], "_results"), i, measures
     )
   }
-  for (i in (measures)) {
+  for (i in seq_along(measures)) {
     results <- rbind(
       results,
       avg_over_repeats(

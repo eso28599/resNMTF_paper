@@ -2,9 +2,9 @@ args <- commandArgs(trailingOnly = TRUE)
 path_to_sim_folder <- as.character(args[1])
 batch_folder <- as.character(args[2])
 
+library(bisilhouette())
 # simulation evaluation file
 source(paste0(path_to_sim_folder, "/sim_parameters.r"))
-source("Functions/bisilhouette_new.r")
 source("Functions/evaluation_funcs.r")
 
 # read in results

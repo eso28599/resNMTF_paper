@@ -1,12 +1,3 @@
-if (!requireNamespace("MASS", quietly = TRUE)) {
-  install.packages("MASS")
-}
-if (!requireNamespace("Matrix", quietly = TRUE)) {
-  install.packages("Matrix")
-}
-if (!requireNamespace("openxlsx", quietly = TRUE)) {
-  install.packages("openxlsx")
-}
 library(openxlsx)
 library(MASS)
 library(Matrix)
@@ -108,7 +99,7 @@ get_dims <- function(n_r, n_c, k, row_e = 1, col_e = 1, row_o = 0, col_o = 0) {
   #'  col_end: vector of ending indices of columns in each bicluster
   #'  part_r: portion of rows in biclusters
   rows_list <- obtain_rows(row_e, k, n_r)
-  cols_list <- obtain_rows(col_e, k, n_c)
+  cols_list <- obtain_cols(col_e, k, n_c)
   rows <- rows_list$rows
   cols <- cols_list$cols
 

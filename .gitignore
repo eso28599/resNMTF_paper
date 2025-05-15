@@ -1,7 +1,9 @@
 ResNMTF/*
 to_do.txt
+.venv/*
 proteomics.txt
 aals_participants.csv
+SimStudy/Results/bicl/bicl_3v/data/*
 # SimStudy/RunSim/Results/*
 SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/logs/*

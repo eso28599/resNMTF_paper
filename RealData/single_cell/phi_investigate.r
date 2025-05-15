@@ -3,20 +3,6 @@ dis <- as.character(args[1])
 # single cell psi selection
 source("SimStudy/Functions/evaluation_funcs.r")
 source("SimStudy/Functions/extra_funcs.r")
-source("visualisation.r")
-source("gfa_funcs.r")
-if (!requireNamespace("R.matlab", quietly = TRUE)) {
-  install.packages("R.matlab")
-}
-if (!requireNamespace("viridis", quietly = TRUE)) {
-  install.packages("viridis")
-}
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  install.packages("ggplot2")
-}
-if (!requireNamespace("latex2exp", quietly = TRUE)) {
-  install.packages("latex2exp")
-}
 library(resnmtf)
 
 labs <- read.csv("RealData/single_cell/true_labs.csv")[, 2:4]
@@ -43,7 +29,8 @@ k <- 1
 for (phi_val in phi_vec) {
   for (t in 1:n_reps) {
     res <- apply_resnmtf(
-      Xinput = cell_data, k_min = 3,
+      cell_data,
+      k_min = 3,
       k_max = 6, phi = phi_val * phi_mat,
       distance = dis, stability = FALSE
     )

@@ -4,7 +4,6 @@ psi <- as.numeric(args[2])
 # 3sources analysis
 source("SimStudy/Functions/evaluation_funcs.r")
 source("SimStudy/Functions/extra_funcs.r")
-source("visualisation.r")
 library(resnmtf)
 set.seed(20 + psi)
 bbc_rows <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
@@ -32,10 +31,11 @@ colnames(results) <- c(
 k <- 1
 for (t in 1:n_reps) {
   res <- apply_resnmtf(
-    Xinput = bbc_d2, k_min = 4,
-    k_max = 8, psi = psi * phi_bbc, stab_test = TRUE
+    bbc_d2,
+    k_min = 4,
+    k_max = 8, psi = psi * phi_bbc, remove_unstable = FALSE
   )
-  jacc_mat <- res$jacc
+  jacc_mat <- res$relevance
   for (omega in (stab_vec)) {
     bbc_res2[[k]] <- res$res
     # perform stability selection

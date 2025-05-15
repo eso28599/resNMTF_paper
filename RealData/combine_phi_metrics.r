@@ -1,10 +1,10 @@
 args <- commandArgs(trailingOnly = TRUE)
 dataset <- as.character(args[1])
 n_views <- as.numeric(args[2])
-source("visualisation.r")
-source("extra_funcs.r")
+source("../SimStudy/Functions/extra_funcs.r")
 library(latex2exp)
 library(ggplot2)
+library(bisilhouette)
 if (dataset == "3sources") {
   file_path <- paste0(dataset, "/data/three_s_psi_")
   phi_vec <- c(seq(0, 1800, 50), 1900, 1950)

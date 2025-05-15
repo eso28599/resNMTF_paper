@@ -1,18 +1,3 @@
-if (!requireNamespace("mclust", quietly = TRUE)) {
-  install.packages("mclust")
-}
-if (!requireNamespace("clue", quietly = TRUE)) {
-  install.packages("clue")
-}
-if (!requireNamespace("aricode", quietly = TRUE)) {
-  install.packages("aricode")
-}
-if (!requireNamespace("cluster", quietly = TRUE)) {
-  install.packages("cluster")
-}
-if (!requireNamespace("proxy", quietly = TRUE)) {
-  install.packages("proxy")
-}
 suppressPackageStartupMessages(library(mclust))
 library(clue)
 library(aricode)

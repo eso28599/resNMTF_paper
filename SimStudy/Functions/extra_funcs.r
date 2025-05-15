@@ -1,9 +1,3 @@
-if (!requireNamespace("openxlsx", quietly = TRUE)) {
-  install.packages("openxlsx")
-}
-if (!requireNamespace("rio", quietly = TRUE)) {
-  install.packages("rio")
-}
 library(openxlsx)
 library(rio)
 

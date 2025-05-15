@@ -1,27 +1,3 @@
-if (!requireNamespace("rio", quietly = TRUE)) {
-  install.packages("rio")
-}
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  install.packages("ggplot2")
-}
-if (!requireNamespace("tidyr", quietly = TRUE)) {
-  install.packages("tidyr")
-}
-if (!requireNamespace("dplyr", quietly = TRUE)) {
-  install.packages("dplyr")
-}
-if (!requireNamespace("latex2exp", quietly = TRUE)) {
-  install.packages("latex2exp")
-}
-if (!requireNamespace("viridis", quietly = TRUE)) {
-  install.packages("viridis")
-}
-if (!requireNamespace("kableExtra", quietly = TRUE)) {
-  install.packages("kableExtra")
-}
-if (!requireNamespace("ggpubr", quietly = TRUE)) {
-  install.packages("ggpubr")
-}
 suppressWarnings(suppressPackageStartupMessages(library(rio)))
 library(ggplot2)
 library(tidyr)
@@ -91,7 +67,7 @@ make_plot_line <- function(data_frame, cluster, plot_title, sub_title,
     group = Measure, color = Measure, linetype = Measure
   )) +
     geom_line(stat = "identity") +
-    geom_point(show.legend = FALSE) +
+    geom_point(show.legend = TRUE) +
     geom_errorbar(aes(ymin = Mean - S.d., ymax = Mean + S.d.),
       width = .2,
       position = position_dodge(0.01), show.legend = FALSE, linetype = 1
@@ -143,7 +119,7 @@ make_plot_measure <- function(data_frame, cluster, plot_title, sub_title,
     group = Method, color = Method, linetype = Method
   )) +
     geom_line(stat = "identity") +
-    geom_point(show.legend = FALSE) +
+    geom_point(show.legend = TRUE) +
     geom_errorbar(aes(ymin = Mean - S.d., ymax = Mean + S.d.),
       width = .2,
       position = position_dodge(0.01), linetype = 1,
@@ -155,7 +131,7 @@ make_plot_measure <- function(data_frame, cluster, plot_title, sub_title,
   p <- p +
     theme_minimal() +
     theme(
-      text = element_text(size = 11), legend.position = "none",
+      text = element_text(size = 11), legend.position = "bottom",
       axis.ticks = element_line(size = 0.3),
       axis.line = element_line(size = 0.3)
     )

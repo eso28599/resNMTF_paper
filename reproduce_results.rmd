@@ -15,6 +15,7 @@ if (!require(devtools)) {
 }
 devtools::install_github("eso28599/resnmtf")
 devtools::install_github("eso28599/bisilhouette")
+source("install_packages.r")
 library(resnmtf)
 library(bisilhouette)
 library(knitr)
@@ -22,8 +23,16 @@ library(knitr)
 
 In order to run this document, you need fork the github repository to your local machine. The repository can be found [here]{https://github.com/eso28599/resNMTF_paper}. 
 
+Further, as one of the methods ResNMTF is compared against a method written in Python, an environment is required. This assumes you have python and pip available on your machine. If you do not, please install them. If running multiple times, you may want to change `eval` to `FALSE` in the code chunk below to prevent the environment from being created again.
+```{zsh, engine.opts='-l', eval=FALSE}
+# create virtual environment 
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 > [!IMPORTANT]  The following assumes:
-> -  you are using a `bash` shell. If you are using a different shell, please adjust the commands in the code chunks accordingly.
+> -  you are using a `zsh` shell. If you are using a different shell, please adjust the commands in the code chunks accordingly.
 > - you are in the root directory of the repository. If you are not, please adjust the paths in the code chunks accordingly.
 
 Due to the extensive number of simulation studies, real data applications and illustrative figures, we have only included the code to reproduce the results for those in the main body of the text. Further instructions to reproduce the results for those in the supplementary material are detailed at relevant points in the document. All figures included in the poster for the **Bioinference 2025 conference** are from the main body of the paper and as such are reproduced here.
@@ -41,76 +50,39 @@ Code to reproduce the results is structured as follows:
   - Figure 3
 
 Lastly, due to long run times several modifications have been made:
-1. The simulation studies were run with 100 repetitions, this has been changed to 5 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
-2. The code chunks to reproduce the results on the real data (which take substantially longer to run than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running and the output from being displayed. To run the code, simply remove these two arguments.
+1. The simulation studies were run with 100 repetitions, this has been changed to 3 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
+2. The code chunks to reproduce the results on the real data (which take substantially longer to run (at least a day each) than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running. To run the code, simply remove these two arguments.
  
 # Simulation studies
 
 ## Figure 5
 ### (A-B) Increasing number of biclusters
-```{bash, engine.opts='-l'}
-export sim="bicl" #change 
-export sim_folder_name="bicl_3v" # change
-export n_reps=5 # change to 100 for full results
-cd SimStudy/Results/${sim}/${sim_folder_name}/data 
-for I in {1..$n_reps}
-do
-  if [ ! -d "$I" ]; then
-    mkdir $I
-    cd $I
-    for i in {3..6} # change here 
-    do
-      mkdir res_nmtf_$i
-      mkdir gfa_$i
-      mkdir issvd_$i
-      mkdir nmtf_$i
-    done
-  fi
-
-  # move back into SimStudy
-  cd ../../../../
-
-  # generate data
-  Rscript --vanilla data_gen.r  ${sim_folder_name} $I
-
-  # now analyse in R
-  Rscript --vanilla methods_r.r  ${sim_folder_name} $I
-
-  # analyse in python
-  python3 OtherMethods/methods_p.py ${sim_folder_name} $I ${sim}
-
-  # evaluate results in R
-  Rscript --vanilla eval.r  ${sim_folder_name} $I
-
-done
-
-# combine results
-cd Results/${sim}/${sim_folder_name}
-ls data/ > repeat_folders.txt
-# move back into SimStudy
-cd ../../../ 
-
-#compile results
-Rscript -e "rmarkdown::render('results.rmd')" ${sim_folder_name}  ${sim_folder_name}/repeat_folders.txt
-
-mv results.pdf Results/${sim}/${sim_folder_name}
+To run the simulation study for increasing the number of biclusters (on the base scenario of three views), with 5 repetitions, the following code chunk can be used:
+```{zsh, engine.opts='-l'}
+export sim="bicl"
+export sim_folder_name="bicl_3v"
+export seq=(3 4 5 6)
+export n_reps=3
+run_sim.sh $sim $sim_folder_name $n_reps $seq
 ```
 
-This produces the following figures:
+> [!IMPORTANT]  
+> The full results produced can now be found in the `SimStudy/Results/bicl_3v` folder, individually under various file names (`F_score_plot.pdf`, `BiS_plot.pdf`, etc.) or in one pdf (`results.pdf`). 
+
+Some of the results are shown below:
 ```{r}
 knitr::include_graphics("SimStudy/Results/bicl_3v/F_score_plot.pdf")
 knitr::include_graphics("SimStudy/Results/bicl_3v/BiS_plot.pdf")
 ```
 
-The remaining experiments can be reproduced by:
-- setting the `sim` and `sim_folder_name` variables to the relevant names. The variable names for remaining experiments are detailed in the readme file whilst  the variable names for Figure 6 are:
-  - (C-D) Increasing number of views: `views` and `views_5b`
-  - (E-F) Increasing number of individuals: `indiv` and `indiv_3v5b` 
-  - (G-H) Increasing level of noise: `noise` and `noise_3v5b`
-- changing the `for i in {3..6}` command to the relevant iterate over the relevant sequence. For a specific simulation, the sequence to iterate through is found in the corresponding `SimStudy/Scripts/[sim_study]_script_one.sh` file. The sequences for Figure 5 are:
-  - (C-D) Increasing number of views: `{3..6}`
-  - (E-F) Increasing number of individuals: `50 200 300 500 1000`
-  - (G-H) Increasing level of noise: `1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100`
+
+The remaining experiments can be reproduced by setting the `sim`, `sim_folder_name` and `seq` variables to the relevant names in the code chunk above. 
+The variable names for the other experiments in Figure 6 are:
+  - (C-D) Increasing number of views: `views`, `views_5b`, `2 3 4 5`
+  - (E-F) Increasing number of individuals: `indiv`, `indiv_3v5b`, `50 200 300 500 1000`
+  - (G-H) Increasing level of noise: `noise`, `noise_3v5b`, `1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100`
+
+The variable names for remaining experiments are detailed in the readme file.For a specific simulation, the `seq` variable is found in the corresponding `SimStudy/Scripts/[sim_folder_name]_script_one.sh` file, in the for loop. 
 
 > [!INFO] The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
 
@@ -120,10 +92,12 @@ The remaining experiments can be reproduced by:
 
 ## Figure 6
 ### (A) Relvance against increasing $\omega$
-```{bash, engine.opts='-l', eval=FALSE}
-Rscript --vanilla RealData/3sources/3s_stab.r  "resnmtf" "3sources" 
+```{zsh, engine.opts='-l', eval=FALSE}
+Rscript --vanilla RealData/3sources/3s_stab.r  "resnmtf" 1100
 # combine results
-Rscript --vanilla RealData/combine_stab_metrics.r  "3sources" 3 
+cd RealData
+Rscript --vanilla combine_stab_metrics.r  "3sources" 3 
+cd ..
 ```
 This produces the following figure:
 ```{r}
@@ -131,9 +105,11 @@ knitr::include_graphics("RealData/3sources/stab_plot_bis.pdf")
 ```
 
 ### (B) Correlation of F score and the bisilhouette score
-```{bash, engine.opts='-l', eval=FALSE}
+```{zsh, engine.opts='-l', eval=FALSE}
 Rscript --vanilla RealData/single_cell/phi_investigate.r  "euclidean" "3sources" 
-Rscript --vanilla RealData/combine_phi_metrics.r  "single_cell" 2
+cd RealData
+Rscript --vanilla combine_phi_metrics.r  "single_cell" 2
+cd ..
 ```
 This produces the following figure:
 ```{r}

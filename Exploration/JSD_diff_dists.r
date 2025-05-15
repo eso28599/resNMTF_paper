@@ -1,15 +1,5 @@
 source("SimStudy/Functions/data_generation.r")
 source("SimStudy/Functions/extra_funcs.r")
-# install if not already installed
-if (!requireNamespace("ggpubr", quietly = TRUE)) {
-  install.packages("ggpubr")
-}
-if (!requireNamespace("gridExtra", quietly = TRUE)) {
-  install.packages("gridExtra")
-}
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  install.packages("ggplot2")
-}
 # load libraries
 library(ggplot2)
 library(ggpubr)

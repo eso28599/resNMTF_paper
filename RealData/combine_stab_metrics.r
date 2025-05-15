@@ -1,14 +1,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 dataset <- as.character(args[1])
 n_views <- as.numeric(args[2])
-source("visualisation.r") # ??
-source("SimStudy/Functions/extra_funcs.r")
-if (!require(latex2exp)) {
-  install.packages("latex2exp")
-}
-if (!require(ggplot2)) {
-  install.packages("ggplot2")
-}
+source("../SimStudy/Functions/extra_funcs.r")
 library(latex2exp)
 library(ggplot2)
 

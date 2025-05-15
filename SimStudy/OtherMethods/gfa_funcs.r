@@ -1,4 +1,7 @@
 # apply GFA
+if (!requireNamespace("GFA", quietly = TRUE)) {
+  install.packages("GFA")
+}
 library(GFA)
 library(resnmtf)
 quiet <- function(x) {
@@ -13,7 +16,7 @@ gfa_apply <- function(x, k, noise = 0.5, conf = 1) {
   opts <- getDefaultOpts(bicluster = TRUE)
   opts <- informativeNoisePrior(x_input, opts, noise, conf)
   gfa_res <- quiet(gfa(x_input, K = k + 5, opts))
-  rows <- rep(list(apply(gfa_res$x > 0, 2, as.numeric)), n_views)
+  rows <- rep(list(apply(gfa_res$X > 0, 2, as.numeric)), n_views)
   all_col <- apply(gfa_res$Z > 0, 2, as.numeric)
   cols <- vector("list", length = n_views)
   # determine column results

@@ -14,19 +14,20 @@ for (i in seq_along(method_vec)) {
   data_views <- import_matrix(paste0(file_path, "/data.xlsx"), col_n = TRUE)
   # nmtf
   if (factor == "views") {
-    nmtf_results <- restMultiNMTF_run(
-      Xinput = data_views,
+    nmtf_results <- apply_resnmtf(
+      data_views,
       phi = phi_mat[i][[1]]
     )
+    save_results(nmtf_results, file_path)
     nmtf_sgl_res <- single_nmtf(data_views)
   } else {
-    nmtf_results <- restMultiNMTF_run(Xinput = data_views, phi = phi_mat)
+    nmtf_results <- apply_resnmtf(data_views, phi = phi_mat)
+    save_results(nmtf_results, file_path)
     nmtf_sgl_res <- single_nmtf(data_views)
+    save_results(nmtf_sgl_res, file_path3)
   }
-  save_results(nmtf_results, file_path)
-  # run gfa and save results
+  # # run gfa and save results
   gfa_res <- gfa_apply(data_views, k_vec[i])
   save_results(gfa_res, file_path2)
   # run single view nmtf
-  save_results(nmtf_sgl_res, file_path3)
 }
