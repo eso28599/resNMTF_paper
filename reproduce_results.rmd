@@ -1,13 +1,52 @@
 ---
-title: "Reproducing Results"
+title: "Reproduction of results"
 output:
   html_document:
+    toc: true
+    toc_depth: 3
     theme: united
+    csss: styles.css
+urlcolor: blue
 ---
 
-This document provides a step-by-step guide to reproduce the results of the paper ["Multi-view biclustering via non-negative matrix tri-factorisation"]{https://arxiv.org/abs/2502.13698}. The code requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here]{https://eso28599.github.io/resnmtf/} and [here]{https://eso28599.github.io/bisilhouette/}respectively.
+# Overview
+This document provides a step-by-step guide to reproduce the results of the paper ["Multi-view biclustering via non-negative matrix tri-factorisation"](https://arxiv.org/abs/2502.13698). It is designed to be <u>run on a local machine with **R**, **Python** and **a shell language** available.</u>
 
-```{r}
+## Which results are reproduced here?
+Due to the extensive number of simulation studies, real data applications and illustrative figures, we have only included the code to reproduce the results for those in the main body of the text. Further instructions to reproduce the results for those in the supplementary material are detailed at relevant points in the document. All figures included in the poster for the **Bioinference 2025 conference** are from the main body of the paper and as such are reproduced here.
+
+<div style="border-left: 4px solid #007ACC; padding: 0.5em; background: #f0f8ff;">
+  <strong>Note:</strong> Due to long run times several modifications have been made:
+
+1. The simulation studies were run with 100 repetitions, this has been changed to 3 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
+2. The code chunks to reproduce the results on the real data (which take substantially longer to run (at least a day each) than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running. 
+
+To reproduce these results anyway, simply remove these two arguments.
+</div>
+
+Any figures from the paper that are not produced by code (i.e. illustrations) are not included in this document. 
+
+## Document structure
+The document is structured as follows:
+
+- **Setup**: This section details the software and packages required to run the code. It also includes instructions on how to set up the environment.
+- **Results**: This section details the code to reproduce the results in the paper. It is divided into three sections: Simulation studies, Real data applications and Additional figures. Each subsection contains the code to reproduce the relevant results. 
+
+# Setup
+This section details the software required to run the code and includes details to install relevant packages as well as set up required environments.
+
+As the code was developed using shell scripts, a shell language is required. 
+If you are on Windows, please install a `zsh` shell (e.g. [Git Bash](https://gitforwindows.org/) or [Cygwin](https://www.cygwin.com/)).
+
+<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
+  <strong>Important:</strong> The following assumes you are using a `zsh` shell. If you are using a different shell, please adjust the commands in the code chunks accordingly.
+</div>
+
+### R
+
+#### 1. Install R packages
+First, we need to install the required packages. The `resnmtf` and `bisilhouette` packages are available on github and can be installed using the `devtools` package. This work requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here](https://eso28599.github.io/resnmtf/) and [here](https://eso28599.github.io/bisilhouette/) respectively.
+```{r, show.message=FALSE, warning=FALSE, message=FALSE}
 # Install and load required packages
 if (!require(devtools)) {
   install.packages("devtools")
@@ -19,11 +58,23 @@ source("install_packages.r")
 library(resnmtf)
 library(bisilhouette)
 library(knitr)
+library(magick)
+```
+```{r, echo=FALSE}
+# function to display pdfs properly
+display_pdf <- function(file) {
+  image <- image_read_pdf(paste0(file, ".pdf"))
+  image_write(image, paste0(file, ".png"))
+  knitr::include_graphics(paste0(file, ".png"))
+}
 ```
 
-In order to run this document, you need fork the github repository to your local machine. The repository can be found [here]{https://github.com/eso28599/resNMTF_paper}. 
+#### 2. Fork the repository
+In order to run this document, you need fork the github repository to your local machine. The repository can be found [here](https://github.com/eso28599/resNMTF_paper). 
 
-Further, as one of the methods ResNMTF is compared against a method written in Python, an environment is required. This assumes you have python and pip available on your machine. If you do not, please install them. If running multiple times, you may want to change `eval` to `FALSE` in the code chunk below to prevent the environment from being created again.
+### Python
+As one of the methods ResNMTF is compared against a method written in Python, an environment is provided for reproducibility. This assumes you have python and pip available on your machine. If you do not, please install them. If running multiple times, you may want to change `eval` to `FALSE` in the code chunk below to prevent the environment from being created again.
+
 ```{zsh, engine.opts='-l', eval=FALSE}
 # create virtual environment 
 python3 -m venv .venv
@@ -31,68 +82,57 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> [!IMPORTANT]  The following assumes:
-> -  you are using a `zsh` shell. If you are using a different shell, please adjust the commands in the code chunks accordingly.
-> - you are in the root directory of the repository. If you are not, please adjust the paths in the code chunks accordingly.
+# Results
+## Simulation studies
 
-Due to the extensive number of simulation studies, real data applications and illustrative figures, we have only included the code to reproduce the results for those in the main body of the text. Further instructions to reproduce the results for those in the supplementary material are detailed at relevant points in the document. All figures included in the poster for the **Bioinference 2025 conference** are from the main body of the paper and as such are reproduced here.
-
-Any figures from the paper that are not produced by code (i.e. illustrations) are not included in this document. 
-
-Code to reproduce the results is structured as follows:
-- Simulation studies
-  - Figure 5
-- Real data applications
-  - Table 2
-  - Figure 6
-  - Figure 7
-- Additional figures
-  - Figure 3
-
-Lastly, due to long run times several modifications have been made:
-1. The simulation studies were run with 100 repetitions, this has been changed to 3 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
-2. The code chunks to reproduce the results on the real data (which take substantially longer to run (at least a day each) than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running. To run the code, simply remove these two arguments.
- 
-# Simulation studies
-
-## Figure 5
-### (A-B) Increasing number of biclusters
+### Figure 5
+#### (A-B) Increasing number of biclusters
 To run the simulation study for increasing the number of biclusters (on the base scenario of three views), with 5 repetitions, the following code chunk can be used:
-```{zsh, engine.opts='-l'}
+```{zsh, messages=FALSE, results='hide'}
 export sim="bicl"
 export sim_folder_name="bicl_3v"
 export seq=(3 4 5 6)
-export n_reps=3
-run_sim.sh $sim $sim_folder_name $n_reps $seq
+export n_reps=1
+./SimStudy/run_sim.sh $sim $sim_folder_name $n_reps $seq
 ```
 
-> [!IMPORTANT]  
-> The full results produced can now be found in the `SimStudy/Results/bicl_3v` folder, individually under various file names (`F_score_plot.pdf`, `BiS_plot.pdf`, etc.) or in one pdf (`results.pdf`). 
+<div style="border-left: 4px solid #98BF64; padding: 0.5em; background: #eff6eb;">
+  <strong>Tip:</strong> The full results produced can now be found in the `SimStudy/Results/bicl_3v` folder, individually under various file names (`F_score_plot.pdf`, `BiS_plot.pdf`, etc.) or in one pdf (`results.pdf`). 
+</div>
+
 
 Some of the results are shown below:
-```{r}
-knitr::include_graphics("SimStudy/Results/bicl_3v/F_score_plot.pdf")
-knitr::include_graphics("SimStudy/Results/bicl_3v/BiS_plot.pdf")
+
+```{r, echo=FALSE, out.width="70%", fig.align = 'center', fig.cap="Figure 5A"}
+display_pdf("SimStudy/Results/bicl/bicl_3v/F_score_plot")
+```
+
+```{r, echo=FALSE, out.width="70%", fig.align = 'center', fig.cap="Figure 5B"}
+display_pdf("SimStudy/Results/bicl/bicl_3v/F_score_plot")
+display_pdf("SimStudy/Results/bicl/bicl_3v/BiS_plot")
 ```
 
 
 The remaining experiments can be reproduced by setting the `sim`, `sim_folder_name` and `seq` variables to the relevant names in the code chunk above. 
 The variable names for the other experiments in Figure 6 are:
+
   - (C-D) Increasing number of views: `views`, `views_5b`, `2 3 4 5`
   - (E-F) Increasing number of individuals: `indiv`, `indiv_3v5b`, `50 200 300 500 1000`
   - (G-H) Increasing level of noise: `noise`, `noise_3v5b`, `1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100`
 
 The variable names for remaining experiments are detailed in the readme file.For a specific simulation, the `seq` variable is found in the corresponding `SimStudy/Scripts/[sim_folder_name]_script_one.sh` file, in the for loop. 
 
-> [!INFO] The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
+<div style="border-left: 4px solid #007ACC; padding: 0.5em; background: #f0f8ff;">
+  <strong>Note:</strong> The experiments were initially run on clusters, the scripts to run the simulations on clusters can be found in the `SimStudy/Scripts` folder where each experiment has a `[sim_study]_script_one.sh` and  a`[sim_study]_script_two.sh` file.
+</div>
 
-# Real data
+## Real data
 
-## Table 2: Table of results
+### Table 2
 
-## Figure 6
-### (A) Relvance against increasing $\omega$
-```{zsh, engine.opts='-l', eval=FALSE}
+### Figure 6
+#### (A) Relvance against increasing $\omega$
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
 Rscript --vanilla RealData/3sources/3s_stab.r  "resnmtf" 1100
 # combine results
 cd RealData
@@ -100,40 +140,54 @@ Rscript --vanilla combine_stab_metrics.r  "3sources" 3
 cd ..
 ```
 This produces the following figure:
-```{r}
-knitr::include_graphics("RealData/3sources/stab_plot_bis.pdf")
+
+```{r, echo=FALSE, out.width="70%", fig.align = 'center', fig.cap="Figure 6A"}
+display_pdf("RealData/3sources/stab_plot_bis")
 ```
 
-### (B) Correlation of F score and the bisilhouette score
-```{zsh, engine.opts='-l', eval=FALSE}
+#### (B) Correlation of F score and the bisilhouette score
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
 Rscript --vanilla RealData/single_cell/phi_investigate.r  "euclidean" "3sources" 
 cd RealData
 Rscript --vanilla combine_phi_metrics.r  "single_cell" 2
 cd ..
 ```
 This produces the following figure:
-```{r}
-knitr::include_graphics("RealData/single_cell/single_cell_f_score_bis_psi.pdf")
+
+```{r, echo=FALSE, out.width="70%", fig.align = 'center', fig.cap="Figure 6B"}
+display_pdf("RealData/single_cell/single_cell_f_score_bis_psi")
 ```
 
-## Figure 7 - bisilhouette plots
-### (A) Shuffled synthetic data
+### Figure 7 
+#### (A) Shuffled synthetic data
 The following code chunk creates and save the bisilhouette plot for the shuffled synthetic data. This is saved to `Exploration/visual_data/shuffled_bisil_plot.pdf`.
-```{r}
+```{r, messages=FALSE, results='hide'}
 source("Exploration/visualisation_ex.r")
-knitr::include_graphics("Exploration/visual_data/shuffled_bisil_plot.pdf")
 ```
 
-### (B) Real data - A549 dataset
+```{r, echo=FALSE,  out.width="70%", fig.align = 'center', fig.cap="Figure 7A"}
+display_pdf("Exploration/visual_data/shuffled_bisil_plot")
+```
+
+#### (B) Real data - A549 dataset
 The code chunk for Figure 6B also creates and save the bisilhouette plot for the A549 dataset. This is saved to `RealData/single_cell/sc_bisil_plot.pdf`.
-```{r}
-knitr::include_graphics("RealData/single_cell/sc_bisil_plot.pdf")
+```{r, echo=FALSE,  out.width="70%", fig.align = 'center',fig.cap="Figure 7B"}
+display_pdf("RealData/single_cell/sc_bisil_plot")
 ```
 
-# Paper figures
-## Figure 3 -  spurious biclusters illustrations
-The following code chunk creates and save the two subfigures in Figure 3. These are saved to `Exploration/f_data_dists.pdf' and 'Exploration/shuffled_data_dists.pdf'.
-```{r}
+## Paper figures
+### Figure 3
+The following code chunk creates and save the two subfigures in Figure 3.
+```{r, eval=FALSE, messages=FALSE}
 source("Exploration/JSD_diff_dists.r")
+```
+These are saved to `Exploration/f_data_dists.pdf` and `Exploration/shuffled_data_dists.pdf`.
+
+```{r, echo=FALSE,  out.width="70%", fig.align='center', fig.cap="Figure 3A"}
+display_pdf("Exploration/f_data_dists")
+```
+
+```{r, echo=FALSE,  out.width="70%", fig.align='center',fig.cap="Figure 3B"}
+display_pdf("Exploration/shuffled_data_dists")
 ```
 

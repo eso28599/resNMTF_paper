@@ -2,7 +2,7 @@
 options(repos = c(CRAN = "https://cloud.r-project.org/"))
 install_if_missing <- function(package) {
   if (!requireNamespace(package, quietly = TRUE)) {
-    install.packages(package)
+    install.packages(package, dependencies = TRUE)
   }
 }
 install_if_missing("knitr")
@@ -25,3 +25,4 @@ install_if_missing("dplyr")
 install_if_missing("kableExtra")
 install_if_missing("ggpubr")
 install_if_missing("gridExtra")
+install_if_missing("magick")

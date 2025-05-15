@@ -4,7 +4,6 @@ export sim_folder_name=$2 # change
 export n_reps=$3 # change to 100 for full results
 # export sequence=($4) # change to 1 for full results
 
-echo ${@[4,-1]}
 for I in $(seq 1 ${n_reps})
 do
   cd SimStudy/Results/${sim}/${sim_folder_name}/data 
