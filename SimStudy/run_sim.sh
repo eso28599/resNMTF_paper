@@ -23,16 +23,16 @@ do
   cd ../../../../
 
   # generate data
-  # Rscript --vanilla data_gen.r  Results/${sim}/${sim_folder_name} $I
+  Rscript --vanilla data_gen.r  Results/${sim}/${sim_folder_name} $I
 
   # now analyse in R
-  # Rscript --vanilla methods_r.r  Results/${sim}/${sim_folder_name} $I
+  Rscript --vanilla methods_r.r  Results/${sim}/${sim_folder_name} $I
 
   # analyse in python
-  # python3 OtherMethods/methods_p.py Results/${sim}/${sim_folder_name} $I ${sim}
+  python3 OtherMethods/methods_p.py Results/${sim}/${sim_folder_name} $I ${sim}
 
   # evaluate results in R
-  # Rscript --vanilla eval.r  Results/${sim}/${sim_folder_name} $I
+  Rscript --vanilla eval.r  Results/${sim}/${sim_folder_name} $I
 
   cd ..
 

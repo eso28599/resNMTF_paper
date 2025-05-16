@@ -7,13 +7,15 @@ library(ggplot2)
 library(bisilhouette)
 if (dataset == "3sources") {
   file_path <- paste0(dataset, "/data/three_s_psi_")
-  phi_vec <- c(seq(0, 1800, 50), 1900, 1950)
+  # phi_vec <- c(seq(0, 1800, 50), 1900, 1950) # full distance study
+  phi_vec <- c(350, 1700) # end results
 } else if (dataset == "single_cell") {
   file_path <- paste0(dataset, "/data/sc_phi_")
   phi_vec <- seq(0, 40000, 500)
 } else {
   file_path <- paste0(dataset, "/data/", dataset, "_psi_")
   phi_vec <- seq(0, 2000, 50)
+  phi_vec <- c(1850, 600) # end results
 }
 
 n_col <- 3 + 4 * (n_views + 1)

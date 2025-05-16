@@ -88,7 +88,7 @@ pip install -r requirements.txt
 ### Figure 5
 #### (A-B) Increasing number of biclusters
 To run the simulation study for increasing the number of biclusters (on the base scenario of three views), with 5 repetitions, the following code chunk can be used:
-```{zsh, messages=FALSE, results='hide'}
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
 export sim="bicl"
 export sim_folder_name="bicl_3v"
 export seq=(3 4 5 6)
@@ -130,6 +130,62 @@ The variable names for remaining experiments are detailed in the readme file.For
 
 ### Table 2
 
+The results for ResNMTF applied on the various real datasets are obtained from the investigations into the effect of distance metrics and hyperparameter tuning (producing `RealData/all_results_dis.txt`). This can be implemented by running the following code chunks:
+#### 3 Sources
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
+# 3Sources
+cd RealData
+# 35 corresponds to psi=1700 selected by bisilhouette
+# 7 corresponds to psi=300 selected by F score
+for psi in 35 7
+do 
+  Rscript --vanilla 3sources/3sources_hyperparam.r "cosine" psi
+done
+cd ..
+Rscript --vanilla combine_phi_metrics.r  "3sources" 3
+
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
+
+# BBCSport
+# 38 corresponds to psi=1850 selected by bisilhouette
+# 13 corresponds to psi=600 selected by F score
+for phi in 38 13
+do 
+  Rscript --vanilla RealData//bbc_psi.r "cosine" psi
+done
+Rscript --vanilla combine_phi_metrics.r  "bbcsport" 2
+
+# Single cell
+Rscript --vanilla RealData/single_cell/phi_investigate.r "euclidean"
+cd RealData
+Rscript --vanilla combine_phi_metrics.r  "single_cell" 2
+
+# combine results
+Rscript --vanilla combine_results.r 
+```
+
+
+The results for the other methods are obtained, and combined with the results on ResNMTF, by running the following code chunk. It produces various .csv files e.g `RealData/single_cell/all_results.csv`.
+
+```{zsh, messages=FALSE, results='hide', eval=FALSE}
+## 3Sources
+# iSSVD
+python3 RealData/3sources/3sources_python_analysis.py  
+# other methods
+Rscript --vanilla RealData/3sources/3sources_other_results.r 
+
+## BBCSport
+python3 RealData/bbcsport/bbc_python_analysis.py
+# other methods
+Rscript --vanilla RealData/bbcsport/bbc_other_results.r
+
+## A549
+python3 RealData/single_cell/single_cell_python_analysis.py
+# other methods
+Rscript --vanilla RealData/single_cell/single_cell_other_results.r
+```
+
+
 ### Figure 6
 #### (A) Relvance against increasing $\omega$
 ```{zsh, messages=FALSE, results='hide', eval=FALSE}
@@ -146,8 +202,9 @@ display_pdf("RealData/3sources/stab_plot_bis")
 ```
 
 #### (B) Correlation of F score and the bisilhouette score
+This plot is produced by the code chunk for Table 2, specifically, these
 ```{zsh, messages=FALSE, results='hide', eval=FALSE}
-Rscript --vanilla RealData/single_cell/phi_investigate.r  "euclidean" "3sources" 
+Rscript --vanilla RealData/single_cell/phi_investigate.r  "euclidean" "single_cell" 
 cd RealData
 Rscript --vanilla combine_phi_metrics.r  "single_cell" 2
 cd ..
