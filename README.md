@@ -4,10 +4,9 @@ This repository contains the files needed to recreate the results from the paper
 
 
 <div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
-  <strong>Note:</strong> To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the **Bioinference conference reproductibility prize**) please download this repository and knit using R the `reproduce_results.rmd` file (`rmarkdown::render("reproduce_results.rmd")` if you aren't using RStudio). Alternatively, 
- follow the instructions found [here](https://eso28599.github.io/resNMTF_paper/).
+  <strong>Note:</strong> To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the <b>Bioinference conference reproductibility prize</b>) please follow the instructions found <a href="(https://eso28599.github.io/resNMTF_paper/">here</a>. Alternatively, please fork the repository and knit in R the <mark>reproduce_results.rmd</mark>  file (<mark>rmarkdown::render("reproduce_results.rmd")</mark> if you aren't using RStudio).
+.
 </div>
-
 
 The repository makes use of our R packages `resnmtf` and `bisilhouette` which can be installed via:
 ```{r}

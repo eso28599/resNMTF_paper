@@ -422,10 +422,13 @@ chunk.</li>
 <li>The code chunks to reproduce the results on the real data (which
 take substantially longer to run (at least a day each) than the
 simulations) have been set to <code>eval=FALSE</code> and
-<code>include=FALSE</code> to prevent the code from running.</li>
+<code>include=FALSE</code> to prevent the code from running. To
+reproduce these results anyway, simply remove these two arguments.</li>
 </ol>
-<p>To reproduce these results anyway, simply remove these two
-arguments.</p>
+<p>The runtime for this document without the real data applications is
+approximatley (on an M4 Macbook Pro with 16GB RAM) <b>3 hours</b>. The
+runtime for the real data applications is approximately 1-2 days each
+(on a cluster).</p>
 </div>
 <p>Any figures from the paper that are not produced by code
 (i.e. illustrations) are not included in this document.</p>
@@ -590,8 +593,7 @@ do
 done
 cd ..
 Rscript --vanilla combine_phi_metrics.r  &quot;3sources&quot; 3
-</code></pre>
-<pre class="zsh"><code>
+
 # BBCSport
 # 38 corresponds to psi=1850 selected by bisilhouette
 # 13 corresponds to psi=600 selected by F score

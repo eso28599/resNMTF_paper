@@ -19,9 +19,9 @@ Due to the extensive number of simulation studies, real data applications and il
   <strong>Note:</strong> Due to long run times several modifications have been made:
 
 1. The simulation studies were run with 100 repetitions, this has been changed to 3 repetitions. To run with the full number of repetitions, simply change the `n_reps` parameter in the relevant code chunk.
-2. The code chunks to reproduce the results on the real data (which take substantially longer to run (at least a day each) than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running. 
+2. The code chunks to reproduce the results on the real data (which take substantially longer to run (at least a day each) than the simulations) have been set to `eval=FALSE` and `include=FALSE` to prevent the code from running. To reproduce these results anyway, simply remove these two arguments.
 
-To reproduce these results anyway, simply remove these two arguments.
+The runtime for this document without the real data applications is approximatley (on an M4 Macbook Pro with 16GB RAM) <b>3 hours</b>. The runtime for the real data applications is approximately 1-2 days each (on a cluster).
 </div>
 
 Any figures from the paper that are not produced by code (i.e. illustrations) are not included in this document. 
@@ -143,8 +143,6 @@ do
 done
 cd ..
 Rscript --vanilla combine_phi_metrics.r  "3sources" 3
-
-```{zsh, messages=FALSE, results='hide', eval=FALSE}
 
 # BBCSport
 # 38 corresponds to psi=1850 selected by bisilhouette
