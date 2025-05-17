@@ -1,6 +1,8 @@
 ResNMTF/*
 to_do.txt
 .venv/*
+.resnmtf_env/*
+
 proteomics.txt
 aals_participants.csv
 SimStudy/Results/bicl/bicl_3v/data/*

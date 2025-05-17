@@ -1,7 +1,3 @@
-# apply GFA
-if (!requireNamespace("GFA", quietly = TRUE)) {
-  install.packages("GFA")
-}
 library(GFA)
 library(resnmtf)
 quiet <- function(x) {

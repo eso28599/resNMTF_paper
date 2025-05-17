@@ -1,11 +1,12 @@
 # set cran mirror
 options(repos = c(CRAN = "https://cloud.r-project.org/"))
 install_if_missing <- function(package) {
-  if (!requireNamespace(package, quietly = TRUE)) {
+  packages <- installed.packages()[, 1]
+  if (!is.element("package", packages)) {
     install.packages(package, dependencies = TRUE)
   }
 }
-install_if_missing("knitr")
+install_if_missing("rmarkdown")
 install_if_missing("R.matlab")
 install_if_missing("viridis")
 install_if_missing("ggplot2")
@@ -26,3 +27,4 @@ install_if_missing("kableExtra")
 install_if_missing("ggpubr")
 install_if_missing("gridExtra")
 install_if_missing("magick")
+install_if_missing("GFA")

@@ -1,12 +1,16 @@
 #!/bin/zsh
-export sim=$1 #change 
-export sim_folder_name=$2 # change
-export n_reps=$3 # change to 100 for full results
-# export sequence=($4) # change to 1 for full results
+export sim=$1 
+export sim_folder_name=$2 
+export n_reps=$3
+source .resnmtf_venv/bin/activate
 
 for I in $(seq 1 ${n_reps})
 do
-  cd SimStudy/Results/${sim}/${sim_folder_name}/data 
+  cd SimStudy/Results/${sim}/${sim_folder_name}
+  if [ ! -d data ]; then 
+    mkdir data
+  fi
+  cd data 
   if [ ! -d "$I" ]; then
     mkdir $I
     cd $I
@@ -17,6 +21,7 @@ do
       mkdir issvd_$i
       mkdir nmtf_$i
     done
+    cd ..
   fi
 
   # move back into SimStudy

@@ -6,11 +6,11 @@
 \cmidrule(l{3pt}r{3pt}){2-5}
  & 3 & 4 & 5 & 6\\
 \midrule
-ResNMTF & \textbf{1.0000 (NA)} & \textbf{0.9238 (NA)} & \textbf{0.9406 (NA)} & \textbf{0.8871 (NA)}\\
-GFA & 0.1144 (NA) & 0.1092 (NA) & 0.0573 (NA) & 0.0558 (NA)\\
-iSSVD & 0.0000 (NA) & 0.0757 (NA) & 0.0000 (NA) & 0.0000 (NA)\\
-NMTF & 0.0739 (NA) & 0.0632 (NA) & 0.0467 (NA) & 0.0336 (NA)\\
+ResNMTF & \textbf{1.0000 (0.0000)} & \textbf{0.9707 (0.0131)} & \textbf{0.9281 (0.0128)} & \textbf{0.8953 (0.0094)}\\
+GFA & 0.2810 (0.0083) & 0.3385 (0.0595) & 0.2521 (0.0354) & 0.2286 (0.0156)\\
+iSSVD & 0.0000 (0.0000) & 0.7518 (0.0141) & 0.0000 (0.0000) & 0.0000 (0.0000)\\
+NMTF & 1.0000 (0.0000) & 0.8969 (0.0150) & 0.8135 (0.0247) & 0.8224 (0.0392)\\
 \bottomrule
-\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 3 views, $\phi$ = 200, 1 repetitions.}\\
+\multicolumn{5}{l}{\textsuperscript{a} Relevance scores. 3 views, $\phi$ = 200, 3 repetitions.}\\
 \end{tabular}
 \end{table}
