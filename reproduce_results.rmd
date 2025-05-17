@@ -46,8 +46,8 @@ If you are on Windows, please install a `zsh` shell (e.g. [Git Bash](https://git
 
 ### R
 
-#### 1. Fork the repository
-In order to run this document, you need fork the github repository to your local machine. The repository can be found [here](https://github.com/eso28599/resNMTF_paper). 
+#### 1. Clone the repository
+In order to run this document, you need clone the github repository to your local machine. The repository can be found [here](https://github.com/eso28599/resNMTF_paper). 
 
 #### 2. Install R packages
 Secondly, we need to install the required packages. The `resnmtf` and `bisilhouette` packages are available on github and can be installed using the `devtools` package. This work requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here](https://eso28599.github.io/resnmtf/) and [here](https://eso28599.github.io/bisilhouette/) respectively.
@@ -76,7 +76,7 @@ As one of the methods ResNMTF is compared against a method written in Python, an
 
 If you don't have `pyenv` installed, please install it following instructions [here](https://github.com/pyenv/pyenv).
 
-```{zsh, engine.opts='-l',show.message=FALSE, warning=FALSE, message=FALSE,eval=FALSE}
+```{zsh, engine.opts='-l',show.message=FALSE, warning=FALSE, message=FALSE}
 chmod +x ./virtual_env.sh
 ./virtual_env.sh
 ```
@@ -88,7 +88,7 @@ This section details the code to reproduce all results from the paper, with each
 ### Figure 5
 #### (A-B) Increasing number of biclusters
 To run the simulation study for increasing the number of biclusters (on the base scenario of three views), with **3 repeats**, the following code chunk can be used:
-```{zsh, messages=FALSE, results='hide', eval=FALSE}
+```{zsh, messages=FALSE, results='hide'}
 export sim="bicl"
 export sim_folder_name="bicl_3v"
 export seq=(3 4 5 6)
@@ -214,7 +214,7 @@ display_pdf("RealData/single_cell/single_cell_f_score_bis_psi")
 ### Figure 7 
 #### (A) Shuffled synthetic data
 The following code chunk creates and save the bisilhouette plot for the shuffled synthetic data. This is saved to `Exploration/visual_data/shuffled_bisil_plot.pdf`.
-```{r, messages=FALSE, results='hide', eval=FALSE}
+```{r, messages=FALSE, results='hide'}
 source("Exploration/visualisation_ex.r")
 ```
 
@@ -231,7 +231,7 @@ display_pdf("RealData/single_cell/sc_bisil_plot")
 ## Paper figures
 ### Figure 3
 The following code chunk creates and save the two subfigures in Figure 3.
-```{r, eval=TRUE, messages=FALSE, eval=FALSE}
+```{r, eval=TRUE, messages=FALSE}
 source("Exploration/JSD_diff_dists.r")
 ```
 These are saved to `Exploration/f_data_dists.pdf` and `Exploration/shuffled_data_dists.pdf`.
