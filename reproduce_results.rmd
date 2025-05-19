@@ -77,7 +77,9 @@ display_pdf <- function(file) {
 ### Python
 As one of the methods ResNMTF is compared against a method written in Python, an environment is provided for reproducibility. This assumes you have python and pip available on your machine. If you do not, please install them. 
 
-If you don't have `pyenv` installed, please install it following instructions [here](https://github.com/pyenv/pyenv).
+<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
+  <strong>Important:</strong> If you don't have `pyenv` installed, please install it following instructions [here](https://github.com/pyenv/pyenv). This allows you to create a virtual environment with a specific version of Python, which is needed to run the iSSVD method.
+</div>
 
 ```{zsh, engine.opts='-l',show.message=FALSE, warning=FALSE, message=FALSE}
 chmod +x ./virtual_env.sh
