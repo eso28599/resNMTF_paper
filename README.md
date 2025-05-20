@@ -10,9 +10,9 @@ This repository contains the files needed to recreate the results from the paper
 
 The repository makes use of our R packages `resnmtf` and `bisilhouette` which can be installed via:
 ```{r}
-if (!require(devtools)) {
-  install.packages("devtools")
-  library(devtools)
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+if (!is.element("devtools", installed.packages()[, 1])) {
+  install.packages(package, dependencies = TRUE)
 }
 devtools::install_github("eso28599/bisilhouette")
 devtools::install_github("eso28599/resnmtf") 
