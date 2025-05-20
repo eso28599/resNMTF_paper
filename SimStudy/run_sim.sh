@@ -2,7 +2,8 @@
 export sim=$1 
 export sim_folder_name=$2 
 export n_reps=$3
-source .resnmtf_venv/bin/activate
+conda activate resnmtf_venv
+# source .resnmtf_venv/bin/activate # uncomment this line if you are not using conda
 
 for I in $(seq 1 ${n_reps})
 do
