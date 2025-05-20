@@ -501,14 +501,26 @@ library(magick)</code></pre>
 Python, an environment is provided for reproducibility. This assumes you
 have python and pip available on your machine. If you do not, please
 install them.</p>
-<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
-<p><strong>Important:</strong> If you don’t have <code>pyenv</code>
-installed, please install it following instructions <a href="https://github.com/pyenv/pyenv">here</a>. This allows you to
+<div id="conda-environment-installation-default" class="section level4">
+<h4>Conda environment installation (default)</h4>
+<pre class="zsh"><code>chmod +x ./conda_env.sh
+source conda_env.sh</code></pre>
+</div>
+<div id="pip-environment-installation" class="section level4">
+<h4>Pip environment installation</h4>
+<p>Alternatively, if you do not have conda installed, you can create a
+virtual environment using <code>pip</code>. This can be done by changing
+eval running the following code chunk.</p>
+<p>If you don’t have <code>pyenv</code> installed, please install it
+following instructions <a href="https://github.com/pyenv/pyenv">here</a>. This allows you to
 create a virtual environment with a specific version of Python, which is
 needed to run the iSSVD method.</p>
-</div>
 <pre class="zsh"><code>chmod +x ./virtual_env.sh
 ./virtual_env.sh</code></pre>
+<p>You will also need to uncomment the <code>source</code> line in the
+<code>SimStudy/run_sim.sh</code> file to activate the environment using
+<code>pip</code> rather than <code>conda</code>.</p>
+</div>
 </div>
 </div>
 <div id="results" class="section level1">
