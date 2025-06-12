@@ -30,7 +30,7 @@ cart_prod <- function(a, b) {
   if (length(a) == 0 || length(b) == 0) {
     return(NULL)
   } else {
-    for (k in seq_len(length(a))) {
+    for (k in seq_along(a)) {
       prod <- c(prod, paste(a[k], b))
     }
     return(prod)
@@ -70,8 +70,8 @@ jaccard_res <- function(row_c, col_c, true_r, true_c) {
       "relations" = rep(0, n)
     ))
   }
-  samps <- seq_len(nrow(row_c))
-  feats <- seq_len(nrow(col_c))
+  samps <- seq_along(row_c)
+  feats <- seq_along(col_c)
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
@@ -233,7 +233,7 @@ jaccard_row <- function(row_c, true_r, print = FALSE) {
       "relations" = rep(0, n)
     ))
   }
-  rows <- seq_len(row_c)
+  rows <- seq_along(row_c)
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
@@ -295,7 +295,7 @@ calc_all_sils <- function(data, res) {
       bisilhouette(data[[i]],
         res$row_clusters[[i]],
         res$col_clusters[[i]],
-        method = "cosine"
+        method = "manhattan" # cosine not available
       )$bisil
     )
   }
@@ -303,6 +303,22 @@ calc_all_sils <- function(data, res) {
   bisils_man <- c(bisils_man, get_sil_mean(bisils_man))
   bisils_cosine <- c(bisils_cosine, get_sil_mean(bisils_cosine))
   return(list("euc" = bisils_euc, "man" = bisils_man, "cosine" = bisils_cosine))
+}
+
+calc_euc_sils <- function(data, res) {
+  n_views <- length(data)
+  bisils_euc <- c()
+  for (i in 1:n_views) {
+    bisils_euc <- c(
+      bisils_euc,
+      bisilhouette(
+        data[[i]],
+        res$row_clusters[[i]],
+        res$col_clusters[[i]]
+      )$bisil
+    )
+  }
+  return(c(bisils_euc, get_sil_mean(bisils_euc)))
 }
 
 all_jaccs <- function(rows, res) {

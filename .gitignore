@@ -3,6 +3,9 @@ to_do.txt
 .venv/*
 .resnmtf_env/*
 
+RealData/3cancers/aml/*
+RealData/3cancers/breast/*
+RealData/3cancers/colon/*
 proteomics.txt
 aals_participants.csv
 SimStudy/Results/bicl/bicl_3v/data/*

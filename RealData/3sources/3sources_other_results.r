@@ -3,7 +3,7 @@
 filepath <- "RealData/3sources"
 source_filepath <- "SimStudy/Functions/"
 source_filepath2 <- ""
-source(paste0(source_filepath, "gfa_funcs.r"))
+source("SimStudy/OtherMethods/gfa_funcs.r")
 source(paste0(source_filepath, "extra_funcs.r"))
 source(paste0(source_filepath, "evaluation_funcs.r"))
 library(resnmtf)

@@ -1,0 +1,161 @@
+---
+title: "Title"
+author: "Author"
+date: "Date"
+output: 
+  cleanrmd::html_document_clean:
+    theme: stylize  # see cleanrmd::cleanrmd_themes()
+                    # or set to NULL for dynamic theme picker (requires internet)
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+install.packages("biclust")
+library(biclust)
+```
+
+```{r}
+library(bisilhouette)
+apply_biclust_method <- function(data, method, name,
+                                 transposed = FALSE, number_clusts = 6) {
+  row_clusters <- vector("list", length = length(data))
+  col_clusters <- vector("list", length = length(data))
+  for (i in seq_along(data)) {
+    if (name == "Motif") {
+      res <- quiet(biclust(data[[i]], method = method, number = number_clusts))
+    } else {
+      res <- quiet(biclust(data[[i]], method = method))
+    }
+    if (anyNA(res@RowxNumber)) {
+      row_clusters[[i]] <- matrix(0, nrow = nrow(data[[i]]), ncol = 1)
+      col_clusters[[i]] <- matrix(0, nrow = ncol(data[[i]]), ncol = 1)
+    } else {
+      rows <- apply(res@RowxNumber, 2, as.numeric)
+      cols <- apply(res@NumberxCol, 2, as.numeric)
+      if (!is.matrix(cols)) {
+        col_clusters[[i]] <- matrix(cols, nrow = length(cols), ncol = 1)
+        row_clusters[[i]] <- matrix(rows, nrow = length(rows), ncol = 1)
+      } else {
+        col_clusters[[i]] <- t(cols)
+        row_clusters[[i]] <- rows
+      }
+    }
+  }
+  if (transposed) {
+    return(list(row_clusters = col_clusters, col_clusters = row_clusters))
+  }
+  return(list(row_clusters = row_clusters, col_clusters = col_clusters))
+}
+biclust_results <- function(data, labels, method, name,
+                            transposed = FALSE, repeats = 5,
+                            number_clusts = 6) {
+  n_cols <- (length(data) + 1) * 4
+  res_mat <- matrix(0, nrow = repeats, ncol = n_cols)
+  for (i in seq_len(repeats)) {
+    results <- apply_biclust_method(data, method, name,
+                                    transposed, number_clusts)
+    # return(results)
+    if (transposed) { 
+      jaccs <- all_jaccs(labels, results$row_clusters)
+      bisils <- calc_euc_sils(lapply(data, t), results)
+    } else {
+      bisils <- calc_euc_sils(data, results)
+      jaccs <- all_jaccs(labels, results$col_clusters)
+    }
+    res_mat[i, ] <- c(jaccs, bisils)
+  }
+  res_mat <- cbind(rep(name, repeats), res_mat)
+  return(res_mat)
+}
+
+```
+# Load the data
+
+Data is terms by documents, 
+Need to 
+- check if any of the methods require additional parameters
+- store results in a csv file
+- getting bisil of 1 when all are in one cluster
+```{r}
+# no params needed
+bcplaid_results <- biclust_results(three_data, docs_labs,
+                                   method = BCPlaid, name = "Plaid",
+                                   transposed = TRUE)
+# for questionnaire data - so haven't used BCQuest
+bcspectral_results <- biclust_results(three_data, docs_labs,
+                                      method = BCSpectral, name = "spectral",
+                                      transposed = TRUE)
+bcplaid_results2 <- biclust_results(lapply(three_data, t), docs_labs,
+                                    method = BCPlaid, name = "Plaid_t")
+bcspectral_results2 <- biclust_results(lapply(three_data, t), docs_labs,
+                                       method = BCSpectral, name = "spectral_t")
+
+full_res <- rbind(bcplaid_results,
+                  bcplaid_results2,
+                  bcspectral_results,
+                  bcspectral_results2)
+write.csv(full_res, "RealData/3sources/biclust_results_term_doc.csv",
+          row.names = FALSE)
+```
+
+
+```{r}
+
+
+
+
+bccc_res <- apply_biclust_method(lapply(three_data, t), BCCC, transposed=TRUE)
+res_bccc <- biclust(t(three_data[[1]]), method = BCCC)
+```
+
+
+```{r}
+
+results <- apply_biclust_method(three_data, method = BCQuest, transposed = TRUE)
+dim(results$col_clusters[[1]])
+
+
+
+dim(results$col_clusters[[3]])
+
+bisils <- calc_all_sils(lapply(three_data, t), list(labels, labels, labels))
+bisils_og <- calc_euc_sils(lapply(three_data, t), results)
+bisils <- calc_euc_sils(three_data, list(row_clusters = results$col_clusters,
+                                         col_clusters = results$row_clusters))
+
+i <- 1
+bisilhouette(t(three_data[[i]]),
+        docs_labs,
+        results$row_clusters[[i]],
+        method = "euclidean",
+      )$bisil
+
+gfa_res <- gfa_apply(lapply(three_data, t), dim(docs_labs)[2])
+gfa_res_t <- list(row_clusters = gfa_res$col_clusters,
+                     col_clusters = gfa_res$row_clusters)
+
+bisils_gfa <- calc_all_sils(lapply(three_data, t), gfa_res)
+bisils_gfa_t <- calc_all_sils(three_data, gfa_res)
+
+all_jaccs(docs_labs, gfa_res$row_clusters)
+
+# assess performance
+bisils <- calc_all_sils(lapply(three_data, t), bbc_res2[[k]])
+jaccs <- all_jaccs(docs_labs, bbc_res2[[k]]$row_clusters)
+
+
+all_jaccs(docs_labs,results$col_clusters)
+
+
+jaccard_row(results$col_clusters[[3]], docs_labs)
+
+
+res <- biclust(three_data[[2]], method = BCPlaid)
+cols <- apply(res@NumberxCol, 2, as.numeric)
+```
+
