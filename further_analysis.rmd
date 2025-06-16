@@ -29,7 +29,7 @@ apply_biclust_method <- function(data, method, name,
     if (name == "Motif") {
       res <- quiet(biclust(data[[i]], method = method, number = number_clusts))
     } else {
-      res <- quiet(biclust(data[[i]], method = method))
+      res <- suppressMessages(biclust(data[[i]], method = method))
     }
     if (anyNA(res@RowxNumber)) {
       row_clusters[[i]] <- matrix(0, nrow = nrow(data[[i]]), ncol = 1)
@@ -109,6 +109,10 @@ write.csv(full_res, "RealData/3sources/biclust_results_term_doc.csv",
 
 ## 3cancers results
 ```{r}
+source("SimStudy/Functions/extra_funcs.r")
+source("SimStudy/Functions/evaluation_funcs.r")
+
+
 three_cancers <- import_matrix("RealData/3cancers/tgca_3cancers.xlsx")
 labels <- read.csv("RealData/3cancers/tgca_3cancers_labels.csv")
 tc_data <- lapply(three_cancers, function(x) apply(x, 2, as.numeric))
@@ -116,15 +120,16 @@ tc_data <- lapply(tc_data, function(x) x[, 2:1242])
 ```
 
 ```{r}
+library(biclust)
 # no params needed
 bcplaid_results <- biclust_results(tc_data, labels,
                                    method = BCPlaid, name = "Plaid",
                                    transposed = TRUE)
+
 # for questionnaire data - so haven't used BCQuest
 bcspectral_results <- biclust_results(tc_data, docs_labs,
                                       method = BCSpectral, name = "spectral",
-                                      transposed = TRUE)
-bcplaid_results2 <- biclust_results(lapply(tc_data, t), docs_labs,
+                                      transposed = TRUE)bcplaid_results2 <- biclust_results(lapply(tc_data, t), docs_labs,
                                     method = BCPlaid, name = "Plaid_t")
 bcspectral_results2 <- biclust_results(lapply(tc_data, t), docs_labs,
                                        method = BCSpectral, name = "spectral_t")
@@ -145,6 +150,13 @@ for (method in c("Plaid", "spectral")) {
 # only keep non transposed results
 write.csv(best_res[c(1, 3), ], "RealData/3cancers/biclust_results.csv",
           row.names = FALSE)
+
+cols <- apply(mvrnorm(n = 20267, mu = rep(0, 3), Sigma = diag(3)) > 0, 2, as.numeric)
+bisilhouette(t(tc_data[[1]]),
+        labels,
+        cols,
+        method = "cosine",
+      )
 ```
 
 Now look at the GFA results

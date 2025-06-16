@@ -1,21 +1,24 @@
-args <- commandArgs(trailingOnly = TRUE)
-dataset <- as.character(args[1])
-n_views <- as.numeric(args[2])
-source("../SimStudy/Functions/extra_funcs.r")
+# args <- commandArgs(trailingOnly = TRUE)
+# dataset <- as.character(args[1])
+# n_views <- as.numeric(args[2])
+dataset <- "bbcsport"
+n_views <- 2
+source("SimStudy/Functions/extra_funcs.r")
 library(latex2exp)
 library(ggplot2)
 
-file_path <- paste0(dataset, "/data/", dataset, "_psi_")
+file_path <- paste0("RealData/", dataset)
 stab_vec <- seq(0, 1, 0.05)
 n_col <- 4 + 6 * (n_views + 1)
 dataset2 <- ifelse(dataset == "single_cell", "sc", dataset)
-results_bis <- read.csv(paste0(dataset, "/", dataset2, "_stab_bis.csv"),
+dataset2 <- ifelse(dataset == "bbcsport", "bbc", dataset2)
+results_bis <- read.csv(paste0(file_path, "/", dataset2, "_stab_bis.csv"),
   row.names = 1
 )
-results_fscore <- read.csv(paste0(dataset, "/", dataset2, "_stab_fscore.csv"),
+results_fscore <- read.csv(paste0(file_path, "/", dataset2, "_stab_fscore.csv"),
   row.names = 1
 )
-results_nmtf <- read.csv(paste0(dataset, "/", dataset2, "_stab_nmtf.csv"),
+results_nmtf <- read.csv(paste0(file_path, "/", dataset2, "_stab_nmtf.csv"),
   row.names = 1
 )
 
@@ -33,37 +36,40 @@ old_names <- c(
 colnames(results_bis) <- old_names
 colnames(results_fscore) <- old_names
 colnames(results_nmtf) <- old_names
-method <- paste0("ResNMTF - ", c("BiS (S)", "F score (S)"))
+method <- c(paste0("ResNMTF - ", c("BiS/BiS", "BiS/F", "F/F")), "NMTF")
 res_list <- list(
+  results_bis,
   results_bis,
   results_fscore,
   results_nmtf
 )
 sub_res <- vector("list", length = 3)
-results <- matrix(0, nrow = 3, ncol = n_col)
-for (i in 1:3) {
+results <- matrix(0, nrow = 4, ncol = n_col)
+for (i in 1:4) {
   res <- res_list[[i]]
   max_bis_e <- which.max(res[, "BiS.E"])
+  max_bis_c <- which.max(res[, "BiS.C"])
+  max_bis <- ifelse(
+    dataset == "single_cell",
+    max_bis_e,
+    max_bis_c
+  )
   max_f <- which.max(res[, "F.score"])
-  sub_res[[i]] <- as.data.frame(cbind(
+  row_res <- cbind(
     method[i],
-    res[ifelse(i == 1, max_bis_e, max_f), ]
-  ))
-  colnames(sub_res[[i]]) <- c("method", old_names)
+    res[ifelse(i == 1, max_bis, max_f), ][1, ]
+  )
+  results[i, ] <- unlist(row_res)
 }
-dis_study <- rbind(
-  c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.score),
-  c(sub_res[[1]]$omega, sub_res[[2]]$omega, sub_res[[3]]$omega),
-  c(sub_res[[1]]$k, sub_res[[2]]$k, sub_res[[3]]$k)
-)
+colnames(results) <- c("method", old_names)
 write.csv(
-  dis_study,
-  paste0(dataset, "/stability_study.csv")
+  results,
+  paste0(file_path, "/stability_study.csv")
 )
 
 if (dataset == "3sources") {
   for (score in c("bis", "fscore")) {
-    df <- read.csv(paste0(dataset, "/", dataset2, "_stab_", score, ".csv"),
+    df <- read.csv(paste0(filepath, "/", dataset2, "_stab_", score, ".csv"),
       row.names = 1
     )
     data <- as.data.frame(df) # Create the line plot
