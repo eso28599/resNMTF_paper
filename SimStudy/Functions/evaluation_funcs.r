@@ -295,7 +295,7 @@ calc_all_sils <- function(data, res) {
       bisilhouette(data[[i]],
         res$row_clusters[[i]],
         res$col_clusters[[i]],
-        method = "manhattan" # cosine not available
+        method = "cosine" # cosine not available
       )$bisil
     )
   }
