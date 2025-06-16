@@ -2,6 +2,7 @@ ResNMTF/*
 to_do.txt
 .venv/*
 .resnmtf_env/*
+RealData/3cancers/tgca_3cancers.xlsx
 
 RealData/3cancers/aml/*
 RealData/3cancers/breast/*
