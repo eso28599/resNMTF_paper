@@ -22,6 +22,7 @@ RealData/single_cell/issvd_res/*
 RealData/3cancers/logs/*
 RealData/3cancers/data/*
 RealData/3cancers/issvd_res/*
+RealData/3sources/mvlearn_res/*
 
 
 # SimStudy/RunSim/Results/*

@@ -3,11 +3,17 @@ from pandas import ExcelWriter
 import pandas as pd
 import numpy as np
 from iSSVD.functions import issvd
+from mvlearn.cluster import MultiviewCoRegSpectralClustering
 
 def save_xls(list_dfs, xls_path):
     with ExcelWriter(xls_path) as writer:
         for n, df in enumerate(list_dfs):
             df.to_excel(writer,'sheet%s' % n, header=True, index= False)
+            
+def save_csvs(list_dfs, basepath):
+    for n, df in enumerate(list_dfs):
+        csv_filename = f"{basepath}_sheet{n}.csv"
+        df.to_csv(csv_filename, index=False, header=True)
     
 def cluster_assignment(clust_membership, n_var):
     #eturn [pd.DataFrame([np.arange(n_var) in clust for clust in clust_membership])]
@@ -31,11 +37,11 @@ data = [np.array(pd.read_excel(data_views, sheet)).transpose() for sheet in data
 n_views = len(data)
 n_vars = [view.shape[1] for view in data]
 n_samps = data[0].shape[0]
-
-
+  
+# now look at iSSVD
 for i in np.arange(5):
-        row_issvd_filename = "RealData/3sources/issvd_res/" +  str(i) + "_row_clusts.xlsx"
-        col_issvd_filename =  "RealData/3sources/issvd_res/" +  str(i) + "_col_clusts.xlsx"
+        row_issvd_filename = "RealData/3sources/issvd_res/" +  str(i) + "_row_clusts"
+        col_issvd_filename =  "RealData/3sources/issvd_res/" +  str(i) + "_col_clusts"
         iSSVD_applied = issvd(data, standr=False,pointwise=True,steps=100,size=0.6,
                     vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=False
                     ,row_overlap=False,pceru=0.15,pcerv=0.16,merr=0.0001,iters=100)           
@@ -46,5 +52,21 @@ for i in np.arange(5):
         else:
             row_clusts = fix_row_clusts(iSSVD_applied['Sample_index'], n_views, n_samps)
             col_clusts = fix_col_clusts(iSSVD_applied['Variable_index'], n_views, n_clusts, n_vars)
-        save_xls(row_clusts, row_issvd_filename)
-        save_xls(col_clusts, col_issvd_filename)
+        save_csvs(row_clusts, row_issvd_filename)
+        save_csvs(col_clusts, col_issvd_filename)
+        
+        
+        
+# now look at mvlearn 
+for i in np.arange(5):
+  seed = 10 + i
+  row_mvclust_filename = "RealData/3sources/mvlearn_res/" + str(i) + "row_mvclusts"
+  mv_spectral = MultiviewCoRegSpectralClustering(n_clusters=6,
+      random_state=seed, n_init=100)
+  mv_clusters = mv_spectral.fit_predict(data)
+  num_clusters = mv_clusters.max() + 1
+  row_cluster_mvc = np.zeros((mv_clusters.size, num_clusters), dtype=int)
+  row_cluster_mvc[np.arange(mv_clusters.size), mv_clusters] = 1
+  full_rows = [pd.DataFrame(row_cluster_mvc) for _ in np.arange(n_views)]
+  save_csvs(full_rows, row_mvclust_filename)
+        
