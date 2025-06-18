@@ -7,6 +7,47 @@ import_matrix <- function(filename, col_n = TRUE) {
     import_list(filename, col_names = col_n), function(x) as.matrix(x)
   ))
 }
+
+import_matrix <- function(csv_dir, base_name, row_names = NULL) {
+  # from chatgpt
+  # List all CSV files that match the base name pattern
+  csv_files <- list.files(path = csv_dir, pattern = paste0("^", base_name, "_.*\\.csv$"), full.names = TRUE)
+  
+  # Initialize an empty list
+  matrix_list <- list()
+  
+  # Loop over each CSV file and read it as a matrix
+  for (file in csv_files) {
+    # Extract sheet name from filename
+    sheet_name <- sub(paste0("^", base_name, "_"), "", basename(file))
+    sheet_name <- sub("\\.csv$", "", sheet_name)
+    
+    # Read the CSV and convert to matrix
+    df <- read.csv(file, header = TRUE, stringsAsFactors = FALSE, row.names = row_names)
+    matrix_list[[sheet_name]] <- as.matrix(df)
+  }
+  
+  return(matrix_list)
+}
+
+
+export_matrix_list <- function(mat_list, base_name, output_dir = ".") {
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+  }
+
+  for (sheet_name in names(mat_list)) {
+    # Sanitize sheet name for filename safety
+    safe_sheet_name <- gsub("[^A-Za-z0-9_]", "_", sheet_name)
+    filename <- file.path(output_dir, paste0(base_name, "_", safe_sheet_name, ".csv"))
+
+    # Write matrix to CSV
+    write.csv(mat_list[[sheet_name]], file = filename, row.names = FALSE)
+    message("Saved matrix: ", filename)
+  }
+}
+
+
 save_results <- function(results, file_path, error = TRUE) {
   row_filename <- paste0(file_path, "/row_clusts.xlsx")
   col_filename <- paste0(file_path, "/col_clusts.xlsx")

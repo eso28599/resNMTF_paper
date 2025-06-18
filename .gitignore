@@ -2,6 +2,7 @@ ResNMTF/*
 to_do.txt
 .venv/*
 .resnmtf_env/*
+RealData/3cancers/tgca_3cancers.xlsx
 
 RealData/3cancers/aml/*
 RealData/3cancers/breast/*
@@ -9,6 +10,20 @@ RealData/3cancers/colon/*
 proteomics.txt
 aals_participants.csv
 SimStudy/Results/bicl/bicl_3v/data/*
+RealData/3sources/issvd_res/*
+RealData/3sources/logs/*
+RealData/3sources/data/*
+RealData/bbcsport/logs/*
+RealData/bbcsport/data/*
+RealData/bbcsport/issvd_res/*
+RealData/single_cell/logs/*
+RealData/single_cell/data/*
+RealData/single_cell/issvd_res/*
+RealData/3cancers/logs/*
+RealData/3cancers/data/*
+RealData/3cancers/issvd_res/*
+
+
 # SimStudy/RunSim/Results/*
 SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/data/*
 SimStudy/RunSim/Results/issvd_param_signal5/issvd_param/logs/*

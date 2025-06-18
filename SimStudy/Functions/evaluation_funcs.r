@@ -3,6 +3,7 @@ library(clue)
 library(aricode)
 library(cluster)
 suppressPackageStartupMessages(library(proxy))
+library(bisilhouette)
 
 
 jaccard <- function(a, b) {
@@ -295,7 +296,7 @@ calc_all_sils <- function(data, res) {
       bisilhouette(data[[i]],
         res$row_clusters[[i]],
         res$col_clusters[[i]],
-        method = "manhattan" # cosine not available
+        method = "cosine" # cosine not available
       )$bisil
     )
   }
@@ -342,12 +343,12 @@ all_jaccs <- function(rows, res) {
 
 dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
   # save data
-  openxlsx::write.xlsx(res$row_clusters,
-    file = paste0(path, "/data/row_clusts", phi, "_", rep, ".xlsx")
-  )
-  openxlsx::write.xlsx(res$col_clusters,
-    file = paste0(path, "/data/col_clusts", phi, "_", rep, ".xlsx")
-  )
+  # openxlsx::write.xlsx(res$row_clusters,
+  #   file = paste0(pathth, "/data/row_clusts", phi, "_", rep, ".xlsx")
+  # )
+  # openxlsx::write.xlsx(res$col_clusters,
+  #   file = paste0(path, "/data/col_clusts", phi, "_", rep, ".xlsx")
+  # )
   sils <- calc_all_sils(data, res)
   # jaccard
   if (row_same) {
@@ -355,11 +356,16 @@ dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
   } else {
     jaccs <- all_jaccs(rows, res$col_clusters)
   }
-
   # no clusts
   no_clusts <- max(sapply(
     res$row_clusters,
     function(x) sum(colSums(x) != 0)
   ))
+  export_matrix_list(res$row_clusters, base_name = "row_clusts",
+    output_dir = paste0(path, "/data", phi, "_", rep)
+  )
+  export_matrix_list(res$col_clusters, base_name = "col_clusts",
+    output_dir = paste0(path, "/data", phi, "_", rep)
+  )
   return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts))
 }

@@ -25,8 +25,7 @@ def fix_row_clusts(clust_membership, n_views, n_samp):
     new_clust = [cluster_assignment(clust_membership, n_samp) for i in np.arange(n_views)]
     return [pd.DataFrame(results) for results in new_clust]
 
-file_path = "3sources"
-#file_path = "3sources"
+file_path = "RealData/3sources"
 data_views = pd.ExcelFile(file_path +  "/3sources_all_diff.xlsx")
 data = [np.array(pd.read_excel(data_views, sheet)).transpose() for sheet in data_views.sheet_names]
 n_views = len(data)
@@ -35,8 +34,8 @@ n_samps = data[0].shape[0]
 
 
 for i in np.arange(5):
-        row_issvd_filename = "3sources/issvd_res/" +  str(i) + "_row_clusts.xlsx"
-        col_issvd_filename =  "3sources/issvd_res/" +  str(i) + "_col_clusts.xlsx"
+        row_issvd_filename = "RealData/3sources/issvd_res/" +  str(i) + "_row_clusts.xlsx"
+        col_issvd_filename =  "RealData/3sources/issvd_res/" +  str(i) + "_col_clusts.xlsx"
         iSSVD_applied = issvd(data, standr=False,pointwise=True,steps=100,size=0.6,
                     vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=False
                     ,row_overlap=False,pceru=0.15,pcerv=0.16,merr=0.0001,iters=100)           
@@ -49,13 +48,3 @@ for i in np.arange(5):
             col_clusts = fix_col_clusts(iSSVD_applied['Variable_index'], n_views, n_clusts, n_vars)
         save_xls(row_clusts, row_issvd_filename)
         save_xls(col_clusts, col_issvd_filename)
-
-
-iSSVD_applied = issvd(data, standr=False,pointwise=False,steps=100,size=0.6,
-                    vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=False
-                    ,row_overlap=False,pceru=0.15,pcerv=0.16,merr=0.0001,iters=100) 
-n_clusts = iSSVD_applied['N']
-row_clusts = fix_row_clusts(iSSVD_applied['Sample_index'], n_views, n_samps)
-col_clusts = fix_col_clusts(iSSVD_applied['Variable_index'], n_views, n_clusts, n_vars)
-save_xls(row_clusts, "3sources/issvd_row.xlsx")
-save_xls(col_clusts, "3sources/issvd_col.xlsx")

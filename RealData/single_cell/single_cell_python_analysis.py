@@ -25,8 +25,7 @@ def fix_row_clusts(clust_membership, n_views, n_samp):
     new_clust = [cluster_assignment(clust_membership, n_samp) for i in np.arange(n_views)]
     return [pd.DataFrame(results) for results in new_clust]
 
-file_path = "single_cell"
-#file_path = "investigate_applications/single_cell"
+file_path = "RealData/single_cell"
 data_views = pd.ExcelFile(file_path +  "/data_processed.xlsx")
 data = [np.array(pd.read_excel(data_views, sheet)) for sheet in data_views.sheet_names]
 n_views = len(data)
@@ -34,10 +33,9 @@ n_vars = [view.shape[1] for view in data]
 n_samps = data[0].shape[0]
 
 
-
 for i in np.arange(5):
-        row_issvd_filename = file_path + "/issvd_res/" +  str(i) + "_row_clusts.xlsx"
-        col_issvd_filename =  file_path + "/issvd_res/" +  str(i) + "_col_clusts.xlsx"
+        row_issvd_filename = "RealData/single_cell/issvd_res/" +  str(i) + "_row_clusts.xlsx"
+        col_issvd_filename = "RealData/single_cell/issvd_res/" +  str(i) + "_col_clusts.xlsx"
         iSSVD_applied = issvd(data, standr=False,pointwise=True,steps=100,size=0.6,
                     vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=False
                     ,row_overlap=False,pceru=0.15,pcerv=0.16,merr=0.0001,iters=100)           
