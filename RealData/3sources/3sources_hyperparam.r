@@ -7,11 +7,10 @@ library(R.matlab)
 library(resnmtf)
 library(doParallel)
 library(foreach)
-
+library(purrr)
 # load in
 three_data <- import_matrix("RealData/3sources", "3sources_all_diff")
 docs_labs <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
-set.seed(10 + phi)
 
 phi_mat <- matrix(0, 3, 3)
 phi_mat[1, c(2, 3)] <- 1
@@ -32,14 +31,15 @@ n_col <- 3 + 6 * (n_views + 1)
 
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
-  res_euc <- apply_resnmtf(
+  set.seed(10 + phi + j)
+  res_euc <- purrr::possibly(apply_resnmtf(
     three_data,
     k_min = 4,
     k_max = 8,
     psi = (psi_val) * phi_mat,
     distance = dis,
     stability = FALSE
-  )
+  ), otherwise = rep(0, n_col - 2))
   c(j, psi_val,
     dis_results(
       three_data, docs_labs, res_euc, psi_val, j,

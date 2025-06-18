@@ -7,6 +7,8 @@ library(resnmtf)
 library(R.matlab)
 library(doParallel)
 library(foreach)
+library(purrr)
+
 bbc_rows <- read.csv("RealData/bbcsport/bbc_rows_truth.csv")[, 2:6]
 bbc_d2 <- import_matrix("RealData/bbcsport", "bbc_data_processed")
 set.seed(10 + phi)
@@ -25,11 +27,12 @@ results_euc <- matrix(0, nrow = 5, ncol = n_col)
 
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
-  res_euc <- apply_resnmtf(
+  set.seed(10 + phi + j)
+  res_euc <- purrr::possibly(apply_resnmtf(
     bbc_d2, k_min = 4,
     k_max = 8, psi = phi_val * phi_bbc,
     distance = dis, stability = FALSE
-  )
+  ), otherwise = rep(0, n_col - 2))
   c(
     j, phi_val,
     dis_results(bbc_d2, bbc_rows, res_euc, phi_val, j, paste0("RealData/bbcsport/", dis))

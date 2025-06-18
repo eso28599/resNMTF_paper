@@ -1,20 +1,19 @@
-args = commandArgs(trailingOnly = TRUE)
-dataset = as.character(args[1])
-n_views = as.numeric(args[2])
-source("visualisation.r")
-source("extra_funcs.r")
-library(latex2exp)
-library(ggplot2)
-if(dataset=="3sources"){
-    file_path <- paste0(dataset, "/data/three_s_psi_")
-    phi_vec <- c(seq(0, 1800, 50), 1900, 1950)
+args <- commandArgs(trailingOnly = TRUE)
+dataset <- as.character(args[1])
+n_views <- as.numeric(args[2])
+source("SimStudy/Functions/extra_funcs.r")
+library(bisilhouette)
+if (dataset == "3sources"){
+    file_path <- "RealData/3sources/data/three_s_psi_"
+    phi_vec <- seq(0, 2000, 50)
 }else if (dataset == "single_cell") {
-    file_path <- paste0(dataset, "/data/sc_phi_")
+    file_path <- "RealData/single_cell/data/sc_phi_"
     phi_vec <- seq(0, 40000, 500)
-}else{
-    file_path <- paste0(dataset, "/data/", dataset, "_psi_")
+} else {
+    file_path <- "RealData/bbcsport/data/bbc_psi"
     phi_vec <- seq(0, 2000, 50)
 }
+base_path <- paste0("RealData/", dataset)
 
 n_col <- 3 + 6 * (n_views + 1)
 
@@ -24,18 +23,18 @@ results_cos <- matrix(0, nrow=5*length(phi_vec), ncol=n_col)
 
 k <- 1
 for(phi_val in phi_vec){
-    file_cosine <- paste0(file_path,"cosine",phi_val,".csv")
-    file_euc <- paste0(file_path,"euclidean",phi_val,".csv")
-    file_mann <- paste0(file_path,"manhattan",phi_val,".csv")
-    results_cos[k:(k+4),] <- as.matrix(read.csv(file_cosine, row.names=1))
+    # file_cosine <- paste0(file_path, "cosine", phi_val, ".csv")
+    file_euc <- paste0(file_path, "euclidean", phi_val, ".csv")
+    # file_mann <- paste0(file_path, "manhattan", phi_val, ".csv")
+    # results_cos[k:(k+4),] <- as.matrix(read.csv(file_cosine, row.names=1))
     results_euc[k:(k+4),] <- as.matrix(read.csv(file_euc, row.names=1))
-    results_mann[k:(k+4),] <- as.matrix(read.csv(file_mann, row.names=1))
+    # results_mann[k:(k+4),] <- as.matrix(read.csv(file_mann, row.names=1))
     k <- k + 5
 }
 
-write.csv(results_euc, paste0(dataset, "/data/euc_results.csv"))
-write.csv(results_cos, paste0(dataset, "/data/cos_results.csv"))
-write.csv(results_mann, paste0(dataset, "/data/mann_results.csv"))
+write.csv(results_euc, paste0(base_path, "/data/euc_results.csv"))
+# write.csv(results_cos, paste0(base_path, "/data/cos_results.csv"))
+# write.csv(results_mann, paste0(base_path, "/data/mann_results.csv"))
 
 #process results
 old_names <- c("rep","psi",
@@ -65,40 +64,47 @@ for(i in 1:3){
     sub_res[[i]] <- as.data.frame(cbind(method, res[c(max_bis_e, max_bis_c, max_bis_m, max_f), ]))
     colnames(sub_res[[i]]) <- c("method", old_names)
     write.csv(sub_res[[i]],
-            paste0(dataset, "/data/", dis[i], "_results.csv"))
+            paste0(base_path, "/data/", dis[i], "_results.csv"))
 }
 dis_study <- rbind(c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.score), 
              c(sub_res[[1]]$psi, sub_res[[2]]$psi, sub_res[[3]]$psi),
              c(sub_res[[1]]$k, sub_res[[2]]$k, sub_res[[3]]$k))
 write.csv(dis_study,
-    paste0(dataset, "/distance_study.csv"))
+    paste0(base_path, "/distance_study.csv"))
 
 #produce plot of f score vs bis 
-euc_sc <- read.csv(paste0(dataset, "/data/euc_results.csv"), row.names=1)
-colnames(euc_sc) <- old_names
-sc <- as.data.frame(euc_sc)
+f_vs_bis_plot <- function(data, dis_name, base_path, col_names, scale=5){
+    euc_sc <- read.csv(paste0(base_path, "/data/", dis_name, "_results.csv"), row.names=1)
+    colnames(euc_sc) <- col_names
 
-p <- ggplot(sc, aes(x = psi)) +
-  geom_point(aes(y = F.score, color="F.score"),alpha=0.55) +
-  geom_point(aes(y = BiS.E*5,color="BiS.E"),alpha=0.55) + 
-  scale_y_continuous(
-    name = "F score",
-    sec.axis = sec_axis(~ . / 5, name = "BiS") 
-  ) +
-  labs(x = TeX("$\\phi$")) +
-  scale_colour_manual(
-    name = "",
-    values = c("F.score" = "black", "BiS.E" = "green"),
-    labels = c("F.score" = "F score", "BiS.E" = "BiS")
-  ) +
-  theme_minimal()+
-  theme(legend.position="none", text = element_text(size = 15))
+    sc <- as.data.frame(euc_sc)
+    sc$BiS <- ifelse(dis_name == "euc", sc$BiS.E, 
+                        ifelse(dis_name == "cos", sc$BiS.C, sc$BiS.M))
+    p <- ggplot(data, aes(x = psi)) +
+        geom_point(aes(y = F.score, color="F.score"), alpha=0.55) +
+        geom_point(aes(y = BiS*scale, color="BiS"), alpha=0.55) + 
+        scale_y_continuous(
+            name = "F score",
+            sec.axis = sec_axis(~ . / 5, name = "BiS") 
+        ) +
+        labs(x = TeX("$\\phi$")) +
+        scale_colour_manual(
+            name = "",
+            values = c("F.score" = "black", "BiS" = "green"),
+            labels = c("F.score" = "F score", "BiS" = "BiS")
+        ) +
+        theme_minimal() +
+        theme(legend.position="none", text = element_text(size = 15))
+    
+    suppressMessages(ggsave(paste0(base_path, "/f_score_bis_", dis_name, ".pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=7))
+}
+# f_vs_bis_plot(results_euc, "euc", base_path, old_names)
+# f_vs_bis_plot(results_cos, "cos", base_path, old_names)
+# f_vs_bis_plot(results_mann, "mann", base_path, old_names)
 
-suppressMessages(ggsave(paste0(dataset, "_f_score_bis_psi.pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=7))
 
-
-#bisil plot
-if(dataset=="single_cell"){
+#bisil plot - fix, need single cell to save row and cols
+if(dataset == "single_cell"){
     max_f <- which.max(results_euc[, "F.score"])
     rep_max <- results_euc[max_f,"rep"]
     psi_max <- results_euc[max_f,"psi"]
@@ -109,7 +115,7 @@ if(dataset=="single_cell"){
     row_clusts <- import_matrix(filepath_row)
     col_clusts <- import_matrix(filepath_col)
     single_cell <- import_matrix("single_cell/data_processed.xlsx")
-    path_to_save <- paste0(dataset,"/sc_bisil_plot.pdf")
+    path_to_save <- paste0(base_path,"/sc_bisil_plot.pdf")
     bisil_plot(single_cell[[1]], row_clusts[[1]], col_clusts[[1]], path_to_save)
 }
 

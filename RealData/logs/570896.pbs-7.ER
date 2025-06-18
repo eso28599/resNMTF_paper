@@ -1,0 +1,24 @@
+
+ *** caught illegal operation ***
+address 0x146e836bf7c0, cause 'illegal operand'
+
+Traceback:
+ 1: fun(libname, pkgname)
+ 2: doTryCatch(return(expr), name, parentenv, handler)
+ 3: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 4: tryCatchList(expr, classes, parentenv, handlers)
+ 5: tryCatch(fun(libname, pkgname), error = identity)
+ 6: runHook(".onLoad", env, package.lib, package)
+ 7: loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]])
+ 8: namespaceImport(ns, loadNamespace(i, c(lib.loc, .libPaths()),     versionCheck = vI[[i]]), from = package)
+ 9: loadNamespace(j <- i[[1L]], c(lib.loc, .libPaths()), versionCheck = vI[[j]])
+10: asNamespace(ns)
+11: namespaceImportFrom(ns, loadNamespace(j <- i[[1L]], c(lib.loc,     .libPaths()), versionCheck = vI[[j]]), i[[2L]], from = package)
+12: loadNamespace(package, lib.loc)
+13: doTryCatch(return(expr), name, parentenv, handler)
+14: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+15: tryCatchList(expr, classes, parentenv, handlers)
+16: tryCatch({    attr(package, "LibPath") <- which.lib.loc    ns <- loadNamespace(package, lib.loc)    env <- attachNamespace(ns, pos = pos, deps, exclude, include.only)}, error = function(e) {    P <- if (!is.null(cc <- conditionCall(e)))         paste(" in", deparse(cc)[1L])    else ""    msg <- gettextf("package or namespace load failed for %s%s:\n %s",         sQuote(package), P, conditionMessage(e))    if (logical.return && !quietly)         message(paste("Error:", msg), domain = NA)    else stop(msg, call. = FALSE, domain = NA)})
+17: library(latex2exp)
+An irrecoverable exception occurred. R is aborting now ...
+/var/spool/pbs/mom_priv/jobs/570896.pbs-7.SC: line 13: 2850524 Illegal instruction     (core dumped) Rscript --vanilla RealData/combine_dis_metrics.r 3sources

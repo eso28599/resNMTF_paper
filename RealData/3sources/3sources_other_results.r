@@ -44,21 +44,16 @@ colnames(results) <- col_names
 
 # biclust methods
 bcplaid_results <- biclust_results(three_data, docs_labs,
-  method = BCPlaid, name = "Plaid",
-  transposed = TRUE
-)
+                                   method = BCPlaid, name = "Plaid",
+                                   transposed = TRUE)
 write.csv(bcplaid_results, "RealData/3sources/biclust_results.csv",
-  row.names = FALSE
-)
+          row.names = FALSE)                            
 # for questionnaire data - so haven't used BCQuest
 bcspectral_results <- biclust_results(three_data, docs_labs,
-  method = BCSpectral, name = "spectral",
-  transposed = TRUE
-)
-full_res <- rbind(
-  bcplaid_results,
-  bcspectral_results
-)
+                                      method = BCSpectral, name = "spectral",
+                                      transposed = TRUE)
+full_res <- rbind(bcplaid_results,
+                  bcspectral_results)
 colnames(full_res) <- col_names
 
 
@@ -75,15 +70,12 @@ colnames(results_issvd) <- c(
 k <- 1
 # save results from python doc
 for (t in 1:n_reps) {
-  row_clusts <- import_matrix(
-    paste0(filepath, "/issvd_res/"),
-    paste0(t - 1, "_row_clusts")
-  )
-  col_clusts <- import_matrix(
-    paste0(filepath, "/issvd_res/"),
-    paste0(t - 1, "_col_clusts")
-  )
-
+  row_clusts <- import_matrix(paste0(filepath, "/issvd_res/"),  paste0(t - 1, "_row_clusts"))
+  col_clusts <- import_matrix(paste0(filepath, "/issvd_res/"), paste0(t - 1, "_col_clusts"))
+  # bisils <- calc_all_sils(
+  #   lapply(three_data, t),
+  #   list("row_clusters" = row_clusts, "col_clusters" = col_clusts)
+  # )
   bisils <- calc_all_sils(
     three_data,
     list("row_clusters" = col_clusts, "col_clusters" = row_clusts)
@@ -93,30 +85,3 @@ for (t in 1:n_reps) {
   k <- k + 1
 }
 write.csv(results_issvd, paste0(filepath, "/python_method_results.csv"))
-
-# mvclustering
-results_mvc <- matrix(0, nrow = n_reps, ncol = n_col)
-colnames(results_mvc) <- col_names
-k <- 1
-col_clusts <- list(
-  matrix(1, nrow = dim(three_data[[1]])[1], ncol = 6),
-  matrix(1, nrow = dim(three_data[[2]])[1], ncol = 6),
-  matrix(1, nrow = dim(three_data[[3]])[1], ncol = 6)
-)
-# save results from python doc
-for (t in 1:n_reps) {
-  row_clusts <- import_matrix(
-    paste0(filepath, "/mvlearn_res/"),
-    paste0(t - 1, "_row_clusts")
-  )
-  col_clusts
-
-  bisils <- calc_all_sils(
-    three_data,
-    list("row_clusters" = col_clusts, "col_clusters" = row_clusts)
-  )
-  jaccs <- all_jaccs(docs_labs, row_clusts)
-  results_issvd[k, ] <- c(t, "issvd", jaccs, bisils$euc, bisils$cos, bisils$man)
-  k <- k + 1
-}
-write.csv(results_issvd, paste0(filepath, "/mvc_method_results.csv"))

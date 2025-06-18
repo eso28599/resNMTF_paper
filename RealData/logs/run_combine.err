@@ -1,0 +1,5 @@
+Warning messages:
+1: In cbind(method, res[c(max_bis_e, max_bis_c, max_bis_m, max_f),  :
+  number of rows of result is not a multiple of vector length (arg 1)
+2: In cbind(method, res[c(max_bis_e, max_bis_c, max_bis_m, max_f),  :
+  number of rows of result is not a multiple of vector length (arg 1)

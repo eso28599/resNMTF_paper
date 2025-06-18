@@ -7,7 +7,7 @@ library(R.matlab)
 library(resnmtf)
 library(doParallel)
 library(foreach)
-
+library(purrr)
 # load in
 # three_data <- import_matrix("RealData/3cancers/tgca_3cancers.xlsx")
 three_data <- import_matrix("RealData/3cancers", "tgca_3cancers")
@@ -35,14 +35,14 @@ k <- 1
 
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
-  res_euc <- apply_resnmtf(
+  res_euc <- purrr:possibly(apply_resnmtf(
     three_data,
     k_min = 3,
     k_max = 6,
     psi = (psi_val) * phi_mat,
     distance = dis,
     stability = FALSE
-  )
+  ), otherwise = rep(0, n_col - 2))
   c(
     j, psi_val,
     dis_results(
