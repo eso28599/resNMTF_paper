@@ -2,12 +2,15 @@ import numpy as np
 import pandas as pd
 from pandas import ExcelWriter
 
-
-# python utils
 def save_xls(list_dfs, xls_path):
     with ExcelWriter(xls_path) as writer:
         for n, df in enumerate(list_dfs):
             df.to_excel(writer,'sheet%s' % n, header=True, index= False)
+            
+def save_csvs(list_dfs, basepath):
+    for n, df in enumerate(list_dfs):
+        csv_filename = f"{basepath}_sheet{n}.csv"
+        df.to_csv(csv_filename, index=False, header=True)
     
 def cluster_assignment(clust_membership, n_var):
     #eturn [pd.DataFrame([np.arange(n_var) in clust for clust in clust_membership])]

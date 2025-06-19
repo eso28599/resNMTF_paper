@@ -1,4 +1,4 @@
-library(biclust)
+# library(biclust)
 library(bisilhouette)
 apply_biclust_method <- function(data, method, name,
                                  transposed = FALSE, number_clusts = 6) {
@@ -6,9 +6,9 @@ apply_biclust_method <- function(data, method, name,
   col_clusters <- vector("list", length = length(data))
   for (i in seq_along(data)) {
     if (name == "Motif") {
-      res <- quiet(biclust(data[[i]], method = method, number = number_clusts))
+      res <- quiet(biclust::biclust(data[[i]], method = method, number = number_clusts))
     } else {
-      res <- suppressMessages(biclust(data[[i]], method = method))
+      res <- suppressMessages(biclust::biclust(data[[i]], method = method))
     }
     if (anyNA(res@RowxNumber)) {
       row_clusters[[i]] <- matrix(0, nrow = nrow(data[[i]]), ncol = 1)

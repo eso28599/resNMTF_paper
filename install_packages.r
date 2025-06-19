@@ -2,11 +2,12 @@
 options(repos = c(CRAN = "https://cloud.r-project.org/"))
 install_if_missing <- function(package) {
   packages <- installed.packages()[, 1]
-  if (!is.element("package", packages)) {
+  if (!is.element(package, packages)) {
     install.packages(package, dependencies = TRUE)
   }
 }
 install_if_missing("rmarkdown")
+install_if_missing("biclust")
 install_if_missing("R.matlab")
 install_if_missing("viridis")
 install_if_missing("ggplot2")
@@ -29,7 +30,7 @@ install_if_missing("gridExtra")
 install_if_missing("magick")
 install_if_missing("GFA")
 install_if_missing("devtools")
-install_if_missing("biclust")
+
 
 library(devtools)
 devtools::install_github("eso28599/resnmtf")

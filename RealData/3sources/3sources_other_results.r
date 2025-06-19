@@ -1,4 +1,3 @@
-# bbc overall results
 # local paths
 filepath <- "RealData/3sources"
 source("SimStudy/OtherMethods/gfa_funcs.r")
@@ -6,7 +5,6 @@ source("SimStudy/OtherMethods/biclust_funcs.r")
 source("SimStudy/Functions/extra_funcs.r")
 source("SimStudy/Functions/evaluation_funcs.r")
 library(resnmtf)
-set.seed(40)
 three_data <- import_matrix("RealData/3sources", "3sources_all_diff")
 docs_labs <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
 
@@ -27,34 +25,37 @@ col_names <- c(
 )
 colnames(results) <- col_names
 # gfa
-# k <- 1
-# for (i in 1:n_reps) {
-#   bbc_res2[[k]] <- gfa_apply(lapply(three_data, t), dim(docs_labs)[2])
-#   # assess performance
-#   # bisils <- calc_all_sils(lapply(three_data, t), bbc_res2[[k]])
-#   bisil <- calc_all_sils(three_data, list(
-#     "row_clusters" = bbc_res2[[k]]$col_clusters,
-#     "col_clusters" = bbc_res2[[k]]$row_clusters
-#   ))
-#   jaccs <- all_jaccs(docs_labs, bbc_res2[[k]]$row_clusters)
-#   results[k, ] <- c(i, "gfa", jaccs, bisils$euc, bisils$cos, bisils$man)
-#   k <- k + 1
-#   write.csv(results, paste0(filepath, "/gfa_method_results.csv"))
-# }
+k <- 1
+for (i in 1:n_reps) {
+  set.seed(10 + i)
+  bbc_res2[[k]] <- gfa_apply(lapply(three_data, t), dim(docs_labs)[2])
+  # assess performance
+  bisil <- calc_all_sils(three_data, list(
+    "row_clusters" = bbc_res2[[k]]$col_clusters,
+    "col_clusters" = bbc_res2[[k]]$row_clusters
+  ))
+  jaccs <- all_jaccs(docs_labs, bbc_res2[[k]]$row_clusters)
+  results[k, ] <- c(i, "gfa", jaccs, bisils$euc, bisils$cos, bisils$man)
+  k <- k + 1
+  write.csv(results, paste0(filepath, "/gfa_method_results.csv"))
+}
 
 # biclust methods
+set.seed(40)
 bcplaid_results <- biclust_results(three_data, docs_labs,
                                    method = BCPlaid, name = "Plaid",
                                    transposed = TRUE)
-write.csv(bcplaid_results, "RealData/3sources/biclust_results.csv",
-          row.names = FALSE)                            
-# for questionnaire data - so haven't used BCQuest
 bcspectral_results <- biclust_results(three_data, docs_labs,
                                       method = BCSpectral, name = "spectral",
                                       transposed = TRUE)
 full_res <- rbind(bcplaid_results,
                   bcspectral_results)
 colnames(full_res) <- col_names
+colnames(bcplaid_results) <- col_names
+colnames(bcspectral_results) <- col_names
+# save biclust results
+write.csv(full_res, "RealData/3sources/biclust_results.csv",
+          row.names = FALSE)
 
 
 results_issvd <- matrix(0, nrow = n_reps, ncol = n_col)
@@ -70,12 +71,15 @@ colnames(results_issvd) <- c(
 k <- 1
 # save results from python doc
 for (t in 1:n_reps) {
-  row_clusts <- import_matrix(paste0(filepath, "/issvd_res/"),  paste0(t - 1, "_row_clusts"))
-  col_clusts <- import_matrix(paste0(filepath, "/issvd_res/"), paste0(t - 1, "_col_clusts"))
-  # bisils <- calc_all_sils(
-  #   lapply(three_data, t),
-  #   list("row_clusters" = row_clusts, "col_clusters" = col_clusts)
-  # )
+    row_clusts <- import_matrix(
+    paste0(filepath, "/issvd_res/"),
+    paste0(t - 1, "_row_clusts")
+  )
+  col_clusts <- import_matrix(
+    paste0(filepath, "/issvd_res/"),
+    paste0(t - 1, "_col_clusts")
+  )
+  set.seed(10 + t)
   bisils <- calc_all_sils(
     three_data,
     list("row_clusters" = col_clusts, "col_clusters" = row_clusts)
@@ -85,3 +89,51 @@ for (t in 1:n_reps) {
   k <- k + 1
 }
 write.csv(results_issvd, paste0(filepath, "/python_method_results.csv"))
+
+# mvclustering
+results_mvc <- matrix(0, nrow = n_reps, ncol = n_col)
+colnames(results_mvc) <- col_names
+k <- 1
+col_clusts <- list(
+  matrix(1, nrow = dim(three_data[[1]])[1], ncol = 6),
+  matrix(1, nrow = dim(three_data[[2]])[1], ncol = 6),
+  matrix(1, nrow = dim(three_data[[3]])[1], ncol = 6)
+)
+# save results from python doc
+for (t in 1:n_reps) {
+  set.seed(10 + t)
+  row_clusts <- import_matrix(
+    paste0(filepath, "/mvlearn_res/"),
+    paste0(t - 1, "_row_clusts")
+  )
+  bisils <- calc_all_sils(
+    three_data,
+    list("row_clusters" = col_clusts, "col_clusters" = row_clusts)
+  )
+  jaccs <- all_jaccs(docs_labs, row_clusts)
+  results_mvc[k, ] <- c(t, "issvd", jaccs, bisils$euc, bisils$cos, bisils$man)
+  k <- k + 1
+}
+write.csv(results_mvc, paste0(filepath, "/mvc_method_results.csv"))
+
+
+# combine best results
+choose_best <- function(res, col_name) {
+  max_val <- max(res[, col_name])
+  res[res[, col_name] == max_val, ]
+}
+best_gfa <- choose_best(results, "F score")
+best_issvd <- choose_best(results_issvd, "F score")
+best_mvc <- choose_best(results_mvc, "F score")
+best_bcplaid <- choose_best(bcplaid_results, "F score")
+best_bcspectral <- choose_best(bcspectral_results, "F score")
+
+# combine results
+all_results <- rbind(
+  best_gfa,
+  best_issvd,
+  best_mvc,
+  best_bcplaid,
+  best_bcspectral
+) 
+write.csv(all_results, paste0(filepath, "/other_results.csv"), row.names = FALSE)

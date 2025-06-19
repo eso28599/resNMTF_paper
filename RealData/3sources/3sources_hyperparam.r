@@ -49,4 +49,3 @@ res_list <- foreach::foreach(j = 1:5) %dopar%{
 }
 results <- rbind(res_list[[1]], res_list[[2]], res_list[[3]], res_list[[4]], res_list[[5]])
 write.csv(results, paste0("RealData/3sources/data/three_s_psi_", dis, psi_val, ".csv"))
-

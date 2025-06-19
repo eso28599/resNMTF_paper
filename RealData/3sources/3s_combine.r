@@ -13,18 +13,11 @@ colnames <- c(
   paste0("BiS (V", 1:n_views, ")"), "BiS"
 )
 
-gfa_result <- c("GFA", as.matrix(gfa_res[
-  which.max(gfa_res$F.score),
-  4:ncol(gfa_res)
-]))
-issvd_result <- c("iSSVD", as.matrix(issvd_res[
-  which.max(issvd_res$F.score),
-  4:ncol(issvd_res)
-]))
+
 resnmtf_results <- as.matrix(resnmtf_res[, 2:ncol(resnmtf_res)])
 
 all_results <- rbind(
-  resnmtf_results, conc_result,
+  resnmtf_results,
   gfa_result, issvd_result
 )
 colnames(all_results) <- colnames
