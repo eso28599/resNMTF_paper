@@ -29,17 +29,18 @@ n_reps <- 5
 n_views <- length(three_dt)
 n_col <- 3 + 6 * (n_views + 1)
 
+safe_resnmtf <- purrr::possibly(resnmtf::resnmtf, otherwise = rep(0, n_col - 2))
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
   set.seed(10 + phi + j)
-  res_euc <- purrr::possibly(apply_resnmtf(
+  res_euc <- safe_resnmtf(
     three_data,
     k_min = 4,
     k_max = 8,
     psi = (psi_val) * phi_mat,
     distance = dis,
     stability = FALSE
-  ), otherwise = rep(0, n_col - 2))
+  )
   c(j, psi_val,
     dis_results(
       three_data, docs_labs, res_euc, psi_val, j,

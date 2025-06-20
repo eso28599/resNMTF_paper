@@ -8,6 +8,6 @@
 
 
 module load  R/4.4.2-gfbf-2024a 
-export R_LIBS_USER=/rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.3  
+export R_LIBS_USER=/rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.4  
 cd resNMTF_paper
 Rscript --vanilla RealData/bbcsport/bbc_psi.r $PBS_ARRAY_INDEX

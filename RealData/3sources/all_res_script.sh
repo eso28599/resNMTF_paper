@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=1:mem=10gb
+#PBS -l walltime=05:00:00
+#PBS -N 3s_other
+#PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/logs/run_3s.out
+#PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/logs/run_3s.err
+
+
+cd resNMTF_paper
+# python methods
+# eval "$(~/miniforge3/bin/conda shell.bash hook)" 
+# conda activate resnmtf_env
+# python3 RealData/3sources/3sources_python_analysis.py
+# conda deactivate
+
+# R based other methods
+module purge
+ml tools/prod #always have to be loaded
+module load  R/4.4.2-gfbf-2024a 
+
+export R_LIBS_USER=/rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.4 
+Rscript --vanilla RealData/other_results.r 3sources
+# combine results
+
+# Rscript --vanilla RealData/combine_dis_metrics.r 3sources 3

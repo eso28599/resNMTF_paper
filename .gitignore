@@ -20,6 +20,10 @@ RealData/3sources/data/*
 RealData/bbcsport/logs/*
 RealData/bbcsport/data/*
 RealData/bbcsport/issvd_res/*
+RealData/3sources/mvlearn_res/*
+RealData/bbcsport/mvlearn_res/*
+RealData/3cancers/mvlearn_res/*
+RealData/single_cell/mvlearn_res/*
 RealData/single_cell/logs/*
 RealData/single_cell/data/*
 RealData/single_cell/issvd_res/*
@@ -27,6 +31,7 @@ RealData/3cancers/logs/*
 RealData/3cancers/data/*
 RealData/3cancers/issvd_res/*
 RealData/3sources/mvlearn_res/*
+RealData/logs/*
 
 
 # SimStudy/RunSim/Results/*

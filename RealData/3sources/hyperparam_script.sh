@@ -2,7 +2,7 @@
 #PBS -l select=1:ncpus=5:mem=10gb
 #PBS -l walltime=05:00:00
 #PBS -N 3sources_hyperparam_parallel
-#PBS -J 122-123
+#PBS -J 1-3
 #PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/3sources/logs
 #PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/3sources/logs
 
@@ -10,9 +10,6 @@ module purge
 ml tools/prod #always have to be loaded
 module load  R/4.4.2-gfbf-2024a 
 export R_LIBS_USER=/rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.4  
-# rm -rf /rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.3/00LOCK-purrr
-# Rscript --vanilla -e 'install.packages("purrr", type = "binary", repos = "https://cran.ma.imperial.ac.uk/")
-# '
 eval "$(~/miniforge3/bin/conda shell.bash hook)" 
 conda activate resnmtf_env
 

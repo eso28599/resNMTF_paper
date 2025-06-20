@@ -10,11 +10,8 @@ cd resNMTF_paper
 # python methods
 eval "$(~/miniforge3/bin/conda shell.bash hook)" 
 conda activate resnmtf_env
-# python3 RealData/3sources/3sources_python_analysis.py
 python3 RealData/bbcsport/bbc_python_analysis.py
-# python3 RealData/single_cell/single_cell_python_analysis.py
-# # python3 RealData/3cancers/3cancers_python_analysis.py
-# conda deactivate
+conda deactivate
 
 # R based other methods
 module purge
@@ -22,10 +19,7 @@ ml tools/prod #always have to be loaded
 module load  R/4.4.2-gfbf-2024a 
 
 export R_LIBS_USER=/rds/general/user/eso18/home/R/x86_64-pc-linux-gnu-library/4.4 
-# Rscript --vanilla RealData/other_results.r 3sources
 Rscript --vanilla RealData/other_results.r bbcsport
-# Rscript --vanilla RealData/other_results.r 3cancers 
-# Rscript --vanilla RealData/other_results.r single_cell 
 
 # combine results
 

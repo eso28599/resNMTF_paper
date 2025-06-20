@@ -1,30 +1,36 @@
 # local paths
 args <- commandArgs(trailingOnly = TRUE)
-dataset <- as.numeric(args[1])
+dataset <- as.character(args[1])
 source("SimStudy/OtherMethods/gfa_funcs.r")
 source("SimStudy/OtherMethods/biclust_funcs.r")
 source("SimStudy/Functions/extra_funcs.r")
 source("SimStudy/Functions/evaluation_funcs.r")
 library(resnmtf)
+library(biclust)
 if (dataset == "3sources") {
   filepath <- "RealData/3sources"
-  three_data <- import_matrix("RealData/3sources", "3sources_all_diff")
-  docs_labs <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
+  input_data <- import_matrix("RealData/3sources", "3sources_all_diff")
+  labels <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
   transposed_data <- TRUE
 } else if (dataset == "3cancers") {
   filepath <- "RealData/3cancers"
 } else if (dataset == "bbcsport") {
   filepath <- "RealData/bbcsport"
+  labels <- read.csv(paste0(filepath,"/bbc_rows_truth.csv"))[,2:6]
+  input_data <- import_matrix(filepath, "bbc_data_processed")
   transposed_data <- TRUE
 } else if (dataset == "single_cell") {
-  filepath <- "RealData/bbcsport"
+  filepath <- "RealData/single_cell"
+  labels <- read.csv(paste0(filepath, "/true_labs.csv"))[,2:4]
+  input_data <- import_matrix("RealData/single_cell", "data_processed")
+  transposed_data <- FALSE
 } else {
   stop("Invalid dataset specified.")
 }
 
 # gfa
 n_reps <- 5
-n_views <- length(three_data)
+n_views <- length(input_data)
 bbc_res2 <- vector("list", length = n_reps * 2)
 n_col <- (n_views + 1) * 6 + 2
 results <- matrix(0, nrow = n_reps * 2, ncol = n_col)
@@ -42,17 +48,31 @@ colnames(results) <- col_names
 k <- 1
 for (i in 1:n_reps) {
   set.seed(10 + i)
-  input_data <- ifelse(transposed_data, lapply(three_data, t), three_data)
-  bbc_res2[[k]] <- gfa_apply(input_data, dim(docs_labs)[2])
+  if (transposed_data) {
+    # if data is transposed, we need to transpose it back for gfa
+    gfa_input_data <- lapply(input_data, t)
+  } else {
+    gfa_input_data <- input_data
+  }
+  bbc_res2[[k]] <- gfa_apply(gfa_input_data, dim(labels)[2])
   # assess performance
-  clust_res <- list(
-    "row_clusters" = ifelse(transposed_data, bbc_res2[[k]]$col_clusters,
-                            bbc_res2[[k]]$row_clusters),
-    "col_clusters" = ifelse(transposed_data, bbc_res2[[k]]$row_clusters,
-                            bbc_res2[[k]]$col_clusters)
-  )
-  bisil <- calc_all_sils(three_data, clust_res)
-  jaccs <- all_jaccs(docs_labs, clust_res$row_clusters)
+  if (transposed_data) {
+    clust_res <- list(
+      "row_clusters" = bbc_res2[[k]]$col_clusters,
+      "col_clusters" = bbc_res2[[k]]$row_clusters
+    )
+  } else {
+    clust_res <- list(
+      "row_clusters" = bbc_res2[[k]]$row_clusters,
+      "col_clusters" = bbc_res2[[k]]$col_clusters
+    )
+  }
+  print(dim(clust_res$row_clusters[[1]]))
+  print(dim(clust_res$col_clusters[[1]]))
+  print(dim(clust_res$row_clusters[[2]]))
+  print(dim(clust_res$col_clusters[[2]]))
+  bisils <- calc_all_sils(input_data, clust_res)
+  jaccs <- all_jaccs(labels, bbc_res2[[k]]$row_clusters)
   results[k, ] <- c(i, "gfa", jaccs, bisils$euc, bisils$cos, bisils$man)
   k <- k + 1
   write.csv(results, paste0(filepath, "/gfa_method_results.csv"))
@@ -60,10 +80,10 @@ for (i in 1:n_reps) {
 
 # biclust methods
 set.seed(40)
-bcplaid_results <- biclust_results(three_data, docs_labs,
-                                   method = BCPlaid, name = "Plaid",
+bcplaid_results <- biclust_results(input_data, labels,
+                                   BCPlaid(), name = "Plaid",
                                    transposed = transposed_data)
-bcspectral_results <- biclust_results(three_data, docs_labs,
+bcspectral_results <- biclust_results(input_data, labels,
                                       method = BCSpectral, name = "spectral",
                                       transposed = transposed_data)
 full_res <- rbind(bcplaid_results,
@@ -98,15 +118,22 @@ for (t in 1:n_reps) {
     paste0(t - 1, "_col_clusts")
   )
   set.seed(10 + t)
-  clust_res <- list(
-    "row_clusters" = ifelse(transposed_data, col_clusts, row_clusts),
-    "col_clusters" = ifelse(transposed_data, row_clusts, col_clusts)
-  )
+  if (transposed_data) {
+    clust_res <- list(
+      "row_clusters" = col_clusts,
+      "col_clusters" = row_clusts
+    )
+  } else {
+    clust_res <- list(
+      "row_clusters" = row_clusts,
+      "col_clusters" = col_clusts
+    )
+  }
   bisils <- calc_all_sils(
-    three_data,
+    input_data,
     clust_res
   )
-  jaccs <- all_jaccs(docs_labs, clust_res$row_clusters)
+  jaccs <- all_jaccs(labels, clust_res$row_clusters)
   results_issvd[k, ] <- c(t, "issvd", jaccs, bisils$euc, bisils$cos, bisils$man)
   k <- k + 1
 }
@@ -116,11 +143,19 @@ write.csv(results_issvd, paste0(filepath, "/python_method_results.csv"))
 results_mvc <- matrix(0, nrow = n_reps, ncol = n_col)
 colnames(results_mvc) <- col_names
 k <- 1
-col_clusts <- list(
-  matrix(1, nrow = dim(three_data[[1]])[1], ncol = 6),
-  matrix(1, nrow = dim(three_data[[2]])[1], ncol = 6),
-  matrix(1, nrow = dim(three_data[[3]])[1], ncol = 6)
-)
+if (length(input_data) != 3) {
+  col_clusts <- list(
+    matrix(1, nrow = dim(input_data[[1]])[1], ncol = ncol(labels)),
+    matrix(1, nrow = dim(input_data[[2]])[1], ncol = ncol(labels))
+  )
+} else {
+  col_clusts <- list(
+    matrix(1, nrow = dim(input_data[[1]])[1], ncol = ncol(labels)),
+    matrix(1, nrow = dim(input_data[[2]])[1], ncol = ncol(labels)),
+    matrix(1, nrow = dim(input_data[[3]])[1], ncol = ncol(labels))
+  )
+}
+
 # save results from python doc
 for (t in 1:n_reps) {
   set.seed(10 + t)
@@ -128,15 +163,22 @@ for (t in 1:n_reps) {
     paste0(filepath, "/mvlearn_res/"),
     paste0(t - 1, "_row_clusts")
   )
-  clust_res <- list(
-    "row_clusters" = ifelse(transposed_data, col_clusts, row_clusts),
-    "col_clusters" = ifelse(transposed_data, row_clusts, col_clusts)
-  )
+  if (transposed_data) {
+    clust_res <- list(
+      "row_clusters" = col_clusts,
+      "col_clusters" = row_clusts
+    )
+  } else {
+    clust_res <- list(
+      "row_clusters" = row_clusts,
+      "col_clusters" = col_clusts
+    )
+  }
   bisils <- calc_all_sils(
-    three_data,
+    input_data,
     clust_res
   )
-  jaccs <- all_jaccs(docs_labs, clust_res$row_clusters)
+  jaccs <- all_jaccs(labels, clust_res$row_clusters)
   results_mvc[k, ] <- c(t, "issvd", jaccs, bisils$euc, bisils$cos, bisils$man)
   k <- k + 1
 }
