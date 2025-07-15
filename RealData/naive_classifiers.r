@@ -1,5 +1,7 @@
 source("SimStudy/Functions/evaluation_funcs.r")
 
+
+
 # 3sources
 n_clusts <- 6
 rows <- read.csv("RealData/3sources/true_labels.csv", header = T, row.names = 1)
@@ -17,11 +19,12 @@ n_clusts <- 3
 rows <- read.csv("RealData/single_cell/true_labs.csv",
   header = T, row.names = 1
 )
+
 results <- c()
-for (i in 1:100) {
+for (i in 1:5) {
   results <- c(
     results,
-    jaccard_row(rows, rows[sample(2641), sample(n_clusts)])$f_score[1]
+    jaccard_row(labels, labels[sample(nrow(labels)), sample(ncol(labels))])$f_score[1]
   )
 }
 sc_res <- mean(results)

@@ -9,18 +9,18 @@ import sys
 sys.path.insert(0, 'SimStudy/OtherMethods')
 from python_utils import save_csvs, fix_row_clusts, fix_col_clusts
 
-file_path = "RealData/single_cell"
-data_views = pd.ExcelFile(file_path +  "/data_processed.xlsx")
-data = [np.array(pd.read_excel(data_views, sheet)) for sheet in data_views.sheet_names]
+file_path = "RealData/3cancers"
+data_views = pd.ExcelFile(file_path +  "/tgca_3cancers.xlsx")
+data = [np.array(pd.read_excel(data_views, sheet, index_col=0)).transpose() for sheet in data_views.sheet_names]
 n_views = len(data)
 n_vars = [view.shape[1] for view in data]
 n_samps = data[0].shape[0]
-
-
+  
+# now look at iSSVD
 for i in np.arange(5):
         seed(10 + i)
-        row_issvd_filename = "RealData/single_cell/issvd_res/" +  str(i) + "_row_clusts"
-        col_issvd_filename = "RealData/single_cell/issvd_res/" +  str(i) + "_col_clusts"
+        row_issvd_filename = "RealData/3cancers/issvd_res/" +  str(i) + "_row_clusts"
+        col_issvd_filename =  "RealData/3cancers/issvd_res/" +  str(i) + "_col_clusts"
         iSSVD_applied = issvd(data, standr=False,pointwise=True,steps=100,size=0.6,
                     vthr = 0.7,ssthr=[0.6,0.8],nbicluster=10,rows_nc=True,cols_nc=True,col_overlap=False
                     ,row_overlap=False,pceru=0.15,pcerv=0.16,merr=0.0001,iters=100)           
@@ -33,11 +33,12 @@ for i in np.arange(5):
             col_clusts = fix_col_clusts(iSSVD_applied['Variable_index'], n_views, n_clusts, n_vars)
         save_csvs(row_clusts, row_issvd_filename)
         save_csvs(col_clusts, col_issvd_filename)
-
+        
+        
 # now look at mvlearn 
 for i in np.arange(5):
   seed = 10 + i
-  row_mvclust_filename = "RealData/single_cell/mvlearn_res/" + str(i) + "row_mvclusts"
+  row_mvclust_filename = "RealData/3cancers/mvlearn_res/" + str(i) + "row_mvclusts"
   mv_spectral = MultiviewCoRegSpectralClustering(n_clusters=3,
       random_state=seed, n_init=100)
   mv_clusters = mv_spectral.fit_predict(data)
@@ -46,3 +47,4 @@ for i in np.arange(5):
   row_cluster_mvc[np.arange(mv_clusters.size), mv_clusters] = 1
   full_rows = [pd.DataFrame(row_cluster_mvc) for _ in np.arange(n_views)]
   save_csvs(full_rows, row_mvclust_filename)
+        

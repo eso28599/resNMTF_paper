@@ -127,6 +127,23 @@ The following subdirectories can be found in the SimStudy/Results folder:
 ## RealData
 Contains datasets used in the paper, their processing and analysis.
 
+In order to reproduce the results for 3sources dataset:
+```
+qsub RealData/3sources/hyperparameter_script.s
+```
+To obtain the results of other methods, the following can be run on a local machine:
+```
+RealData/3sources/all_res_script.sh
+RealData/bbcsport/all_res_script.sh
+RealData/single_cell/all_res_script.sh
+RealData/3cancers/all_res_script.sh
+```
+
+Note, all .sh files must be executable. This can be done with
+```
+chmod +x [filename].sh
+```
+
 ## Exploration
 Contains files to replicate convergence, correlation and JSD related figures.
 

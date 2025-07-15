@@ -6,7 +6,7 @@ from iSSVD.functions import issvd
 from mvlearn.cluster import MultiviewCoRegSpectralClustering
 from numpy.random import seed
 import sys
-sys.path.insert(0, '/rds/general/user/eso18/home/resNMTF_paper/SimStudy/OtherMethods')
+sys.path.insert(0, 'SimStudy/OtherMethods')
 from python_utils import save_csvs, fix_row_clusts, fix_col_clusts
 
 file_path = "RealData/bbcsport"

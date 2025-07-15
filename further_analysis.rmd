@@ -61,7 +61,7 @@ biclust_results <- function(data, labels, method, name,
       bisils <- calc_euc_sils(lapply(data, t), results)
     } else {
       bisils <- calc_euc_sils(data, results)
-      jaccs <- all_jaccs(labels, results$col_clusters)
+      jaccs <- all_jaccs(labels, results$row_clusters)
     }
     res_mat[i, ] <- c(jaccs, bisils)
   }
@@ -102,6 +102,18 @@ write.csv(full_res, "RealData/3sources/biclust_results_term_doc.csv",
 ```
 
 ```{r}
+source("SimStudy/Functions/extra_funcs.r")
+source("SimStudy/Functions/evaluation_funcs.r")
+
+
+three_cancers <- import_matrix("RealData/single_cell", "data_processed")
+labels <- read.csv("RealData/single_cell/true_labs.csv", row.names=1)
+
+plaid_res <- biclust(three_cancers[[2]], method = "BCPlaid")
+rows <- apply(plaid_res@RowxNumber, 2, as.numeric)
+cols <- apply(plaid_res@NumberxCol, 2, as.numeric)
+jaccard_row(labels, rows)
+
 # no params needed
 bcplaid_results <- biclust_results(three_data, docs_labs,
                                    method = BCPlaid, name = "Plaid",
@@ -131,10 +143,11 @@ source("SimStudy/Functions/extra_funcs.r")
 source("SimStudy/Functions/evaluation_funcs.r")
 
 
-three_cancers <- import_matrix("RealData/3cancers/tgca_3cancers.xlsx")
-labels <- read.csv("RealData/3cancers/tgca_3cancers_labels.csv")
+three_cancers <- import_matrix("RealData/3cancers", "tgca_3cancers")
+labels <- read.csv("RealData/3cancers/tgca_labels.csv")
 tc_data <- lapply(three_cancers, function(x) apply(x, 2, as.numeric))
 tc_data <- lapply(tc_data, function(x) x[, 2:1242])
+
 ```
 
 ```{r}
@@ -177,6 +190,41 @@ bisilhouette(t(tc_data[[1]]),
       )
 ```
 
+```{r}
+k <- 1
+filepath <- "RealData/3cancers"
+transposed_data <- FALSE
+for (t in 1:5) {
+  row_clusts <- import_matrix(
+    paste0(filepath, "/issvd_res/"),
+    paste0(t - 1, "_row_clusts")
+  )
+  col_clusts <- import_matrix(
+    paste0(filepath, "/issvd_res/"),
+    paste0(t - 1, "_col_clusts")
+  )
+  set.seed(10 + t)
+  if (transposed_data) {
+    clust_res <- list(
+      "row_clusters" = col_clusts,
+      "col_clusters" = row_clusts
+    )
+  } else {
+    clust_res <- list(
+      "row_clusters" = row_clusts,
+      "col_clusters" = col_clusts
+    )
+  }
+  # bisils <- calc_all_sils(
+  #   input_data,
+  #   clust_res
+  # )
+  jaccs <- all_jaccs(labels, clust_res$col_clusters)
+  print(jaccs)
+}
+# jaccs <- all_jaccs(labels, clust_res$row_clusters)
+```
+
 Now look at the GFA results
 ```{r}
 gfa_res <- gfa_apply(lapply(tc_data, t), dim(labels)[2])
@@ -191,7 +239,170 @@ write.csv(rbind(gfa_full_res,
           "RealData/3cancers/biclust_results.csv",
           row.names = FALSE)
 ```
+```{r}
+#' @return TRUE if any columns/rows with only zeros, FALSE otherwise
+test_cond <- function(data, attempt) {
+  if (attempt == 1) {
+    return(TRUE)
+  }
+  return(any(unlist(lapply(
+    data,
+    function(x) {
+      any(colSums(x) == 0) | any(rowSums(x) == 0)
+    }
+  ))))
+}
 
+#' @title number of biclusters
+#' @description determine number of biclusters
+#' @param results results of apply_resnmtf/res_nmtf_inner
+#' @noRd
+#' @return number of biclusters
+number_biclusters <- function(results) {
+  return(sum(as.numeric(lapply(
+    results$row_clusters,
+    function(x) sum(colSums(x))
+  ))))
+}
+
+#' @title shuffle view
+#' @description shuffle view
+#' @param data list of matrices to be shuffled
+#' @param new_data list of shuffled matrices
+#' @param dims dimensions of the view to be shuffled
+#' @param dim dimensions of the first view
+#' @param dim_1 dimensions of the first view
+#' @param i index of the view to be shuffled
+#' @param sample_rate rate at which to sample
+#' @param row_samples list of rows to sample
+#' @param col_samples list of cols to sample
+#' @noRd
+initial_shuffle <- function(
+    data, new_data, dims, dim, i,
+    sample_rate, row_samples, col_samples) {
+  if ((dims[1]) == dim[1]) {
+    row_samples[[i]] <- row_samples[[1]]
+  } else {
+    row_samples[[i]] <- sample(dims[1], (dims[1] * sample_rate))
+  }
+  if ((dims[2]) == dim[2]) {
+    col_samples[[i]] <- col_samples[[1]]
+  } else {
+    col_samples[[i]] <- sample(dims[2], (dims[2] * sample_rate))
+  }
+  new_data[[i]] <- data[[i]][row_samples[[i]], col_samples[[i]]]
+  return(list(
+    "new_data" = new_data,
+    "row_samples" = row_samples,
+    "col_samples" = col_samples
+  ))
+}
+
+#' @title check for empty matrix
+#' @description check if matrix has any rows/columns with only zeros
+#' @param data list of matrices to be checked
+#' @param i index of the view to be checked
+#' @noRd
+#' @return TRUE if any rows/columns with only zeros, FALSE otherwise
+check_empty <- function(data, i) {
+  return(any(colSums(data[[i]]) == 0) || any(rowSums(data[[i]]) == 0))
+}
+
+#' @title sample view
+#' @description sample view
+#' @param data list of matrices to be shuffled
+#' @param new_data list of shuffled matrices
+#' @param dims dimensions of the view to be shuffled
+#' @param dim_1 dimensions of the first view
+#' @param i index of the view to be shuffled
+#' @param row_samples list of rows to sample
+#' @param col_samples list of cols to sample
+#' @param sample_rate rate at which to sample
+#' @noRd
+#' @return list of shuffled matrices (new_data),
+#'         rows (row_samples) and columns (col_samples)
+sample_view <- function(data, i, new_data, dim_1,
+                        row_samples, col_samples, sample_rate) {
+  dims <- dim(data[[i]])
+  shuffled <- initial_shuffle(
+    data, new_data, dims, dim_1, i, sample_rate, row_samples, col_samples
+  )
+  new_data <- shuffled[["new_data"]]
+  row_samples <- shuffled[["row_samples"]]
+  col_samples <- shuffled[["col_samples"]]
+  if (check_empty(new_data, i)) {
+    zeros_cols <- colSums(new_data[[i]]) != 0
+    zeros_rows <- rowSums(new_data[[i]]) != 0
+    if ((dims[1]) == dim_1[1]) {
+      for (p in 1:i) {
+        row_samples[[p]] <- row_samples[[p]][zeros_rows]
+      }
+    } else {
+      row_samples[[i]] <- row_samples[[i]][zeros_rows]
+    }
+    if ((dims[2]) == dim_1[2]) {
+      for (p in 1:i) {
+        col_samples[[p]] <- col_samples[[p]][zeros_cols]
+      }
+    } else {
+      col_samples[[i]] <- col_samples[[i]][zeros_cols]
+    }
+    for (p in 1:i) {
+      new_data[[p]] <- data[[p]][row_samples[[p]], col_samples[[p]]]
+    }
+  }
+  return(list(
+    "new_data" = new_data,
+    "row_samples" = row_samples,
+    "col_samples" = col_samples
+  ))
+}
+```
+```{r}
+stability_repeat <- function(data, dim_1, 
+                             n_views, sample_rate) {
+  new_data <- vector(mode = "list", length = n_views)
+  row_samples <- vector(mode = "list", length = n_views)
+  col_samples <- vector(mode = "list", length = n_views)
+  relevance <- matrix(0, nrow = n_views, ncol = k)
+  # turn this into a function to be used with lapply
+  attempt <- 1
+  # need to check that
+  while (test_cond(data, attempt)) {
+    if (attempt == 20) {
+      print("Unable to perform stability analysis due to sparsity of data.")
+      return(list("stability_performed" = FALSE))
+    }
+    row_samples[[1]] <- sample(dim_1[1], (dim_1[1] * sample_rate))
+    col_samples[[1]] <- sample(dim_1[2], (dim_1[2] * sample_rate))
+    new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
+    if (check_empty(new_data, 1)) {
+      zeros_cols <- colSums(new_data[[1]]) != 0
+      zeros_rows <- rowSums(new_data[[1]]) != 0
+      row_samples[[1]] <- row_samples[[1]][zeros_rows]
+      col_samples[[1]] <- col_samples[[1]][zeros_cols]
+      new_data[[1]] <- data[[1]][row_samples[[1]], col_samples[[1]]]
+    }
+    if (n_views > 1) {
+      for (i in 2:n_views) {
+        shuffled <- sample_view(
+          data, i, new_data, dim_1, row_samples, col_samples, sample_rate
+        )
+        new_data <- shuffled[["new_data"]]
+        row_samples <- shuffled[["row_samples"]]
+        col_samples <- shuffled[["col_samples"]]
+      }
+    }
+    return(new_data)
+    attempt <- attempt + 1
+  }
+  }
+
+res <- stability_repeat(input_data, dim(input_data[[1]]), 3, 0.95)
+
+```
+stability_repeat(c(), data, dim_1, k, phi, xi, psi, n_iters,
+                             num_repeats, distance, n_views, sample_rate) 
 
 ## 3cancers results
 ```{r}
@@ -260,7 +471,7 @@ write.csv(rbind(gfa_full_res,
           row.names = FALSE)
 ```
 
-
+## 
 ## 3cancers results
 ```{r}
 source("SimStudy/Functions/extra_funcs.r")
