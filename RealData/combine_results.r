@@ -1,12 +1,13 @@
 library(kableExtra)
 # combine results
-single_cell <- read.csv("single_cell/distance_study.csv")
-bbc <- read.csv("bbc/distance_study.csv")
-sources <- read.csv("3sources/distance_study.csv")
+single_cell <- read.csv("RealData/single_cell/distance_study.csv")
+bbc <- read.csv("RealData/bbcsport/distance_study.csv")
+sources <- read.csv("RealData/3sources/distance_study.csv")
+cancers <- read.csv("RealData/3cancers/distance_study.csv")
 
 # table with f score results for different distances
 # used with bisilhouette score
-all_dis <- t(rbind(sources, bbc, single_cell)[, 2:13])
+all_dis <- t(rbind(sources, bbc, single_cell, cancers)[, 2:17])
 all_dis <- cbind(
   rep(c("Euclidean", "Cosine", "Manhattan"), each = 4),
   rep(c("E", "C", "M", "F"), 3),
@@ -14,7 +15,7 @@ all_dis <- cbind(
 )
 all_dis <- data.frame(all_dis)
 all_dis[, 3:11] <- apply(all_dis[, 3:11], 2, as.numeric)
-colnames(all_dis) <- c("", "", rep(c("3sources", "BBCSport", "A549"), each = 3))
+colnames(all_dis) <- c("", "", rep(c("3sources", "BBCSport", "A549", "3cancers"), each = 3))
 write.csv(all_dis, "all_results_dis.csv", row.names = FALSE)
 
 res_text <- kbl(all_dis,
