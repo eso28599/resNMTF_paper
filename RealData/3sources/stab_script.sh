@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -l select=1:ncpus=5:mem=10gb
-#PBS -l walltime=02:00:00
-#PBS -N 3sources_hyperparam_parallel
-#PBS -J 53-123
+#PBS -l select=1:ncpus=5:mem=30gb
+#PBS -l walltime=48:00:00
+#PBS -N 3sources_stab
+#PBS -J 2-3
 #PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/3sources/logs
 #PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/3sources/logs
 
@@ -14,4 +14,4 @@ eval "$(~/miniforge3/bin/conda shell.bash hook)"
 conda activate resnmtf_env
 
 cd resNMTF_paper
-Rscript --vanilla RealData/3sources/3sources_hyperparam.r $PBS_ARRAY_INDEX
+Rscript --vanilla RealData/3sources/3s_stab.r $PBS_ARRAY_INDEX

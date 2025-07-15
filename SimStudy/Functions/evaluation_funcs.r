@@ -209,7 +209,7 @@ eval_method <- function(data_name, file_path,
   openxlsx::write.xlsx(results, file = path_to_save)
 }
 
-jaccard_row <- function(row_c, true_r, print = FALSE) {
+jaccard_row <- function(row_c, true_r, print = TRUE) {
   m <- ncol(row_c)
   n <- ncol(true_r)
   # if no biclusters detected but some are present
@@ -351,21 +351,25 @@ dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
   # )
   sils <- calc_all_sils(data, res)
   # jaccard
+  print(sils$euc)
+  print(row_same)
   if (row_same) {
     jaccs <- all_jaccs(rows, res$row_clusters)
   } else {
     jaccs <- all_jaccs(rows, res$col_clusters)
   }
+  print(jaccs)
   # no clusts
-  no_clusts <- max(sapply(
-    res$row_clusters,
-    function(x) sum(colSums(x) != 0)
-  ))
-  export_matrix_list(res$row_clusters, base_name = "row_clusts",
-    output_dir = paste0(path, "/data", phi, "_", rep)
-  )
-  export_matrix_list(res$col_clusters, base_name = "col_clusts",
-    output_dir = paste0(path, "/data", phi, "_", rep)
-  )
-  return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts))
+  # no_clusts <- max(sapply(
+  #   res$row_clusters,
+  #   function(x) sum(colSums(x) != 0)
+  # ))
+  print(names(res$row_clusters))
+  # export_matrix_list(res$row_clusters, base_name = "row_clusts",
+  #   output_dir = paste0(path, "/data", phi, "_", rep)
+  # )
+  # export_matrix_list(res$col_clusters, base_name = "col_clusts",
+  #   output_dir = paste0(path, "/data", phi, "_", rep)
+  # )
+  return(c(jaccs, sils$euc, sils$cosine, sils$man, 0))
 }

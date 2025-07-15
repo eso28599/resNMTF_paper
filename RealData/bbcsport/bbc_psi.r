@@ -25,23 +25,27 @@ n_views <- length(bbc_d2)
 n_col <- 3 + 6 * (n_views + 1)
 results_euc <- matrix(0, nrow = 5, ncol = n_col)
 
+safe_resnmtf <- purrr::possibly(resnmtf::apply_resnmtf, otherwise = NULL)
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
   set.seed(10 + phi + j)
-  res_euc <- purrr::possibly(apply_resnmtf(
+  res_euc <- safe_resnmtf(
     bbc_d2, k_min = 4,
     k_max = 8, psi = phi_val * phi_bbc,
     distance = dis, stability = FALSE
-  ), otherwise = rep(0, n_col - 2))
-  c(
+  )
+  if (is.null(res_euc)) {
+    return(c(j, phi_val, rep(0, n_col - 2)))
+  } else {
+    c(
     j, phi_val,
     dis_results(bbc_d2, bbc_rows, res_euc, phi_val, j, paste0("RealData/bbcsport/", dis))
   )
+  }
 }
-print(res_list)
 results <- rbind(res_list[[1]], res_list[[2]], res_list[[3]],
                  res_list[[4]], res_list[[5]])
-write.csv(results_euc, paste0(
+write.csv(results, paste0(
     "RealData/bbcsport/data/bbc_psi_",
     dis, phi_val, ".csv"
 ))

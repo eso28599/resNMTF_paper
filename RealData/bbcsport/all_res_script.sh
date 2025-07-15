@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -l select=1:ncpus=1:mem=10gb
-#PBS -l walltime=05:00:00
+#PBS -l walltime=03:00:00
 #PBS -N bbc_other
 #PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/logs/run_bbc.out
 #PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/logs/run_bbc.err
@@ -10,7 +10,7 @@ cd resNMTF_paper
 # python methods
 eval "$(~/miniforge3/bin/conda shell.bash hook)" 
 conda activate resnmtf_env
-python3 RealData/bbcsport/bbc_python_analysis.py
+# python3 RealData/bbcsport/bbc_python_analysis.py
 conda deactivate
 
 # R based other methods

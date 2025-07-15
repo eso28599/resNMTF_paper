@@ -1,0 +1,2 @@
+/var/spool/pbs/mom_priv/jobs/578387.pbs-7.SC: line 1: syntax error near unexpected token `('
+/var/spool/pbs/mom_priv/jobs/578387.pbs-7.SC: line 1: `args <- commandArgs(trailingOnly = TRUE)'

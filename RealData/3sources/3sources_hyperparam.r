@@ -29,10 +29,10 @@ n_reps <- 5
 n_views <- length(three_dt)
 n_col <- 3 + 6 * (n_views + 1)
 
-safe_resnmtf <- purrr::possibly(resnmtf::resnmtf, otherwise = rep(0, n_col - 2))
+safe_resnmtf <- purrr::possibly(resnmtf::apply_resnmtf, otherwise = NULL)
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(j = 1:5) %dopar%{
-  set.seed(10 + phi + j)
+  set.seed(phi + j)
   res_euc <- safe_resnmtf(
     three_data,
     k_min = 4,
@@ -41,12 +41,17 @@ res_list <- foreach::foreach(j = 1:5) %dopar%{
     distance = dis,
     stability = FALSE
   )
-  c(j, psi_val,
-    dis_results(
-      three_data, docs_labs, res_euc, psi_val, j,
-      paste0("RealData/3sources/", dis)
+  if (!is.null(res_euc)) {
+    c(
+      j, psi_val,
+      dis_results(
+        three_data, docs_labs, res_euc, psi_val, j,
+        paste0("RealData/3sources/", dis)
+      )
     )
-  )
+  } else {
+    c(j, psi_val, rep(0, n_col - 2))
+  } 
 }
 results <- rbind(res_list[[1]], res_list[[2]], res_list[[3]], res_list[[4]], res_list[[5]])
 write.csv(results, paste0("RealData/3sources/data/three_s_psi_", dis, psi_val, ".csv"))
