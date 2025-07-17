@@ -41,7 +41,7 @@ res_list <- foreach::foreach(j = 1:5) %dopar%{
       c(
         j, phi_val,
         dis_results(cell_data, labs, res, phi_val, j,
-          paste0("single_cell/", dis),
+          paste0("RealData/single_cell/", dis),
           row_same = TRUE
         )
       )

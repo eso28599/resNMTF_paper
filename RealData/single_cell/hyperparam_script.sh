@@ -2,7 +2,7 @@
 #PBS -l select=1:ncpus=5:mem=50gb
 #PBS -l walltime=20:00:00
 #PBS -N single_cell_hyperparam_parallel
-#PBS -J 2-123
+#PBS -J 1-41
 #PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/single_cell/logs
 #PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/single_cell/logs
 

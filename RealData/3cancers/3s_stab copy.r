@@ -1,6 +1,5 @@
 args <- commandArgs(trailingOnly = TRUE)
 index <- as.character(args[1])
-# 3sources analysis
 source("SimStudy/Functions/evaluation_funcs.r")
 source("SimStudy/Functions/extra_funcs.r")
 library(resnmtf)
@@ -8,19 +7,20 @@ library(doParallel)
 library(foreach)
 library(purrr)
 
-bbc_rows <- read.csv("RealData/bbcsport/bbc_rows_truth.csv")[,2:6]
-bbc_d2 <- import_matrix("RealData/bbcsport", "bbc_data_processed")
+three_data <- import_matrix("RealData/3cancers", "tgca_3cancers")
+three_data <- lapply(three_data, function(x) x[, 2:1242])
+bbc_d2 <- lapply(three_data, function(x) apply(x, 2, as.numeric))
+bbc_rows <- read.csv("RealData/3cancers/tgca_labels.csv", row.names = NULL)
 phi_bbc <- matrix(0, 2, 2)
 phi_bbc[1,2] <- 1
-psi_vec <- c(500, 1350, 0)
-method_vec <- c("ResNMTF_F", "ResNMTF_BiS", "NMTF")
+psi_vec <- c(37000, 0, 38000)
+method_vec <- c("ResNMTF_F", "NMTF", "ResNMTF_BiS")
 psi <- psi_vec[as.numeric(index)]
 method <- method_vec[as.numeric(index)]
 
 # stability
 n_views <- length(bbc_d2)
 stab_vec <- c("none", seq(0, 1, 0.05))
-stab_vec <- 0.45
 n_reps <- 5
 bbc_res2 <- vector("list", length = n_reps * length(stab_vec))
 n_col <- (n_views + 1) * 6 + 3
@@ -28,7 +28,7 @@ n_col <- (n_views + 1) * 6 + 3
 safe_resnmtf <- purrr::possibly(resnmtf::apply_resnmtf, otherwise = NULL)
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
 res_list <- foreach::foreach(t = 1:n_reps) %dopar%{
-  set.seed(10 + psi + t)
+  set.seed(20 + psi + t)
   res <- safe_resnmtf(
     bbc_d2,
     k_min = 4,
@@ -38,9 +38,11 @@ res_list <- foreach::foreach(t = 1:n_reps) %dopar%{
     return(c(t, phi_val, rep(0, n_col - 2)))
   } 
   jacc_mat <- res$relevance
+  rows <- res$res$row_clusters 
+  cols <- res$res$col_clusters
   repeat_res <- matrix(0, nrow = length(stab_vec), ncol = n_col)
   k <- 1
-  for (omega in stab_vec) {
+  for (omega in (stab_vec)) {
     bbc_res2[[k]] <- res$res
     # perform stability selection
     for (i in 1:n_views) {
@@ -50,23 +52,18 @@ res_list <- foreach::foreach(t = 1:n_reps) %dopar%{
         bbc_res2[[k]]$col_clusters[[i]][, jacc_mat[i, ] < omega] <- 0
       }
     }
-      export_matrix_list(
-        bbc_res2[[k]]$row_clusters, paste0("row_clusts_", t), "RealData/bbcsport/data/stability"
-    )
-    export_matrix_list(
-      bbc_res2[[k]]$col_clusters, paste0("col_clusts_", t), "RealData/bbcs[prt/data/stability"
-    )
     repeat_res[k, ] <- c(
       t, omega,
       dis_results(
         bbc_d2, bbc_rows, bbc_res2[[k]], omega, t,
-        paste0("RealData/bbcsport/", method)
+        paste0("RealData/3sources/", method), row_same=TRUE
       )
     )
     k <- k + 1
   }
   repeat_res
 } 
+print(res_list)
 results <- do.call(rbind, res_list)
 # colnames(results) <- c(
 #   "rep", "omega",
@@ -77,5 +74,5 @@ results <- do.call(rbind, res_list)
 #   paste0("BiS-M (V", 1:n_views, ")"), "BiS-M",
 #   paste0("BiS-C (V", 1:n_views, ")"), "BiS-C", "k"
 # )
-write.csv(results, paste0("RealData/bbcsport/bbc_stab_", method, ".csv"))
+write.csv(results, paste0("RealData/3cancers/3s_stab_", method, ".csv"))
 

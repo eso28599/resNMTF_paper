@@ -32,15 +32,8 @@ import_matrix <- function(csv_dir, base_name, row_names = NULL) {
 
 
 export_matrix_list <- function(mat_list, base_name, output_dir = ".") {
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
-
-  for (sheet_name in names(mat_list)) {
-    # Sanitize sheet name for filename safety
-    safe_sheet_name <- gsub("[^A-Za-z0-9_]", "_", sheet_name)
-    filename <- file.path(output_dir, paste0(base_name, "_", safe_sheet_name, ".csv"))
-
+  for (sheet_name in seq_along(mat_list)) {
+    filename <- file.path(output_dir, paste0(base_name, "_", sheet_name, ".csv"))
     # Write matrix to CSV
     write.csv(mat_list[[sheet_name]], file = filename, row.names = FALSE)
     message("Saved matrix: ", filename)

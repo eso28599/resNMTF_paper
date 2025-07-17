@@ -1,7 +1,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 dataset <- as.character(args[1])
 n_views <- as.numeric(args[2])
-# library(ggplot2)
+library(ggplot2)
 library(latex2exp)
 source("SimStudy/Functions/extra_funcs.r")
 library(bisilhouette)
@@ -22,8 +22,9 @@ if (dataset == "3sources"){
 base_path <- paste0("RealData/", dataset)
 
 n_col <- 3 + 6 * (n_views + 1)
+n_col_euc <- ifelse(dataset == "single_cell", n_col + 3, n_col)
 
-results_euc <- matrix(0, nrow=5*length(phi_vec), ncol=n_col)
+results_euc <- matrix(0, nrow=5*length(phi_vec), ncol=n_col_euc)
 results_mann <- matrix(0, nrow=5*length(phi_vec), ncol=n_col)
 results_cos <- matrix(0, nrow=5*length(phi_vec), ncol=n_col)
 
@@ -38,7 +39,6 @@ for(phi_val in phi_vec){
     n_rep_euc <- dim(euc_res)[1] - 1
     mann_res <- as.matrix(read.csv(file_mann, row.names=1))
     n_rep_mann <- dim(mann_res)[1] - 1
-    print(phi_val)
     results_cos[k:(k + n_rep_cos),] <- cos_res
     results_euc[k:(k + n_rep_euc),] <- euc_res
     results_mann[k:(k + n_rep_mann),] <- mann_res
@@ -57,12 +57,18 @@ old_names <- c("rep","psi",
                         paste0("BiS - E (V", 1:n_views, ")"), "BiS.E",
                         paste0("BiS - C (V", 1:n_views, ")"), "BiS.C", 
                         paste0("BiS - M (V", 1:n_views, ")"), "BiS.M", "k")
+if (dataset == "single_cell") {
+    col_names_euc <- c(old_names,
+                        paste0("Sil (V", 1:n_views, ")"), "Sil")
+} else {
+    col_names_euc <- old_names
+}
 
 colnames(results_cos) <- old_names
-colnames(results_euc) <- old_names
+colnames(results_euc) <- col_names_euc
 colnames(results_mann) <- old_names
 method <- paste0("ResNMTF - ", c("BiS (E)", "BiS (C)", "BiS (M)", "F score"))
-res_list <- list(results_euc[results_euc[,"psi"]!=0, ], 
+res_list <- list(results_euc[results_euc[,"psi"]!=0, 1:n_col], 
             results_cos[results_cos[,"psi"]!=0, ],
             results_mann[results_mann[,"psi"]!=0, ])
 dis <- c("E", "C", "M")
@@ -86,50 +92,29 @@ dis_study <- rbind(c(sub_res[[1]]$F.score, sub_res[[2]]$F.score, sub_res[[3]]$F.
 write.csv(dis_study,
     paste0(base_path, "/distance_study.csv"))
 
-#produce plot of f score vs bis 
-f_vs_bis_plot <- function(data, dis_name, base_path, col_names, scale=5){
-    euc_sc <- read.csv(paste0(base_path, "/data/", dis_name, "_results.csv"), row.names=1)
-    colnames(euc_sc) <- col_names
+if (dataset == "single_cell") {
+    euc_sc <- read.csv(paste0(base_path, "/data/euc_results.csv"), row.names=1)
+    colnames(euc_sc) <- col_names_euc
 
     sc <- as.data.frame(euc_sc)
-    sc$BiS <- ifelse(dis_name == "euc", sc$BiS.E, 
-                        ifelse(dis_name == "cos", sc$BiS.C, sc$BiS.M))
     p <- ggplot(sc, aes(x = psi)) +
-        geom_point(aes(y = F.score, color="F.score"), alpha=0.55) +
-        geom_point(aes(y = BiS*scale, color="BiS"), alpha=0.55) + 
+        geom_point(aes(y = F.score, color=factor("F.score", levels = c("F.score", "BiS", "Sil"))), alpha=0.55) +
+        geom_point(aes(y = 10 * (BiS.E + 0.06), color="BiS"), alpha=0.55) + 
+        geom_point(aes(y = 10 * (Sil + 0.06), color="Sil"), alpha=0.55) +
         scale_y_continuous(
-            name = "F score",
-            sec.axis = sec_axis(~ . / 5, name = "BiS") 
+            name = "",
+            limits = c(0, 0.6),
+            sec.axis = sec_axis(~ . / 10 - 0.06, name = "") 
         ) +
         labs(x = TeX("$\\phi$")) +
         scale_colour_manual(
             name = "",
-            values = c("F.score" = "black", "BiS" = "green"),
-            labels = c("F.score" = "F score", "BiS" = "BiS")
+            values = c("F.score" = "black", "BiS" = "green", "Sil" = "blue"),
+            labels = c("F.score" = " F score (left axis)", "BiS" = "Bisilhouette (right axis)", "Sil" = "Silhouette (right axis)", 
+            breaks = c("F.score", "BiS", "Sil") )
         ) +
         theme_minimal() +
-        theme(legend.position="none", text = element_text(size = 15))
+        theme(legend.position="bottom", text = element_text(size = 15))
     
-    suppressMessages(ggsave(paste0(base_path, "/f_score_bis_", dis_name, ".pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=7))
+    suppressMessages(ggsave(paste0(base_path, "/f_score_bis_sil.pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=8))
 }
-# f_vs_bis_plot(results_euc, "euc", base_path, old_names)
-# f_vs_bis_plot(results_cos, "cos", base_path, old_names, scale=20)
-# f_vs_bis_plot(results_mann, "mann", base_path, old_names)
-
-
-# #bisil plot - fix, need single cell to save row and cols
-# if(dataset == "single_cell"){
-#     max_f <- which.max(results_euc[, "F.score"])
-#     rep_max <- results_euc[max_f,"rep"]
-#     psi_max <- results_euc[max_f,"psi"]
-#     filepath_row <- paste0(dataset,"/euclidean/data/row_clusts",
-#                     psi_max, "_", rep_max, ".xlsx")
-#     filepath_col <- paste0(dataset,"/euclidean/data/col_clusts",
-#                     psi_max, "_", rep_max, ".xlsx")
-#     row_clusts <- import_matrix(filepath_row)
-#     col_clusts <- import_matrix(filepath_col)
-#     single_cell <- import_matrix("single_cell/data_processed.xlsx")
-#     path_to_save <- paste0(base_path,"/sc_bisil_plot.pdf")
-#     bisil_plot(single_cell[[1]], row_clusts[[1]], col_clusts[[1]], path_to_save)
-# }
-

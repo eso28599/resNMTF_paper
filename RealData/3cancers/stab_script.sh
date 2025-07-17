@@ -1,7 +1,8 @@
 #!/bin/bash
 #PBS -l select=1:ncpus=5:mem=100gb
-#PBS -l walltime=70:00:00
+#PBS -l walltime=45:00:00
 #PBS -N 3cancers_stab_2
+#PBS -J 1-3
 #PBS -o /rds/general/user/eso18/home/resNMTF_paper/RealData/3cancers/logs
 #PBS -e /rds/general/user/eso18/home/resNMTF_paper/RealData/3cancers/logs
 
@@ -13,4 +14,4 @@ eval "$(~/miniforge3/bin/conda shell.bash hook)"
 conda activate resnmtf_env
 
 cd resNMTF_paper
-Rscript --vanilla RealData/3cancers/3s_stab.r 3
+Rscript --vanilla RealData/3cancers/3s_stab.r $PBS_ARRAY_INDEX

@@ -306,16 +306,17 @@ calc_all_sils <- function(data, res) {
   return(list("euc" = bisils_euc, "man" = bisils_man, "cosine" = bisils_cosine))
 }
 
-calc_euc_sils <- function(data, res) {
+calc_full_sils <- function(data, res) {
   n_views <- length(data)
   bisils_euc <- c()
   for (i in 1:n_views) {
+    cols <- matrix(1, nrow = ncol(data[[i]]), ncol = ncol(res$row_clusters[[i]]))
     bisils_euc <- c(
       bisils_euc,
       bisilhouette(
         data[[i]],
         res$row_clusters[[i]],
-        res$col_clusters[[i]]
+        cols
       )$bisil
     )
   }
@@ -350,9 +351,10 @@ dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
   #   file = paste0(path, "/data/col_clusts", phi, "_", rep, ".xlsx")
   # )
   sils <- calc_all_sils(data, res)
+  if (path == "RealData/single_cell/euclidean") {
+    sils_full <- calc_full_sils(data, res)
+  }
   # jaccard
-  print(sils$euc)
-  print(row_same)
   if (row_same) {
     jaccs <- all_jaccs(rows, res$row_clusters)
   } else {
@@ -360,16 +362,19 @@ dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
   }
   print(jaccs)
   # no clusts
-  # no_clusts <- max(sapply(
-  #   res$row_clusters,
-  #   function(x) sum(colSums(x) != 0)
-  # ))
-  print(names(res$row_clusters))
+  no_clusts <- max(sapply(
+    res$row_clusters,
+    function(x) sum(colSums(x) != 0)
+  ))
   # export_matrix_list(res$row_clusters, base_name = "row_clusts",
   #   output_dir = paste0(path, "/data", phi, "_", rep)
   # )
   # export_matrix_list(res$col_clusters, base_name = "col_clusts",
   #   output_dir = paste0(path, "/data", phi, "_", rep)
   # )
-  return(c(jaccs, sils$euc, sils$cosine, sils$man, 0))
+  if (path == "RealData/single_cell/euclidean") {
+    # save full sils
+    return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts, sils_full))
+  }
+  return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts))
 }

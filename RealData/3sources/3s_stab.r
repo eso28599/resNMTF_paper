@@ -7,6 +7,7 @@ library(resnmtf)
 library(doParallel)
 library(foreach)
 library(purrr)
+library(bisilhouette)
 
 bbc_rows <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
 bbc_d2 <- import_matrix("RealData/3sources", "3sources_all_diff")
@@ -21,13 +22,14 @@ method <- method_vec[as.numeric(index)]
 # stability
 n_views <- length(bbc_d2)
 stab_vec <- c("none", seq(0, 1, 0.05))
+stab_vec <- 0.4
 n_reps <- 5
 bbc_res2 <- vector("list", length = n_reps * length(stab_vec))
 n_col <- (n_views + 1) * 6 + 3
 
 safe_resnmtf <- purrr::possibly(resnmtf::apply_resnmtf, otherwise = NULL)
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
-res_list <- foreach::foreach(t = 1:n_reps) %do%{
+res_list <- foreach::foreach(t = 1:5) %do%{
   set.seed(20 + psi + t)
   res <- safe_resnmtf(
     bbc_d2,
@@ -50,6 +52,12 @@ res_list <- foreach::foreach(t = 1:n_reps) %do%{
         bbc_res2[[k]]$col_clusters[[i]][, jacc_mat[i, ] < omega] <- 0
       }
     }
+    export_matrix_list(
+        bbc_res2[[k]]$row_clusters, paste0("row_clusts_", t), "RealData/3sources/data/stability"
+    )
+    export_matrix_list(
+      bbc_res2[[k]]$col_clusters, paste0("col_clusts_", t), "RealData/3sources/data/stability"
+    )
     repeat_res[k, ] <- c(
       t, omega,
       dis_results(
