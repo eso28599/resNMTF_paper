@@ -1,6 +1,7 @@
 source("SimStudy/Functions/data_generation.r")
 source("SimStudy/Functions/extra_funcs.r")
 library(bisilhouette)
+library(resnmtf)
 # generate data
 set.seed(123)
 n_views <- 3
@@ -13,9 +14,9 @@ save_data(row_cl_dims, col_cl_dims, 5,
 )
 
 # import data
-data <- import_matrix("Exploration/visual_data/data.xlsx")
-true_rows <- import_matrix("Exploration/visual_data/true_rows.xlsx")
-true_cols <- import_matrix("Exploration/visual_data/true_cols.xlsx")
+data <- import_matrix_og("Exploration/visual_data/data.xlsx")
+true_rows <- import_matrix_og("Exploration/visual_data/true_rows.xlsx")
+true_cols <- import_matrix_og("Exploration/visual_data/true_cols.xlsx")
 
 # set seed
 rows_shuffled <- cbind(
@@ -26,14 +27,25 @@ rows_shuffled <- cbind(
 
 # true plot
 bisil_plot(data[[1]], true_rows[[1]], true_cols[[1]],
-  filename = "Exploration/visual_data/true_bisil_plot.pdf"
+  filename = "Exploration/visual_data/true_bisil_plot.pdf",
+  method = "euclidean",
+  w = 7, h = 7
 )
 # plot for shuffled cols for two biclusters
 bisil_plot(data[[1]], rows_shuffled, true_cols[[1]],
-  filename = "Exploration/visual_data/shuffled_bisil_plot.pdf"
+  filename = "Exploration/visual_data/shuffled_bisil_plot.pdf",
+  method = "euclidean",
+  w = 7, h = 7
 )
 
-
-# overlap example plot
-# path <- "investigation/overlap_nonex_example"
-# data <- multi_view(row_cl_dims, col_cl_dims, 5, 5, 5, row_e = 0.9, col_e =0.9, row_o = 0.2, col_o = 0.2, row_same_shuffle=TRUE, col_same_shuffle=FALSE, seed=123, file_path=path)
+phi <- matrix(0, nrow = n_views, ncol = n_views)
+phi[1, c(2, 3)] <- 200
+phi[2, c(3)] <- 200
+results <- apply_resnmtf(data,
+  phi = phi, k_min = 5, k_max = 6,
+  stability = FALSE
+)
+write.csv(results$All_Error,
+  "Exploration/visual_data/resnmtf_error.csv",
+  row.names = FALSE
+)

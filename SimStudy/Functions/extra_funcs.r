@@ -2,7 +2,7 @@ library(openxlsx)
 library(rio)
 
 # import as list of matrices instead of as a list
-import_matrix <- function(filename, col_n = TRUE) {
+import_matrix_og <- function(filename, col_n = TRUE) {
   return(lapply(
     import_list(filename, col_names = col_n), function(x) as.matrix(x)
   ))
@@ -12,21 +12,21 @@ import_matrix <- function(csv_dir, base_name, row_names = NULL) {
   # from chatgpt
   # List all CSV files that match the base name pattern
   csv_files <- list.files(path = csv_dir, pattern = paste0("^", base_name, "_.*\\.csv$"), full.names = TRUE)
-  
+
   # Initialize an empty list
   matrix_list <- list()
-  
+
   # Loop over each CSV file and read it as a matrix
   for (file in csv_files) {
     # Extract sheet name from filename
     sheet_name <- sub(paste0("^", base_name, "_"), "", basename(file))
     sheet_name <- sub("\\.csv$", "", sheet_name)
-    
+
     # Read the CSV and convert to matrix
     df <- read.csv(file, header = TRUE, stringsAsFactors = FALSE, row.names = row_names)
     matrix_list[[sheet_name]] <- as.matrix(df)
   }
-  
+
   return(matrix_list)
 }
 
