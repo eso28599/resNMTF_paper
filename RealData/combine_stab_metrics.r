@@ -1,24 +1,26 @@
 args <- commandArgs(trailingOnly = TRUE)
 dataset <- as.character(args[1])
 n_views <- as.numeric(args[2])
-# dataset <- "bbcsport"
-# n_views <- 2
 source("SimStudy/Functions/extra_funcs.r")
 library(latex2exp)
 library(ggplot2)
+library(bisilhouette)
 
 file_path <- paste0("RealData/", dataset)
 stab_vec <- seq(0, 1, 0.05)
 n_col <- 4 + 6 * (n_views + 1)
 dataset2 <- ifelse(dataset == "single_cell", "sc", dataset)
 dataset2 <- ifelse(dataset == "bbcsport", "bbc", dataset2)
-results_bis <- read.csv(paste0(file_path, "/", dataset2, "_stab_ResNMTF_BiS.csv"),
+results_bis <- read.csv(
+  paste0(file_path, "/", dataset2, "_stab_ResNMTF_BiS.csv"),
   row.names = 1
 )
-results_fscore <- read.csv(paste0(file_path, "/", dataset2, "_stab_ResNMTF_F.csv"),
+results_fscore <- read.csv(
+  paste0(file_path, "/", dataset2, "_stab_ResNMTF_F.csv"),
   row.names = 1
 )
-results_nmtf <- read.csv(paste0(file_path, "/", dataset2, "_stab_NMTF.csv"),
+results_nmtf <- read.csv(
+  paste0(file_path, "/", dataset2, "_stab_NMTF.csv"),
   row.names = 1
 )
 
@@ -47,8 +49,8 @@ sub_res <- vector("list", length = 3)
 results <- matrix(0, nrow = 4, ncol = n_col)
 for (i in 1:4) {
   res <- res_list[[i]]
-  max_bis_e <- which.max(ifelse(res[, "BiS.E"]==0, -Inf, res[, "BiS.E"]))
-  max_bis_c <- which.max(ifelse(res[, "BiS.C"]==0, -Inf, res[, "BiS.C"]))
+  max_bis_e <- which.max(ifelse(res[, "BiS.E"] == 0, -Inf, res[, "BiS.E"]))
+  max_bis_c <- which.max(ifelse(res[, "BiS.C"] == 0, -Inf, res[, "BiS.C"]))
   max_bis <- ifelse(
     dataset == "single_cell",
     max_bis_e,
@@ -91,4 +93,17 @@ if (dataset == "3sources") {
       width = 7, height = 7
     )
   }
+  # save bisil plot
+  # rep 1 corresponds to the best result in terms of F score
+  rows_1 <- read.csv(
+    "RealData/3sources/data/stability_ResNMTF_F/row_clusts_1_1.csv"
+  )
+  cols_1 <- read.csv(
+    "RealData/3sources/data/stability_ResNMTF_F/col_clusts_1_1.csv"
+  )
+  data <- import_matrix("RealData/3sources", "3sources_all_diff")
+  bisil_plot(scale(data[[1]]), rows_1, cols_1,
+    filename = "RealData/3sources/data/stability_ResNMTF_F/bisil_plot.pdf",
+    method = "cosine", w = 7, h = 7
+  )
 }

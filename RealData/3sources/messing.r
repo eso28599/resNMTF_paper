@@ -1,6 +1,6 @@
 euc <- read.csv("RealData/single_cell/euc_results.csv", row.names = 1)
-dataset <- "single_cell" # or "text"
-n_views <- 2 # Number of views, adjust as necessar
+dataset <- "single_cell"
+n_views <- 2
 old_names <- c(
   "rep", "psi",
   paste0("F score (V", 1:n_views, ")"), "F.score",
@@ -19,8 +19,8 @@ if (dataset == "single_cell") {
   col_names_euc <- old_names
 }
 
-cor(euc$F.score, euc$BiS.E, method = "spearman")
-cor(euc$F.score, euc$Sil, method = "spearman")
+print(cor(euc$F.score, euc$BiS.E, method = "spearman"))
+print(cor(euc$F.score, euc$Sil, method = "spearman"))
 
 colnames(euc) <- col_names_euc
 
@@ -51,10 +51,36 @@ suppressMessages(ggsave(paste0(base_path, "/f_score_bis_sil.pdf"), plot = p, com
 
 source("SimStudy/Functions/extra_funcs.r")
 source("SimStudy/Functions/evaluation_funcs.r")
-three_data <- import_matrix("RealData/3sources", "3sources_all_diff")
+three_data <- import_matrix("RealData/3cancers", "tgca_3cancers")
+three_data <- lapply(three_data, function(x) x[, 2:1242])
+three_data <- lapply(three_data, function(x) apply(x, 2, as.numeric))
 docs_labs <- read.csv("RealData/3cancers/tgca_labels.csv")
-rows <- read.csv("RealData/3cancers/data/stability/row_clusts_1_1.csv")
+jacc_mat <- read.csv("RealData/3cancers/data/stability/jacc_mat_5.csv")
+jacc_mat < 0.85
+
+rows_1 <- read.csv("RealData/3cancers/data/stability/row_clusts_5_1.csv")
+cols_1 <- read.csv("RealData/3cancers/data/stability/col_clusts_5_1.csv")
+rows_2 <- read.csv("RealData/3cancers/data/stability/row_clusts_5_2.csv")
+cols_2 <- read.csv("RealData/3cancers/data/stability/col_clusts_5_2.csv")
+rows_1_sub <- rows_1
+rows3_1 <- read.csv("RealData/3cancers/data/stability/row_clusts_3_1.csv")
+cols3_1 <- read.csv("RealData/3cancers/data/stability/col_clusts_3_1.csv")
 library(bisilhouette)
+
+rows_1_sub <- rows_1
+rows_1_sub[, 2:4] <- 0
+cols_1_sub <- cols_1
+cols_1_sub[, 2:4] <- 0
+rows_2_sub <- rows_2
+rows_2_sub[, 2:4] <- 0
+cols_2_sub <- cols_2
+cols_2_sub[, 2:4] <- 0
+
+bisil <- bisilhouette(scale(three_data[[1]]), rows_1_sub, cols_1_sub, "cosine", n_reps = 1)
+
+bisil_2 <- bisilhouette(scale(three_data[[2]]), rows_2_sub, cols_2_sub, "cosine", n_reps = 2)
+
+bisil_3_1 <- bisilhouette(three_data[[1]], rows_1_sub, cols_1_sub, "cosine", n_reps = 2)
 
 bisil_plot(
   scale(three_data[[1]]), rows, cols,

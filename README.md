@@ -4,7 +4,7 @@ This repository contains the files needed to recreate the results from the paper
 
 
 <div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
-  <strong>Note:</strong> To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the <b>Bioinference conference reproductibility prize</b>) please follow the instructions found <a href="(https://eso28599.github.io/resNMTF_paper/">here</a>. Alternatively, please clone the repository and knit in R the <code>reproduce_results.rmd</code>  file (<code>rmarkdown::render("reproduce_results.rmd")</code> if you aren't using RStudio.
+  <strong>Note:</strong> To reproduce results from the paper "Multi-view biclustering via non-negative matrix tri-factorisation" (i.e. for the <b>Bioinference conference reproductibility prize</b>) please follow the instructions found <a href="(https://eso28599.github.io/resNMTF_paper/">here</a>. Alternatively, please clone the repository and knit in R the <code>reproduce_results.rmd</code>  file (<code>rmarkdown::render("reproduce_results.rmd")</code> if you aren't using RStudio).
 </div>
 
 
@@ -18,6 +18,10 @@ devtools::install_github("eso28599/bisilhouette")
 devtools::install_github("eso28599/resnmtf") 
 ```
 If you want to use the ResNMTF method rather than recreate the results, the `resnmtf` package may be more appropriate, the repository of which can be found [here](https://github.com/eso28599/resnmtf).
+
+<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
+  <strong>Note:</strong> all .sh files must be executable. This can be done via <code>chmod +x [filename].sh</code>.
+</div>
 
 The repository is split into three folders; 'SimStudy' which reproduces the simulation study results, 'RealData' which contains the files to apply ResNMTF and other methods to several real datasets, and 'Exploration' which contains code to reproduce additional figures from the paper.
 
@@ -125,24 +129,7 @@ The following subdirectories can be found in the SimStudy/Results folder:
 ```
 
 ## RealData
-Contains datasets used in the paper, their processing and analysis.
-
-In order to reproduce the results for 3sources dataset:
-```
-qsub RealData/3sources/hyperparameter_script.s
-```
-To obtain the results of other methods, the following can be run on a local machine:
-```
-RealData/3sources/all_res_script.sh
-RealData/bbcsport/all_res_script.sh
-RealData/single_cell/all_res_script.sh
-RealData/3cancers/all_res_script.sh
-```
-
-Note, all .sh files must be executable. This can be done with
-```
-chmod +x [filename].sh
-```
+Contains datasets used in the paper, their processing and analysis. See <code>reproduce_results.rmd</code> for more details.
 
 ## Exploration
 Contains files to replicate convergence, correlation and JSD related figures.

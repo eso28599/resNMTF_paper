@@ -29,16 +29,17 @@ n_col <- (n_views + 1) * 6 + 3
 
 safe_resnmtf <- purrr::possibly(resnmtf::apply_resnmtf, otherwise = NULL)
 doParallel::registerDoParallel(min(parallel::detectCores(), 5))
-res_list <- foreach::foreach(t = 1:5) %do%{
+res_list <- foreach::foreach(t = 1:5) %do% {
   set.seed(20 + psi + t)
   res <- safe_resnmtf(
     bbc_d2,
     k_min = 4,
-    k_max = 8, psi = psi * phi_bbc, remove_unstable = FALSE, distance = "cosine", sample_rate = 0.9
+    k_max = 8, psi = psi * phi_bbc, remove_unstable = FALSE,
+    distance = "cosine", sample_rate = 0.9
   )
   if (is.null(res)) {
     return(c(t, phi_val, rep(0, n_col - 2)))
-  } 
+  }
   jacc_mat <- res$relevance
   repeat_res <- matrix(0, nrow = length(stab_vec), ncol = n_col)
   k <- 1
@@ -53,10 +54,12 @@ res_list <- foreach::foreach(t = 1:5) %do%{
       }
     }
     export_matrix_list(
-        bbc_res2[[k]]$row_clusters, paste0("row_clusts_", t), "RealData/3sources/data/stability"
+      bbc_res2[[k]]$row_clusters, paste0("row_clusts_", t),
+      paste0("RealData/3sources/data/stability_", method)
     )
     export_matrix_list(
-      bbc_res2[[k]]$col_clusters, paste0("col_clusts_", t), "RealData/3sources/data/stability"
+      bbc_res2[[k]]$col_clusters, paste0("col_clusts_", t),
+      paste0("RealData/3sources/data/stability_", method)
     )
     repeat_res[k, ] <- c(
       t, omega,
@@ -69,7 +72,7 @@ res_list <- foreach::foreach(t = 1:5) %do%{
     print(repeat_res)
   }
   repeat_res
-} 
+}
 results <- do.call(rbind, res_list)
 # colnames(results) <- c(
 #   "rep", "omega",
@@ -81,4 +84,3 @@ results <- do.call(rbind, res_list)
 #   paste0("BiS-C (V", 1:n_views, ")"), "BiS-C", "k"
 # )
 write.csv(results, paste0("RealData/3sources/3sources_stab_", method, ".csv"))
-
