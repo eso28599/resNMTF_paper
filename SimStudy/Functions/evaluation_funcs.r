@@ -71,7 +71,7 @@ jaccard_res <- function(row_c, col_c, true_r, true_c) {
       "relations" = rep(0, n)
     ))
   }
-  samps <- seq_along(row_c)
+  samps <- seq_along(rows_c)
   feats <- seq_along(col_c)
   # initialise storage of jaccard index between pairs
   jac_mat <- matrix(0, nrow = m, ncol = n)
