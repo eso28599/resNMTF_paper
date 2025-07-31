@@ -116,5 +116,5 @@ if (dataset == "single_cell") {
         theme_minimal() +
         theme(legend.position="bottom", text = element_text(size = 15))
     
-    suppressMessages(ggsave(paste0(base_path, "/f_score_bis_sil.pdf"), plot = p, compress = FALSE, device="pdf", width=7,height=8))
+    suppressMessages(ggsave(paste0(base_path, "/f_score_bis_sil.pdf"), plot = p, compress = FALSE, device="pdf", width=8,height=8))
 }

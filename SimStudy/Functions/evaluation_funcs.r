@@ -300,10 +300,27 @@ calc_all_sils <- function(data, res) {
       )$bisil
     )
   }
-  bisils_euc <- c(bisils_euc, get_sil_mean(bisils_euc))
-  bisils_man <- c(bisils_man, get_sil_mean(bisils_man))
-  bisils_cosine <- c(bisils_cosine, get_sil_mean(bisils_cosine))
+  bisils_euc <- c(bisils_euc, mean(bisils_euc))
+  bisils_man <- c(bisils_man, mean(bisils_man))
+  bisils_cosine <- c(bisils_cosine, mean(bisils_cosine))
   return(list("euc" = bisils_euc, "man" = bisils_man, "cosine" = bisils_cosine))
+}
+
+calc_cos_sils <- function(data, res) {
+  n_views <- length(data)
+  bisils_cosine <- c()
+  for (i in 1:n_views) {
+    bisils_cosine <- c(
+      bisils_cosine,
+      bisilhouette(data[[i]],
+        res$row_clusters[[i]],
+        res$col_clusters[[i]],
+        method = "cosine", n_reps=1 # cosine not available
+      )$bisil
+    )
+  }
+  bisils_cosine <- c(bisils_cosine, mean(bisils_cosine))
+  return(list("cosine" = bisils_cosine))
 }
 
 calc_full_sils <- function(data, res) {
@@ -377,4 +394,43 @@ dis_results <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
     return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts, sils_full))
   }
   return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts))
+}
+
+dis_results2 <- function(data, rows, res, phi, rep, path, row_same = FALSE) {
+  # save data
+  # openxlsx::write.xlsx(res$row_clusters,
+  #   file = paste0(pathth, "/data/row_clusts", phi, "_", rep, ".xlsx")
+  # )
+  # openxlsx::write.xlsx(res$col_clusters,
+  #   file = paste0(path, "/data/col_clusts", phi, "_", rep, ".xlsx")
+  # )
+  sils <- calc_cos_sils(data, res)
+  # if (path == "RealData/single_cell/euclidean") {
+  #   sils_full <- calc_full_sils(data, res)
+  # }
+  # jaccard
+  if (row_same) {
+    jaccs <- all_jaccs(rows, res$row_clusters)
+  } else {
+    jaccs <- all_jaccs(rows, res$col_clusters)
+  }
+  print(jaccs)
+  # no clusts
+  no_clusts <- max(sapply(
+    res$row_clusters,
+    function(x) sum(colSums(x) != 0)
+  ))
+  # export_matrix_list(res$row_clusters, base_name = "row_clusts",
+  #   output_dir = paste0(path, "/data", phi, "_", rep)
+  # )
+  # export_matrix_list(res$col_clusters, base_name = "col_clusts",
+  #   output_dir = paste0(path, "/data", phi, "_", rep)
+  # )
+  # if (path == "RealData/single_cell/euclidean") {
+  #   # save full sils
+  #   return(c(jaccs, sils$euc, sils$cosine, sils$man, no_clusts, sils_full))
+  # }
+  n_views <- length(data)
+  print(sils$cosine)
+  return(c(jaccs, rep(0, n_views + 1), sils$cosine, no_clusts))
 }

@@ -1,0 +1,14 @@
+
+To produce the bisilhouette plot for the 3sources dataset:
+```{r}
+library(bisilhouette)
+source("SimStudy/Functions/extra_funcs.r")
+three_data <- import_matrix("RealData/3sources", "3sources_all_diff")
+docs_labs <- read.csv("RealData/3sources/true_labels.csv", row.names = 1)
+rows <- read.csv("RealData/3sources/data/stability/row_clusts_1_1.csv")
+cols <- read.csv("RealData/3sources/data/stability/col_clusts_1_3.csv")
+bisil_plot(
+  scale(three_data[[1]]), rows, cols,
+  "RealData/3sources/data/stability/bisilhouette_1_1.pdf", "cosine", 7, 7
+)
+```
