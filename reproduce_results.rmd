@@ -53,12 +53,12 @@ In order to run this document, you need clone the github repository to your loca
 
 
 #### 2. Install R packages
-Secondly, we need to install the required packages. The `resnmtf` and `bisilhouette` packages are available on github and can be installed using the `devtools` package. This work requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here](https://eso28599.github.io/resnmtf/) and [here](https://eso28599.github.io/bisilhouette/) respectively.
+Secondly, we need to install the required packages. The `resnmtf` and `bisilhouette` packages are available on github and can be installed using the `devtools` package. This work requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here](https://eso28599.github.io/resnmtf/) and [here](https://eso28599.github.io/bisilhouette/) respectively. Here we install the specific version of `resnmtf` used in the paper (commit `6bc9ff2`).
 ```{r setup, results='hide',warning=FALSE, message=FALSE, cache=TRUE}
 # Install and load required packages
 source("install_packages.r")
 library(devtools)
-devtools::install_github("eso28599/resnmtf")
+devtools::install_github("eso28599/resnmtf@6bc9ff2") # version used in paper
 devtools::install_github("eso28599/bisilhouette")
 library(resnmtf)
 library(bisilhouette)

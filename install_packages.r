@@ -33,5 +33,5 @@ install_if_missing("devtools")
 
 
 library(devtools)
-devtools::install_github("eso28599/resnmtf")
+devtools::install_github("eso28599/resnmtf@6bc9ff2") # version used in paper
 devtools::install_github("eso28599/bisilhouette")

@@ -15,7 +15,7 @@ if (!is.element("devtools", installed.packages()[, 1])) {
   install.packages(package, dependencies = TRUE)
 }
 devtools::install_github("eso28599/bisilhouette")
-devtools::install_github("eso28599/resnmtf") 
+devtools::install_github("eso28599/resnmtf@6bc9ff2") # this is the package version used in the paper
 ```
 If you want to use the ResNMTF method rather than recreate the results, the `resnmtf` package may be more appropriate, the repository of which can be found [here](https://github.com/eso28599/resnmtf).
 

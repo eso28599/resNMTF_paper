@@ -212,7 +212,8 @@ multi_view <- function(
   #'  signal: mean of the signal in this view
   #'  noise: variance of the noise added to views
   #'  file_path: path to save the data
-  #'  seed: seed for random number generation
+  #'  seed: default FALSE, otherwise give integrer 
+  #'        seed for random number generation
   #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
   #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
   #'                    same way
@@ -275,7 +276,7 @@ multi_view <- function(
 save_data <- function(
     row_dims, col_dims, k, file_path, noise,
     row_e = 1, col_e = 1, row_o = 0, col_o = 0,
-    row_same_shuffle = TRUE, col_same_shuffle = TRUE, signal = 5) {
+    row_same_shuffle = TRUE, col_same_shuffle = TRUE, signal = 5, seed = FALSE) {
   #' Description:
   #'  Generate and save data
   #' Arguments:
@@ -292,10 +293,12 @@ save_data <- function(
   #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
   #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
   #'                    same way
+  #'  seed: default FALSE, otherwise give integrer 
+  #'        seed for random number generation
   # can change the noise parameter here for level of noise in views
   data <- multi_view(
     row_dims, col_dims, k, noise, signal,
-    row_e, col_e, row_o, col_o, row_same_shuffle, col_same_shuffle
+    row_e, col_e, row_o, col_o, row_same_shuffle, col_same_shuffle, seed
   )
   # save data as a file in given directory
   # export each data frame to separate sheets in same Excel file
