@@ -53,6 +53,10 @@ In order to run this document, you need clone the github repository to your loca
 
 
 #### 2. Install R packages
+<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
+  <strong>Important:</strong> the `resnmtf' package benefits from the speed ups provided by using a non-"reference" version of BLAS (a library to perform standard mathematical operations). It's really easy to use a quicker version, see [here](https://higgicd.github.io/posts/accelerating_r/) for an example. 
+</div>
+
 Secondly, we need to install the required packages. The `resnmtf` and `bisilhouette` packages are available on github and can be installed using the `devtools` package. This work requires our `R` packages `resnmtf` and `bisilhouette`, the github pages for which can be found [here](https://eso28599.github.io/resnmtf/) and [here](https://eso28599.github.io/bisilhouette/) respectively. Here we install the specific version of `resnmtf` used in the paper (commit `6bc9ff2`).
 ```{r setup, results='hide',warning=FALSE, message=FALSE, cache=TRUE}
 # Install and load required packages
