@@ -174,8 +174,15 @@ one_view_adv <- function(
     n_r <- (row_end[i] - row_start[i] + 1)
     n_c <- (col_end[i] - col_start[i] + 1)
     if (n_r != 0) {
+      # original overlap used in the manuscript
       x_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-
         mvrnorm(n = n_r, mu = rep(signal, n_c), Sigma = diag(n_c))
+      # additive overlap
+      # uncomment the following lines to use additive overlap
+      # instead of original overlap
+      # x_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] <-
+      #   x_view[(row_start[i]):(row_end[i]), (col_start[i]):(col_end[i])] +
+      #   mvrnorm(n = n_r, mu = rep(signal, n_c), Sigma = diag(n_c))
       true_row[(row_start[i]):(row_end[i]), i] <- 1
       true_col[(col_start[i]):(col_end[i]), i] <- 1
     }
@@ -212,7 +219,7 @@ multi_view <- function(
   #'  signal: mean of the signal in this view
   #'  noise: variance of the noise added to views
   #'  file_path: path to save the data
-  #'  seed: default FALSE, otherwise give integrer 
+  #'  seed: default FALSE, otherwise give integrer
   #'        seed for random number generation
   #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
   #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
@@ -258,9 +265,10 @@ multi_view <- function(
       k, noise, signal, row_e[i], col_e[i], row_o[i], col_o[i]
     )
     if (!is.na(file_path)) {
-      pdf(paste0(file_path, "/true_image_", i, ".pdf"))
-      image(t(data_i$view))
+      pdf(paste0(file_path, i, ".pdf"))
+      image((data_i$view), axes = FALSE, zlim = c(0, 20))
       dev.off()
+      knitr::plot_crop(paste0(file_path, i, ".pdf"))
     }
     x_trial[[i]] <- (data_i$view)[new_row_ind, new_col_ind]
     true_row_clusterings[[i]] <- (data_i$truth_row)[new_row_ind, ]
@@ -276,7 +284,8 @@ multi_view <- function(
 save_data <- function(
     row_dims, col_dims, k, file_path, noise,
     row_e = 1, col_e = 1, row_o = 0, col_o = 0,
-    row_same_shuffle = TRUE, col_same_shuffle = TRUE, signal = 5, seed = FALSE) {
+    row_same_shuffle = TRUE, col_same_shuffle = TRUE,
+    signal = 5, seed = FALSE) {
   #' Description:
   #'  Generate and save data
   #' Arguments:
@@ -293,7 +302,7 @@ save_data <- function(
   #'  row_same_shuffle: if TRUE, shuffle the rows of all views in the same way
   #'  col_same_shuffle: if TRUE, shuffle the columns of all views in the
   #'                    same way
-  #'  seed: default FALSE, otherwise give integrer 
+  #'  seed: default FALSE, otherwise give integrer
   #'        seed for random number generation
   # can change the noise parameter here for level of noise in views
   data <- multi_view(

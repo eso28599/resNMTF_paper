@@ -145,7 +145,7 @@ figure_shuff <- annotate_figure(figure_shuff,
   left = textGrob("Density", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
   bottom = textGrob("F entry", gp = gpar(cex = 1.3))
 )
-suppressMessages(ggsave("Exploration/f_data_dists.pdf",
+suppressMessages(ggsave("Exploration/visual_data/f_data_dists.pdf",
   plot = figure, compress = FALSE,
   device = "pdf", width = 18, height = 22, units = "cm"
 ))

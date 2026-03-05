@@ -84,6 +84,13 @@ Further:
 - The files `all_results.csv` and `all_tables_bicl_all.txt` contain all results for a specific study. The figure `all_plot_bicl.pdf` contains plots for the four extrinsic measures.
 - The file `resNMTF_table_bicl_overall.txt` contains all results for ResNMTF for a specific study. The figure `resNMTF_plot_bicl.pdf`shows a plot of all results for ResNMTF. 
 
+
+<div style="border-left: 4px solid #ED2939; padding: 0.5em; background: #efe5e3;">
+  <strong>Note:</strong> After publication, a minor misspecification of the data generation approach for overlapping data was discovered. This repository contains the original implementation (where overlap regions of the bicluster were taken as a single draw from a normal distriubtuion) with the intended implementation (where overlap regions of the bicluster are the sum of two independent draws from a normal distriubtuion) commented out in Lines 183-185 in SimStudy/Functions/data_generations.r. The trends seen and conclusions drawn remain unaltered once this modification is made. 
+</div>
+
+
+
 ### File names
 The following subdirectories can be found in the SimStudy/Results folder: 
 ```
