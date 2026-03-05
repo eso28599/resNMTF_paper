@@ -6,6 +6,7 @@ RealData/3cancers/tgca_3cancers.xlsx
 RealData/3cancers/tgca_3cancers_full_exp.csv
 RealData/3cancers/tgca_3cancers_full_breast.csv
 RealData/3cancers/tgca_3cancers_full_mirna.csv
+reproduce_results_cache/*
 
 
 RealData/3cancers/aml/*
