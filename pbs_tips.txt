@@ -1,1 +1,0 @@
-eval "$(~/miniforge3/bin/conda shell.bash hook)" to load conda

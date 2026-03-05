@@ -145,17 +145,15 @@ Contains files to replicate convergence, correlation and JSD related figures.
 # Citation
 If you use our model in your work, please cite us with:
 
-> Orme, E.S.C., Rodosthenous, T. and Evangelou, M., 2025. Multi-view biclustering via non-negative matrix tri-factorisation. arXiv preprint arXiv:2502.13698.
+> Orme, E. S. C., Rodosthenous, T \& Evangelou, M. (2026) Multi-view biclustering via non-negative matrix tri-factorisation. {\em Pattern Recognition}. 172 (Part B), 112454.
 
 Or with the following bibtex entry:
 ```
-@misc{resnmtf,
-      title={Multi-view biclustering via non-negative matrix tri-factorisation}, 
-      author={Ella S. C. Orme and Theodoulos Rodosthenous and Marina Evangelou},
-      year={2025},
-      eprint={2502.13698},
-      archivePrefix={arXiv},
-      primaryClass={stat.ME},
-      url={https://arxiv.org/abs/2502.13698}, 
-}
+@article{resnmtf,
+	author = {Ella S.C. Orme and Theodoulos Rodosthenous and Marina Evangelou},
+	journal = {Pattern Recognition},
+	pages = {112454},
+	title = {Multi-view biclustering via non-negative matrix tri-factorisation},
+	volume = {172},
+	year = {2026}}
 ```
